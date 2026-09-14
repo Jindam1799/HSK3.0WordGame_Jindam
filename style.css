@@ -96,3 +96,30 @@
  .audio-settings .settings-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 }
 @media(max-width:360px){.app{padding:0 12px}.workspace{padding:18px 14px}.mode-selector{gap:8px}.mode{padding:14px 9px}.mode-pill{font-size:8px}.mode small{font-size:9px}.companion{padding-left:118px}.companion>.habitat{width:100px}.closet-preview{grid-template-columns:112px minmax(0,1fr)}.closet-preview .habitat{width:112px}.answer{font-size:14px;padding:10px;gap:6px}}
+
+/* Nine branching, vector-drawn growth forms. */
+.mascot.forest-avatar{width:180px;height:210px;margin-top:10px;border-radius:0;box-shadow:none;--face-y:140px;--neck-y:168px;--head-y:12px}
+.forest-avatar>.leaf,.forest-avatar>.face,.forest-avatar>.cheek,.forest-avatar>.feet{display:none}
+.creature-art{position:relative;width:100%;height:100%;z-index:1}.creature-art svg{display:block;width:100%;height:100%;overflow:visible}
+.forest-avatar[data-stage="0"]{--face-y:122px;--neck-y:166px;--head-y:45px}
+.forest-avatar[data-pet="mushroom"]{--face-y:134px;--neck-y:171px;--head-y:19px}
+.forest-avatar[data-pet="petal"]{--face-y:82px;--neck-y:129px;--head-y:11px}
+.forest-avatar .wear-head{top:var(--head-y);left:65px;z-index:3;font-size:36px}
+.forest-avatar .wear-head[data-item="cap"]{top:calc(var(--head-y) - 13px);left:53px;font-size:61px}
+.forest-avatar .wear-head[data-item="crown"]{top:calc(var(--head-y) - 20px);left:61px;font-size:54px}
+.forest-avatar .wear-head[data-item="wizard"]{top:calc(var(--head-y) - 31px);left:60px;font-size:23px;width:62px;height:59px}
+.forest-avatar .wear-face{top:var(--face-y);left:48px;font-size:45px;width:84px;z-index:3}
+.forest-avatar .wear-face[data-item="stars"]{top:calc(var(--face-y) + 5px);left:48px;font-size:26px}
+.forest-avatar .wear-neck{top:var(--neck-y);left:73px;font-size:32px;z-index:3}
+.forest-avatar .wear-neck[data-item="scarf"]{top:var(--neck-y);left:49px;font-size:47px;width:84px}
+.forest-avatar .wear-neck[data-item="medal"]{top:var(--neck-y);left:74px;font-size:29px}
+.wear-back{position:absolute;left:-10px;top:53px;font-size:160px;line-height:1;z-index:0;pointer-events:none;width:200px;text-align:center}
+.wear-back[data-item="cape"]{font-size:148px;top:60px;opacity:.85}.wear-back[data-item="sparkle"]{font-size:177px;top:17px;z-index:2;opacity:.65}
+.wear-charm{position:absolute;right:6px;bottom:25px;font-size:29px;line-height:1;z-index:4;filter:drop-shadow(0 2px 3px #fff);pointer-events:none}
+.pet-thumbnail{width:55px;height:60px;line-height:1}.pet-thumbnail svg{width:100%;height:100%}.wardrobe-item:has(.pet-thumbnail){min-height:126px}
+.route-section{border:1px solid #d9e3cd;background:#f0f4e9;padding:14px;border-radius:16px;margin-bottom:22px}.route-section h3{margin:0}.route-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.route-card{display:flex;flex-direction:column;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:10px 6px;min-width:0}
+.route-card[aria-pressed="true"]{border:2px solid var(--green);padding:9px 5px;background:#e8efde}.route-card:disabled{opacity:.72}.route-card[aria-pressed="true"]:disabled{opacity:1}
+.route-art{width:100%;height:110px;display:block}.route-art svg{width:100%;height:100%}.route-card strong{font-size:12px}.route-card>span:not(.route-art){font-size:10px;font-weight:700;word-break:keep-all}.route-card small{font-size:9px;line-height:1.6;color:var(--muted);word-break:keep-all}.route-timeline{font-size:10px;background:#fff;border-radius:9px;padding:10px;color:var(--green);line-height:1.9}
+#previewStage{display:block;margin:5px 0}.closet-preview .habitat{height:253px}.companion #characterMessage{font-weight:700;color:var(--green)}
+@media(max-width:620px){.companion .forest-avatar{scale:.58;margin-top:10px}.playing .companion .forest-avatar{scale:.42;margin-top:0}.closet-preview .forest-avatar{scale:.7;margin-top:4px}.closet-preview .habitat{height:184px;grid-row:1/6}.closet-preview #previewStage{grid-column:2;font-size:10px;margin:0}.route-section{padding:11px}.route-cards{gap:5px}.route-art{height:91px}.route-card{padding:8px 4px}.route-card strong{font-size:11px}.route-card small{font-size:9px}.route-card[aria-pressed="true"]{padding:7px 3px}}
