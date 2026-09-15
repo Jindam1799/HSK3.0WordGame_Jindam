@@ -152,13 +152,13 @@
     if(typeof raw?.name==='string')look.name=raw.name.trim().slice(0,12);
     return look;
   }
-  let profile={schema:4,xp:0,level:1,voice:'',rate:.9,auto:true,look:{...LOOK_DEFAULT,poses:{}},routes:{},family:null};
+  let profile={schema:4,xp:0,level:1,voice:'',rate:.9,auto:false,look:{...LOOK_DEFAULT,poses:{}},routes:{},family:null};
   let storageAvailable=true;
   try{
     const saved=JSON.parse(localStorage.getItem(KEY)||'null');
     if(saved&&Number.isSafeInteger(saved.xp)&&saved.xp>=0){
       const level=Math.floor(saved.xp/100)+1;
-      profile={...profile,xp:saved.xp,level,voice:typeof saved.voice==='string'?saved.voice:'',rate:[.75,.9,1].includes(saved.rate)?saved.rate:.9,auto:saved.auto!==false,
+      profile={...profile,xp:saved.xp,level,voice:typeof saved.voice==='string'?saved.voice:'',rate:[.75,.9,1].includes(saved.rate)?saved.rate:.9,auto:false,
         look:safeLook(saved.look,level),routes:safeRoutes(saved.routes,level),family:level>=3&&GROWTH[saved.family]?saved.family:null};
       if(profile.family)profile.look.pet=profile.family;
     }
@@ -282,6 +282,7 @@
   }
   function openCloset(){
     if(state&&!['result'].includes(state.phase))return;
+    forestAudio.unlock();
     draftLook={...profile.look,poses:safePoses(profile.look.poses)};draftRoutes={...profile.routes};
     const avatar=$('mascot').cloneNode(true);avatar.id='previewAvatar';const ground=document.createElement('div');ground.className='ground';$('previewHabitat').replaceChildren(avatar,ground);setupDragging(avatar);
     $('petName').value=draftLook.name;$('closetLevel').textContent=`LV. ${profile.level}`;$('closetOptions').replaceChildren();
@@ -305,12 +306,92 @@
     profile.look=safeLook(draftLook,profile.level);profile.routes={...safeRoutes(draftRoutes,profile.level),...profile.routes};
     if(profile.level>=3&&GROWTH[profile.look.pet])profile.family=profile.family||profile.look.pet;
     if(profile.family)profile.look.pet=profile.family;
-    save();renderProfile();closeCloset();
+    save();renderProfile();forestAudio.effect('dress');closeCloset();
   };
   $('moveSlot').onchange=()=>{selectedSlot=$('moveSlot').value;refreshPositionControls();};
   $('itemScale').oninput=()=>mutatePose(p=>{p.scale=Number($('itemScale').value);});$('itemRotation').oninput=()=>mutatePose(p=>{p.rotation=Number($('itemRotation').value);});
   $('resetPosition').onclick=()=>{delete draftLook.poses[poseKey(draftLook,draftRoutes,selectedSlot)];placeAccessories($('previewAvatar'),draftLook,draftRoutes);refreshPositionControls();};
   document.querySelectorAll('[data-nudge]').forEach(b=>b.onclick=()=>{const [x,y]=b.dataset.nudge.split(',').map(Number);mutatePose(p=>{p.x+=x/180;p.y+=y/210;});});
+  // Original procedural score: no audio downloads, samples, or API credentials.
+  const forestAudio=(()=>{
+    const STORE='word-forest-audio-v1';
+    let settings={music:true,effects:true,musicVolume:.22,effectVolume:.70};
+    try{const raw=JSON.parse(localStorage.getItem(STORE)||'null');if(raw){for(const key of ['music','effects'])if(typeof raw[key]==='boolean')settings[key]=raw[key];for(const key of ['musicVolume','effectVolume'])if(typeof raw[key]==='number'&&Number.isFinite(raw[key]))settings[key]=Math.max(0,Math.min(1,raw[key]));}}catch{}
+    let ctx=null,musicGain,effectGain,clock=null,nextTime=0,beat=0,active=false,ducked=false;
+    // Five distinct original scores. Shuffle bag plays every track before reshuffling.
+    const TRACKS=[
+      {name:'햇살이 내려앉은 숲',bpm:76,tone:'keys',pattern:[1,3,2,3],chords:[[48,52,55,59],[45,48,52,55],[53,57,60,64],[55,59,62,64]],melody:[72,null,76,79,77,76,null,72,69,null,72,76,74,null,72,null,72,76,77,null,81,79,77,null,74,null,76,79,77,74,null,71]},
+      {name:'이슬 맺힌 아침 정원',bpm:70,tone:'bell',pattern:[2,1,3,1],chords:[[50,54,57,61],[47,50,54,57],[55,59,62,66],[57,61,64,66]],melody:[78,null,81,null,85,81,78,null,78,76,74,null,73,null,74,null,79,null,78,76,74,null,78,null,76,73,69,null,73,76,78,null]},
+      {name:'구름 위의 낮잠',bpm:62,tone:'keys',pattern:[1,2,3,2],chords:[[53,57,60,64],[50,53,57,60],[46,50,53,57],[48,52,55,59]],melody:[69,null,null,72,76,null,72,null,74,null,69,null,65,null,null,69,70,null,74,null,77,74,null,70,67,null,64,67,72,null,null,null]},
+      {name:'도토리 산책길',bpm:84,tone:'keys',pattern:[1,3,1,2],chords:[[55,59,62,66],[52,55,59,62],[48,52,55,59],[50,54,57,60]],melody:[74,71,null,67,69,null,71,74,76,74,71,null,67,71,76,null,72,76,79,76,74,72,71,null,69,74,78,76,74,69,null,66]},
+      {name:'달빛 아래 작은 연못',bpm:66,tone:'bell',pattern:[3,1,2,1],chords:[[45,48,52,55],[53,57,60,64],[48,52,55,59],[55,59,62,64]],melody:[76,null,72,69,null,71,72,null,77,null,76,72,69,null,72,null,76,79,null,83,79,76,null,72,74,null,71,67,null,71,74,null]}
+    ];
+    const voices=new Set();let trackIndex=-1,bag=[];
+    function chooseTrack(){
+      if(!bag.length){bag=shuffle(TRACKS.map((_,i)=>i));if(bag[0]===trackIndex)[bag[0],bag[1]]=[bag[1],bag[0]];}
+      trackIndex=bag.shift();beat=0;
+      $('currentTrack').textContent=TRACKS[trackIndex].name;
+    }
+    function status(text){$('musicStatus').textContent=text;}
+    function persist(){try{localStorage.setItem(STORE,JSON.stringify(settings));}catch{status('소리 설정은 현재 화면에서만 유지돼요.');}}
+    function ramp(node,value){if(!ctx||!node)return;const now=ctx.currentTime;node.gain.cancelScheduledValues(now);node.gain.setTargetAtTime(value,now,.09);}
+    function mix(){ramp(musicGain,settings.music?settings.musicVolume*(ducked?.16:1):0);ramp(effectGain,settings.effects?settings.effectVolume*(ducked?.22:1):0);}
+    function note(midi,time,length,volume,bus='music',kind='keys'){
+      if(!ctx||ctx.state!=='running')return;
+      const out=ctx.createGain();out.connect(bus==='music'?musicGain:effectGain);
+      const peak=volume*(bus==='music'?3:2.4);out.gain.setValueAtTime(0,time);out.gain.linearRampToValueAtTime(peak,time+.018);out.gain.exponentialRampToValueAtTime(peak*.18,time+length*.65);out.gain.exponentialRampToValueAtTime(.0001,time+length);
+      const partials=kind==='bass'?[[1,1]]:kind==='bell'?[[1,1],[2.01,.13],[3,.025]]:[[1,1],[2,.15],[3,.035]];
+      let remaining=partials.length;
+      for(const [multiple,weight] of partials){
+        const oscillator=ctx.createOscillator(),amp=ctx.createGain();oscillator.type='sine';oscillator.frequency.value=440*Math.pow(2,(midi-69)/12)*multiple;amp.gain.value=weight;oscillator.connect(amp);amp.connect(out);
+        const voice={oscillator,out,amp,bus};voices.add(voice);oscillator.onended=()=>{voices.delete(voice);oscillator.disconnect();amp.disconnect();if(--remaining===0)out.disconnect();};oscillator.start(time);oscillator.stop(time+length+.02);
+      }
+    }
+    function stopMusic(){if(clock!==null){clearInterval(clock);clock=null;}for(const v of [...voices])if(v.bus==='music'){try{v.oscillator.stop();}catch{}voices.delete(v);} }
+    function schedule(){
+      if(!ctx||ctx.state!=='running'||!settings.music||document.hidden)return;
+      if(nextTime<ctx.currentTime-.3)nextTime=ctx.currentTime+.05;
+      while(nextTime<ctx.currentTime+.3){
+        if(trackIndex<0)chooseTrack();
+        const track=TRACKS[trackIndex],tempo=60/track.bpm;
+        const chord=track.chords[Math.floor(beat/4)%track.chords.length],pulse=beat%4;
+        if(pulse===0)note(chord[0]-12,nextTime,tempo*3.5,.065,'music','bass');
+        note(chord[track.pattern[pulse]],nextTime,tempo*1.7,.05);
+        if(pulse===2)note(chord[1]+12,nextTime+tempo*.5,tempo,.018,'music','bell');
+        const melody=track.melody[beat%track.melody.length];if(melody!==null)note(melody,nextTime+.035,tempo*1.55,.048,'music',track.tone);
+        beat++;nextTime+=tempo;
+        if(beat>=track.melody.length*2){chooseTrack();nextTime+=1.2;}
+      }
+    }
+    function startMusic(){if(!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status('♪ 오리지널 5곡을 무작위 순서로 재생 중');}
+    async function unlock(){
+      active=true;
+      try{
+        if(!ctx){const AudioContext=window.AudioContext||window.webkitAudioContext;if(!AudioContext){status('이 브라우저는 배경음·효과음을 지원하지 않아요.');return false;}
+          ctx=new AudioContext();musicGain=ctx.createGain();effectGain=ctx.createGain();const limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-16;limiter.ratio.value=4;limiter.attack.value=.006;limiter.release.value=.2;musicGain.connect(limiter);effectGain.connect(limiter);limiter.connect(ctx.destination);mix();}
+        if(ctx.state!=='running')await ctx.resume();if(ctx.state!=='running'){status('소리 듣기 버튼을 다시 눌러 주세요.');return false;}startMusic();return true;
+      }catch{status('소리를 시작하지 못했어요. 소리 듣기를 다시 눌러 주세요.');return false;}
+    }
+    const phrases={timer:[[72,0,.45,.025]],tap:[[76,0,.11,.075]],correct:[[76,0,.18,.12],[81,.11,.27,.09]],bonus:[[76,0,.16,.11],[79,.1,.18,.1],[84,.2,.3,.09]],wrong:[[64,0,.17,.055],[60,.12,.22,.04]],level:[[72,0,.18,.09],[76,.11,.2,.09],[79,.22,.23,.09],[84,.34,.48,.09]],finish:[[72,0,.2,.07],[76,.15,.22,.07],[79,.3,.4,.065]],dress:[[79,0,.14,.08],[84,.08,.2,.07]]};
+    function effect(name,delay=0){if(!settings.effects||document.hidden)return;if(!ctx||ctx.state!=='running')return;for(const [pitch,offset,length,gain] of phrases[name]||phrases.tap)note(pitch,ctx.currentTime+.015+offset+delay,length,gain,'effect',name==='timer'?'keys':'bell');}
+    function duck(value){ducked=value;mix();}
+    function pause(){stopMusic();if(ctx){for(const v of [...voices]){try{v.oscillator.stop();}catch{}voices.delete(v);}ctx.suspend().catch(()=>{});}status(active?'다른 화면을 보는 동안 음악을 쉬고 있어요.':'게임 시작 또는 소리 듣기를 누르면 재생돼요.');}
+    $('bgmEnabled').checked=settings.music;$('sfxEnabled').checked=settings.effects;
+    for(const [id,key] of [['bgmVolume','musicVolume'],['sfxVolume','effectVolume']]){
+      $(id).value=Math.round(settings[key]*100);$(id+'Value').textContent=$(id).value+'%';
+      $(id).oninput=()=>{settings[key]=Number($(id).value)/100;$(id+'Value').textContent=$(id).value+'%';mix();persist();};
+    }
+    $('bgmEnabled').onchange=()=>{settings.music=$('bgmEnabled').checked;mix();persist();if(settings.music)unlock();else{stopMusic();status('배경음악 꺼짐');}};
+    $('sfxEnabled').onchange=()=>{settings.effects=$('sfxEnabled').checked;mix();persist();if(settings.effects)unlock();};
+    $('listenMusic').onclick=()=>{if(!settings.music){settings.music=true;$('bgmEnabled').checked=true;persist();mix();}unlock();};
+    $('listenSfx').onclick=()=>{if(!settings.effects){settings.effects=true;$('sfxEnabled').checked=true;persist();mix();}unlock().then(ok=>{if(ok)effect('bonus');});};
+    $('nextMusic').onclick=()=>{stopMusic();chooseTrack();if(!settings.music){settings.music=true;$('bgmEnabled').checked=true;persist();mix();}unlock();};
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();else if(active)unlock();});
+    window.addEventListener('pagehide',pause);window.addEventListener('pageshow',()=>{if(active&&!document.hidden)unlock();});
+    document.addEventListener('pointerdown',()=>{if(active&&ctx&&ctx.state!=='running'&&!document.hidden)unlock();},{passive:true});
+    status('게임 시작 또는 소리 듣기를 누르면 재생돼요.');
+    return {unlock,effect,duck};
+  })();
   // Prevent semantically overlapping entries from acting as wrong answers.
   const groups = [
     ['汉语','中文'],['店','商店'],['饭','米饭'],['看','看见','见','读'],
@@ -330,6 +411,7 @@
   let state=null, timer=null, voices=[], activeAudio=null, soundToken=0;
   function stopSound() {
     soundToken++;
+    forestAudio.duck(false);
     if(activeAudio){activeAudio.pause();activeAudio=null;}
     if('speechSynthesis' in window) window.speechSynthesis.cancel();
   }
@@ -356,13 +438,19 @@
       const u=new SpeechSynthesisUtterance(entry.hanzi);
       u.lang='zh-CN';u.rate=Number($('speechRate').value);u.pitch=1;
       u.voice=voices.find(v=>v.voiceURI===$('voiceSelect').value)||null;
-      u.onerror=e=>{if(!['interrupted','canceled'].includes(e.error)) $('audioStatus').textContent='발음 재생이 차단되었거나 음성을 사용할 수 없어요. 음성을 선택한 뒤 다시 듣기를 눌러 주세요.';};
-      window.speechSynthesis.speak(u);
+      u.onstart=()=>{if(token===soundToken)forestAudio.duck(true);};
+      u.onend=()=>{if(token===soundToken)forestAudio.duck(false);};
+      u.onerror=e=>{if(token===soundToken)forestAudio.duck(false);if(!['interrupted','canceled'].includes(e.error)) $('audioStatus').textContent='발음 재생이 차단되었거나 음성을 사용할 수 없어요. 음성을 선택한 뒤 다시 듣기를 눌러 주세요.';};
+      forestAudio.duck(true);
+      try{window.speechSynthesis.speak(u);}catch{forestAudio.duck(false);$('audioStatus').textContent='발음을 재생하지 못했어요. 다시 듣기를 눌러 주세요.';}
     };
     if(entry.audio) {
       activeAudio=new Audio(entry.audio);
       activeAudio.playbackRate=Number($('speechRate').value);
-      activeAudio.play().catch(fallback);
+      forestAudio.duck(true);
+      activeAudio.onended=()=>{if(token===soundToken)forestAudio.duck(false);};
+      activeAudio.onerror=()=>{if(token===soundToken)forestAudio.duck(false);};
+      activeAudio.play().catch(()=>{if(token===soundToken)forestAudio.duck(false);fallback();});
     } else fallback();
   }
   function screen(name) {['setup','game','result'].forEach(id=>$(id).hidden=id!==name);$('openCloset').disabled=name==='game';document.body.classList.toggle('playing',name==='game');}
@@ -377,6 +465,7 @@
     return profile.xp-before;
   }
   function start(reviewIds=null) {
+    forestAudio.unlock();
     stopSound();clearTimer();
     const pool=data.filter(w=>w.level===Number($('levelSelect').value));
     const selected=reviewIds?pool.filter(w=>reviewIds.includes(w.id)):pool;
@@ -425,7 +514,7 @@
     $('timerBar').hidden=state.mode==='practice';$('timerText').classList.remove('urgent');
     if(state.mode==='practice'){$('timerText').textContent='시간제한 없음';}
     else {
-      state.deadline=performance.now()+RULES.seconds*1000;
+      state.deadline=performance.now()+RULES.seconds*1000;state.lastChime=RULES.seconds;
       tick();timer=setInterval(tick,50);
     }
     $('answers').firstElementChild?.focus({preventScroll:true});
@@ -434,6 +523,9 @@
     if(!state||!['basic','bonus'].includes(state.phase))return;
     const left=Math.max(0,(state.deadline-performance.now())/1000);
     $('timerText').textContent=`${left.toFixed(1)}초`;$('timerBar').value=left;$('timerText').classList.toggle('urgent',left<=2);
+    const second=Math.ceil(left);
+    if(second>0&&second<state.lastChime)forestAudio.effect('timer');
+    state.lastChime=second;
     if(left<=0)answer(null);
   }
   function answer(id) {
@@ -460,8 +552,10 @@
       const gifts=Object.values(WARDROBE).flatMap(g=>g.items).filter(i=>i[3]>previousLevel&&i[3]<=profile.level);
       $('feedbackNote').textContent=`레벨 ${profile.level} 달성! `+([2,3,5,10].includes(profile.level)?(profile.level===2?'씨앗이가 새싹이로 자랐어요!':profile.level===3?'학습 후 내 친구 꾸미기에서 성장 계열과 길을 선택하세요!':'친구가 더 자랐어요! 학습 후 달라진 모습을 확인하세요.'):gifts.length?gifts.map(i=>i[1]).join(' · ')+' 선물이 열렸어요. 학습 후 꾸며 보세요!':'친구와 한 걸음 더 자랐어요!');
     }
+    forestAudio.effect(correct?(bonus?'bonus':'correct'):'wrong');
+    if(profile.level>previousLevel)forestAudio.effect('level',.32);
     $('feedback').showModal();$('continueBtn').focus();
-    if($('autoSpeak').checked)speak(state.entry);
+    // Pronunciation is strictly manual: use the listen button, including after correct answers.
   }
   function advance(skip=false) {
     if(!state||state.phase!=='feedback')return;
@@ -472,7 +566,7 @@
   }
   function finish() {
     if(!state)return;
-    clearTimer();stopSound();state.phase='result';screen('result');
+    clearTimer();stopSound();forestAudio.effect('finish');state.phase='result';screen('result');
     if($('feedback').open)$('feedback').close();
     $('resultSubtitle').textContent=`${state.answered}개의 기본 문제를 풀었어요.`+(profile.level>state.startLevel?` 레벨 ${profile.level} 달성!`:'');
     $('resultAccuracy').textContent=`${state.answered?Math.round(state.correct/state.answered*100):0}%`;
@@ -509,10 +603,11 @@
     if(state&&['basic','bonus'].includes(state.phase)&&/^[1-4]$/.test(e.key)){e.preventDefault();answer(state.options[Number(e.key)-1].id);}
   });
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&state?.mode==='main')tick();});
-  $('speechRate').value=profile.rate;$('autoSpeak').checked=profile.auto;
+  $('speechRate').value=profile.rate;
   $('speechRate').onchange=()=>{profile.rate=Number($('speechRate').value);save();};
-  $('autoSpeak').onchange=()=>{profile.auto=$('autoSpeak').checked;save();};
   $('voiceSelect').onchange=()=>{profile.voice=$('voiceSelect').value;save();};
+  document.addEventListener('click',e=>{const control=e.target.closest('button,summary,a,input,select');if(control&&!control.disabled)forestAudio.unlock().then(ok=>{if(ok)forestAudio.effect('tap');});},{capture:true});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSound();});
   $('testVoice').onclick=()=>speak({hanzi:'你好，我们一起学习汉语吧！'});
   if('speechSynthesis' in window)window.speechSynthesis.addEventListener('voiceschanged',populateVoices);
   for(const level of [...new Set(data.map(w=>w.level))]){
