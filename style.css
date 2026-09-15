@@ -123,3 +123,49 @@
 .route-art{width:100%;height:110px;display:block}.route-art svg{width:100%;height:100%}.route-card strong{font-size:12px}.route-card>span:not(.route-art){font-size:10px;font-weight:700;word-break:keep-all}.route-card small{font-size:9px;line-height:1.6;color:var(--muted);word-break:keep-all}.route-timeline{font-size:10px;background:#fff;border-radius:9px;padding:10px;color:var(--green);line-height:1.9}
 #previewStage{display:block;margin:5px 0}.closet-preview .habitat{height:253px}.companion #characterMessage{font-weight:700;color:var(--green)}
 @media(max-width:620px){.companion .forest-avatar{scale:.58;margin-top:10px}.playing .companion .forest-avatar{scale:.42;margin-top:0}.closet-preview .forest-avatar{scale:.7;margin-top:4px}.closet-preview .habitat{height:184px;grid-row:1/6}.closet-preview #previewStage{grid-column:2;font-size:10px;margin:0}.route-section{padding:11px}.route-cards{gap:5px}.route-art{height:91px}.route-card{padding:8px 4px}.route-card strong{font-size:11px}.route-card small{font-size:9px}.route-card[aria-pressed="true"]{padding:7px 3px}}
+
+/* Placement editor: the 180 x 210 drawing is centered as a single coordinate plane. */
+.habitat{display:flex;align-items:center;justify-content:center;min-width:0}
+.habitat>.forest-avatar{flex:0 0 180px;width:180px;height:210px;margin:0;transform-origin:center}
+.creature-art{pointer-events:none}
+#previewAvatar{animation:none!important}
+#previewAvatar .editable-accessory{pointer-events:auto;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;position:absolute;text-align:center;transform-origin:center;letter-spacing:0;white-space:nowrap;opacity:1}
+#previewAvatar .selected-accessory{outline:2px dashed #c37849;outline-offset:5px;border-radius:8px}
+#previewAvatar.is-dragging .editable-accessory{cursor:grabbing}
+#previewAvatar .editable-accessory:focus-visible{outline:3px solid #315e48;outline-offset:6px}
+.forest-avatar .editable-accessory[data-item="wizard"]{padding-top:23px;font-size:24px!important}
+.forest-avatar .editable-accessory[data-item="stars"]{font-size:25px!important;line-height:2!important}
+.forest-avatar .wear-back{z-index:0}.forest-avatar .wear-charm{z-index:4}
+#positionControls{margin-top:16px;padding:14px;border:1px solid var(--line);background:white;border-radius:14px;text-align:left;width:100%;min-width:0}
+#positionControls h3{margin:0;font-size:13px}#positionControls label{display:block;font-size:11px;margin:10px 0}#positionControls output{float:right;color:var(--green)}
+#positionControls input[type="range"]{display:block;width:100%;min-height:36px;accent-color:var(--green)}
+#positionControls select{font-size:12px;min-height:44px}.nudge-buttons{display:flex;gap:7px;margin:10px 0}.nudge-buttons button{min-width:38px;min-height:42px;flex:1;border:1px solid var(--line);border-radius:8px;background:var(--light);color:var(--green);font-size:19px}
+#resetPosition{width:100%;font-size:11px}.silhouette{position:relative}.silhouette::after{content:'?';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#fff;font-size:24px;font-weight:bold}
+.growth-path{gap:4px}.growth-path>span{min-width:0;flex:1}.growth-path small{font-size:8px}
+.closet-preview{position:static}
+@media(max-width:620px){
+ .companion,.playing .companion{display:block;min-height:0;padding:16px;text-align:center}
+ .companion>.row:first-child{position:static;justify-content:space-between;min-height:22px;margin:0;gap:8px}
+ .companion>.row:first-child .eyebrow{display:block;font-size:9px;letter-spacing:1px}
+ .companion>.habitat,.playing .companion>.habitat{position:relative;left:auto;right:auto;top:auto;width:100%;height:187px;margin:4px 0 0;grid-column:auto;grid-row:auto;display:flex;align-items:center;justify-content:center}
+ .companion .forest-avatar{scale:.84;margin:0}
+ .companion h2{padding:0;margin:8px 0 0;text-align:center;font-size:17px}
+ .companion>.subtle{display:block;font-size:11px;margin:5px 0 10px}
+ .companion .xp-label{justify-content:space-between;margin:12px auto 0;max-width:320px}
+ .companion .xp-label span{display:inline}.companion #xpBar{max-width:320px;margin:8px auto}
+ .companion .closet-open{max-width:320px;margin:9px auto 0}.companion .unlock-hint{font-size:10px}
+ .playing .companion{padding:10px 14px}
+ .playing .companion>.habitat{height:91px;margin:0}
+ .playing .companion .forest-avatar{scale:.42;margin:0}
+ .playing .companion h2{font-size:13px;margin:2px 0}
+ .playing .companion>.subtle,.playing .companion>.row:first-child .eyebrow{display:none}
+ .playing .companion>.row:first-child{height:0;min-height:0;justify-content:flex-end;position:relative;z-index:1}
+ .playing .companion .xp-label{font-size:10px;margin-top:4px}.playing .companion #xpBar{margin:5px auto 0;height:6px}
+ .closet-preview{display:block;position:static;text-align:center;width:100%;min-width:0}
+ .closet-preview .habitat{position:relative;width:100%;height:246px;margin:0 auto 8px;left:auto;top:auto;display:flex;justify-content:center;align-items:center}
+ .closet-preview .forest-avatar{scale:1;margin:0}
+ .closet-preview>strong{margin:5px 0 0;font-size:18px}.closet-preview #previewStage{margin:4px 0;font-size:11px}.closet-preview>.soft-tag{display:inline-block;margin:4px 0}
+ .closet-preview>.tiny{font-size:10px;margin:6px 0}.closet-preview .name-field{margin-top:12px}
+ #positionControls{padding:12px}#positionControls .nudge-buttons button{min-height:44px}
+ .route-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.route-art{height:98px}
+}
