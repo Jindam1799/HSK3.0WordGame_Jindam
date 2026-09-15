@@ -193,3 +193,83 @@
 .welcome-enter{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0;background:transparent!important;color:#546d42;padding:0;box-shadow:none!important;transform:none!important}.welcome-enter>span{position:absolute;left:20px;right:20px;bottom:35px;display:block;font-size:14px;letter-spacing:.04em}.welcome-enter b{margin-left:10px}.welcome-enter small{display:block;margin-top:8px;font-size:10px;font-weight:400;color:#7f8c6b}.welcome-enter:focus-visible{outline:3px solid #96aa6f;outline-offset:-9px}.welcome-enter:hover>span{color:#334c28}.welcome-noscript{position:relative;z-index:3;color:#9b513c}
 @media(max-width:600px){.welcome-screen{padding:40px 20px 105px}.welcome-branches{height:43vh;opacity:.35}.branch-left{left:-65px}.branch-right{right:-65px}.welcome-brand{font-size:23px}.welcome-line{margin:20px auto}.welcome-greeting{font-size:12px}.welcome-friends{height:158px;margin-top:20px}.welcome-friends span{width:100px;height:140px}.welcome-friends span:nth-child(2){width:120px;height:165px}.welcome-screen h1{font-size:clamp(28px,7.6vw,43px)}.welcome-story{font-size:12px}}
 @media(max-height:650px) and (min-width:601px){.welcome-screen{padding-top:20px;padding-bottom:90px}.welcome-friends{height:110px}.welcome-friends span{height:110px}.welcome-friends span:nth-child(2){height:130px}.welcome-line{margin:12px auto}.welcome-screen h1{font-size:36px}.welcome-story{display:none}}
+/* Mobile companion layout: one fixed artwork canvas, scaled as a complete unit. */
+@media(max-width:620px){
+ .layout{grid-template-columns:minmax(0,1fr);gap:16px}.app{padding-left:16px;padding-right:16px}.layout>*{min-width:0}
+ .companion{padding:16px;overflow:hidden}
+ .companion>.habitat{height:230px;min-height:230px;width:100%;margin:0;position:relative;display:flex;align-items:center;justify-content:center}
+ .companion .mascot.forest-avatar{position:relative;flex:0 0 180px;width:180px;height:210px;scale:1;margin:0;transform:none;animation:none}
+ .companion .ground{height:24px;width:175px;bottom:9px;left:50%;transform:translateX(-50%)}
+ .companion h2{font-size:19px;margin:0 0 5px}.companion>.subtle{margin:0 0 12px}
+ .playing .companion{display:grid;grid-template-columns:132px minmax(0,1fr);gap:3px 10px;padding:12px;align-items:center;text-align:left;min-height:162px}
+ .playing .companion>.habitat{grid-column:1;grid-row:1/6;height:138px;min-height:138px;width:132px;margin:0;overflow:hidden}
+ .playing .companion .mascot.forest-avatar{scale:.64;margin:0;transform:none;animation:none}
+ .playing .companion .ground{width:110px;height:16px;bottom:2px}
+ .playing .companion>.row:first-child{grid-column:2;grid-row:1;position:static;height:auto;min-height:0;justify-content:flex-start;margin:0}
+ .playing .companion h2{grid-column:2;grid-row:2;text-align:left;font-size:16px;line-height:1.35;margin:0;overflow-wrap:anywhere}
+ .playing .companion .xp-label{grid-column:2;grid-row:3;width:100%;margin:0;font-size:11px}.playing .companion .xp-label span{display:none}
+ .playing .companion #xpBar{grid-column:2;grid-row:4;width:100%;margin:0;height:7px}
+ .playing .companion #totalXp{grid-column:2;grid-row:5;display:block;margin:0;font-size:10px}
+ .playing .companion>.subtle,.playing .companion .growth-path,.playing .companion .storage-note,.playing .companion .unlock-hint,.playing .companion .closet-open{display:none}
+ .closet-layout{grid-template-columns:minmax(0,1fr)}.closet-preview{width:100%;display:block;position:static;padding:12px;min-width:0}
+ .closet-preview .habitat{width:100%;height:260px;min-height:260px;margin:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+ .closet-preview .mascot.forest-avatar{flex:0 0 180px;width:180px;height:210px;scale:1.05;margin:0;transform:none;animation:none}
+ .closet-preview .ground{height:24px;width:180px;bottom:22px;left:50%;transform:translateX(-50%)}
+ .closet-preview .name-field{width:100%;margin-top:10px}.closet-preview input{max-width:100%;font-size:16px}
+}
+@media(max-width:360px){.playing .companion{grid-template-columns:116px minmax(0,1fr);gap:3px 8px}.playing .companion>.habitat{width:116px}.playing .companion h2{font-size:14px}}
+
+.cloud-account{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 0;font-size:12px}.cloud-account a{color:#4e7142;text-decoration:underline}.cloud-account span{margin-right:auto;color:#7a866b}
+
+/* Reveal pronunciation only on a deliberate tap or keyboard activation. */
+.answer-word {margin: .5rem 0;}
+#answerHanzi {font:inherit;color:inherit;background:transparent;border:0;border-bottom:2px dotted #a4b28b;border-radius:8px;padding:8px 12px;max-width:100%;overflow-wrap:anywhere;cursor:pointer;}
+#answerHanzi:focus-visible {outline:3px solid #6c874f;outline-offset:4px;}
+#answerPinyin[hidden] {display:none !important;}
+
+#mascot[role="button"] {cursor:pointer;touch-action:manipulation;}
+#mascot:focus-visible {outline:3px solid #76915c;outline-offset:4px;border-radius:24px;}
+.friend-bubble {position:relative;background:#fffdf2;border:1px solid #c3d0aa;border-radius:18px;padding:12px 14px;margin:8px auto;text-align:center;max-width:100%;box-sizing:border-box;overflow-wrap:anywhere;}
+.friend-bubble::before {content:'';position:absolute;top:-7px;left:calc(50% - 6px);width:12px;height:12px;background:#fffdf2;border-top:1px solid #c3d0aa;border-left:1px solid #c3d0aa;transform:rotate(45deg);}
+.friend-bubble strong {display:block;font-size:21px;color:#47633d;line-height:1.5;}
+.friend-bubble span {display:block;font-size:13px;color:#737b65;margin-top:3px;}
+.friend-bubble[hidden] {display:none;}
+.friend-chat-hint {font-size:11px;color:#7c876e;text-align:center;margin:3px 0 10px;}
+@media(max-width:620px){body.playing .companion .friend-bubble,body.playing .companion .friend-chat-hint {grid-column:1 / -1;} .friend-bubble strong{font-size:19px;}}
+
+/* Floating speech follows the rendered head without shifting the page. */
+.friend-bubble {position:fixed;z-index:30;width:max-content;max-width:min(250px,calc(100vw - 16px));margin:0;pointer-events:none;opacity:0;transform:translateY(9px) scale(.96);transition:opacity .26s ease,transform .26s ease;transform-origin:50% 100%;box-shadow:0 6px 18px #425a3520;}
+.friend-bubble.bubble-visible {opacity:1;transform:translateY(0) scale(1);}
+.friend-bubble::before {top:auto;bottom:-7px;border:0;border-bottom:1px solid #c3d0aa;border-right:1px solid #c3d0aa;}
+.habitat[data-scene="studentgarden"]>.ground {display:none !important;}
+#homeHabitat {overflow:visible;isolation:isolate;}
+#mascot[role="button"] {touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;z-index:3;}
+.expression-lift,.expression-land {display:none;}
+.friend-held .expression-normal,.friend-falling .expression-normal,.friend-landed .expression-normal {display:none;}
+.friend-held .expression-lift,.friend-falling .expression-lift,.friend-landed .expression-land {display:inline;}
+#mascot.friend-held,#mascot.friend-falling {animation:none;cursor:grabbing;}
+#mascot.friend-held {filter:drop-shadow(0 12px 8px #42573522);}
+#mascot.friend-landed {animation:friend-squash .45s ease-out;transform-origin:50% 94%;}
+@keyframes friend-squash {0%{transform:scale(1.14,.84)}45%{transform:scale(.96,1.05)}100%{transform:scale(1)}}
+#homeHabitat.landing-dust::after {content:'';position:absolute;z-index:4;pointer-events:none;left:var(--impact-x,50%);bottom:15px;width:70px;height:15px;border:3px solid #d5c5a0;border-radius:50%;animation:friend-dust .6s ease-out both;}
+@keyframes friend-dust {from{opacity:.85;transform:translateX(-50%) scale(.5)}to{opacity:0;transform:translateX(-50%) scale(1.9,1.4)}}
+@media(prefers-reduced-motion:reduce){.friend-bubble{transition:none}#mascot.friend-landed,#homeHabitat.landing-dust::after{animation:none}}
+
+#answerMeaning[hidden] {display:none !important;}
+#answerMeaning[lang="zh-CN"] {font-size:28px;line-height:1.5;margin:10px 0 4px;}
+#answerHanzi[lang="ko"] {font-size:clamp(22px,5vw,32px);line-height:1.5;word-break:keep-all;overflow-wrap:anywhere;}
+
+/* Independent grade forests share one layout, with distinct color palettes. */
+body[data-forest="1"] {--paper:#fcf4ed;--ink:#593e33;--muted:#92796b;--green:#986044;--light:#f7e9db;--line:#ead8c9;--orange:#b9673f;--forest-sky:#f8e2d0;--forest-soil:#ddb998;}
+body[data-forest="2"] {--paper:#f4f1fa;--ink:#433953;--muted:#82758f;--green:#735d94;--light:#ece5f5;--line:#dfd5eb;--orange:#a16a98;--forest-sky:#e5def3;--forest-soil:#bbb0cc;}
+.forest-selector {margin:0 0 22px;}
+.forest-tabs {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.forest-tab {text-align:left;border:1px solid var(--line);border-radius:16px;padding:14px;background:var(--paper);color:var(--ink);}
+.forest-tab[aria-pressed="true"] {background:var(--light);border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green);}
+.forest-tab strong,.forest-tab small {display:block;}.forest-tab small{font-size:11px;color:var(--muted);margin-top:4px;}
+body[data-forest="1"] .habitat:not([data-scene="studentgarden"]),body[data-forest="2"] .habitat:not([data-scene="studentgarden"]) {background:linear-gradient(var(--forest-sky),var(--light));}
+body[data-forest="1"] .ground,body[data-forest="2"] .ground {background:var(--forest-soil);}
+body[data-forest="1"] .friend-bubble,body[data-forest="2"] .friend-bubble {background:var(--paper);border-color:var(--line);}
+body[data-forest="1"] .friend-bubble::before,body[data-forest="2"] .friend-bubble::before {background:var(--paper);border-color:var(--line);}
+.friend-bubble strong{color:var(--green);}.other-forest-note{color:var(--green);font-size:10px;line-height:1.5;}
+@media(max-width:620px){.forest-tabs{gap:6px}.forest-tab{padding:10px 7px;border-radius:12px}.forest-tab strong{font-size:12px}.forest-tab small{font-size:10px}.forest-selector{margin-bottom:14px}}

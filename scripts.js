@@ -4,8 +4,21 @@
  */
 (() => {
   'use strict';
-  const RULES = Object.freeze({seconds:7, baseXP:10, penalty:2, bonusXP:5, perLevel:100});
+  const RULES = Object.freeze({seconds:7, baseXP:10, penalty:2, bonusXP:5});
   const KEY = 'word-forest-v1';
+  let activeForest=0;
+  const FORESTS=[{name:'초록빛 숲',grades:'1~3급',start:1},{name:'살구빛 숲',grades:'4~6급',start:4},{name:'보랏빛 숲',grades:'7~9급',start:7}];
+  const forestKey=i=>i===0?KEY:KEY+'-forest-'+i;
+  const STUDENT_BG = '';
+  // HSK grade and character level are independent. Costs continue beyond Lv.10.
+  const xpNeeded = level => 100 + 50*(level-1) + 10*(level-1)**2;
+  const xpStart = level => {const n=level-1;return 100*n+25*n*(n-1)+10*n*(n-1)*(2*n-1)/6;};
+  function levelFromXP(xp){
+    let lo=1,hi=2;
+    while(xpStart(hi)<=xp)hi*=2;
+    while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(xpStart(mid)<=xp)lo=mid;else hi=mid;}
+    return lo;
+  }
   const $ = id => document.getElementById(id);
   const data = Array.isArray(window.HSK_DATA) ? window.HSK_DATA : [];
   const allPhrases = data.flatMap(w => w.collocations.map(p => ({...p, parent:w.id, level:w.level})));
@@ -31,27 +44,46 @@
       {id:'cactus',name:'끈기의 길',final:'끈질긴 칵투스',gift:'사막 보석',badge:'🌵'}
     ]}
   };
+  const STUDENT_PETS=['clover','berry','tree'];
+  const petAllowed=pet=>!STUDENT_PETS.includes(pet)||Boolean(STUDENT_BG);
+  Object.assign(GROWTH,{
+    clover:{name:'마음잎',icon:'🍀',routes:[
+      {id:'lucky',name:'행운의 길',final:'행운의 네잎클로버',gift:'행운 보석'},
+      {id:'silver',name:'달빛의 길',final:'달빛 은빛클로버',gift:'달빛 보석'},
+      {id:'crimson',name:'다정함의 길',final:'다정한 붉은토끼풀',gift:'다정 보석'}]},
+    berry:{name:'마음열매',icon:'🍓',routes:[
+      {id:'strawberry',name:'달콤함의 길',final:'달콤한 왕딸기',gift:'딸기 보석'},
+      {id:'blueberry',name:'별빛의 길',final:'별빛 블루베리',gift:'별빛 보석'},
+      {id:'raspberry',name:'생기의 길',final:'생기 가득 산딸기',gift:'생기 보석'}]},
+    tree:{name:'마음나무',icon:'🌳',routes:[
+      {id:'oak',name:'든든함의 길',final:'든든한 참나무',gift:'참나무 보석'},
+      {id:'willow',name:'바람의 길',final:'바람결 버드나무',gift:'바람 보석'},
+      {id:'ginkgo',name:'황금빛의 길',final:'황금빛 은행나무',gift:'은행 보석'}]}
+  });
   const routeFor=(pet,routes)=>GROWTH[pet]?.routes.find(r=>r.id===routes?.[pet]);
   function safeRoutes(raw,level){
     const routes={};
-    if(level>=3)for(const [pet,info] of Object.entries(GROWTH))if(info.routes.some(r=>r.id===raw?.[pet]))routes[pet]=raw[pet];
+    if(level>=3)for(const [pet,info] of Object.entries(GROWTH))if(petAllowed(pet)&&info.routes.some(r=>r.id===raw?.[pet]))routes[pet]=raw[pet];
     return routes;
   }
-  const growthStage=(level,route)=>level===1?0:level<3?1:level>=10&&route?4:level>=5?3:2;
+  const growthStage=(level,route)=>level===1?0:level<3?1:level>=10&&route?4:level>=4?3:2;
   const displayPet=(pet,level)=>level===1?'seed':level===2||!GROWTH[pet]?'sprout':pet;
   function growthName(pet,routes,level){
     if(level===1)return '마음씨';if(level===2||!GROWTH[pet])return '마음싹';
     const route=routeFor(pet,routes);
-    return level>=10&&route?route.final:level>=5?'쑥쑥 자라는 '+GROWTH[pet].name:GROWTH[pet].name;
+    return level>=10&&route?route.final:level>=4?'쑥쑥 자라는 '+GROWTH[pet].name:GROWTH[pet].name;
   }
   function plantGeometry(pet,route,level){
     const family=displayPet(pet,level),adult=level>=10&&Boolean(route);
-    const scale=family==='seed'?0.7:family==='sprout'?0.8:adult?1:level>=5?0.76+0.035*(Math.min(level,9)-5):0.63+0.035*(level-3);
+    const scale=family==='seed'?0.7:family==='sprout'?0.8:adult?1:0.63+0.045*(Math.min(level,9)-3);
     let face=[90,144],head=[90,105],neck=[90,171];
     if(family==='sprout'){face=[90,151];head=[90,102];neck=[90,174];}
     if(family==='petal'){face=[90,91];head=[90,35];neck=[90,142];}
     if(family==='mushroom'){face=adult&&route==='reishi'?[99,148]:[91,157];head=adult&&route==='horn'?[88,25]:[90,39];neck=[91,180];}
     if(family==='succulent'){face=adult&&route==='cactus'?[94,105]:[90,147];head=adult&&route==='cactus'?[94,26]:[90,39];neck=[92,177];}
+    if(family==='clover'){face=[90,115];head=[90,53];neck=[90,147];}
+    if(family==='berry'){face=[90,119];head=[90,65];neck=[90,156];}
+    if(family==='tree'){face=[90,159];head=[90,44];neck=[90,181];}
     return {family,adult,scale,face,head,neck};
   }
   // Botanical-inspired SVG illustrations. Horn mushroom is a fictional form.
@@ -99,6 +131,34 @@
         if(adult&&route==='matsutake')art+='<path d="M71 126Q88 144 110 127L108 139Q89 151 70 139Z" fill="#c3b18e"/>';
         if(adult&&route==='horn')art+='<path d="M48 73Q26 50 40 16Q44 46 68 54Z" fill="#c3b496" stroke="#7e7262" stroke-width="2"/><path d="M115 55Q144 41 143 14Q161 49 137 75Z" fill="#c3b496" stroke="#7e7262" stroke-width="2"/>';
       }
+    }else if(kind==='clover'){
+      const tint=adult&&route==='silver'?'#a7c4b2':'#70a363';
+      art='<path d="M90 189Q103 153 90 116" fill="none" stroke="#567f4e" stroke-width="7"/>'+leaf(95,171,65,.65);
+      for(let i=0;i<(adult?4:3);i++)art+=`<path d="M90 116C60 106 41 77 56 60Q75 47 90 69Q109 46 124 61C141 80 118 107 90 116Z" fill="${tint}" stroke="#4f7951" stroke-width="2" transform="rotate(${i*(adult?90:120)} 90 116)"/><path d="M90 113V77" stroke="#ccdbad" stroke-width="1.5" transform="rotate(${i*(adult?90:120)} 90 116)"/>`;
+      if(adult&&route==='crimson'){art+='<path d="M90 143L113 50" stroke="#567f4e" stroke-width="4"/>';for(let i=0;i<15;i++)art+=`<ellipse cx="${113+Math.sin(i*2.4)*13}" cy="${38+Math.cos(i*2.4)*17}" rx="5" ry="9" fill="${i%2?'#c57493':'#e3a5b7'}"/>`;}
+    }else if(kind==='berry'){
+      art='<path d="M90 181Q67 126 90 61" fill="none" stroke="#64814e" stroke-width="6"/>'+leaf(85,168,-60,.8)+leaf(87,156,62,.75);
+      if(adult&&route==='blueberry'){
+        for(const [x,y] of [[68,99],[106,96],[90,125],[65,135],[111,133]])art+=C(x,y,22,'#7684ae')+C(x-5,y-8,5,'#aeb8ce')+`<path d="M${x-6} ${y}l5 -4 5 4-5 4Z" fill="#505d89"/>`;
+      }else if(adult&&route==='raspberry'){
+        for(let row=0;row<5;row++)for(let col=0;col<5-row;col++)art+=C(57+col*17+row*8,88+row*15,12,row%2?'#c66c80':'#d38494');
+      }else{
+        art+='<path d="M48 89Q48 69 90 82Q132 68 132 92Q128 140 90 166Q53 141 48 89Z" fill="#d78983" stroke="#aa625e" stroke-width="2"/>';
+        for(let y=97;y<148;y+=15)for(let x=65;x<122-(y-95)*.3;x+=18)art+=`<ellipse cx="${x}" cy="${y}" rx="1.6" ry="3" fill="#f2d5a1"/>`;
+      }
+      for(let i=0;i<5;i++)art+=leaf(90,83,-85+i*42,.38,'#789854');
+    }else if(kind==='tree'){
+      art='<path d="M76 189L80 94H102L112 189L95 183Z" fill="#aa8963" stroke="#806848" stroke-width="2"/><path d="M90 183V114M88 135L65 113M99 142L121 118" fill="none" stroke="#806848" stroke-width="2"/>';
+      if(adult&&route==='willow'){
+        art+='<path d="M30 83Q90 5 150 83Z" fill="#97b180"/>';
+        for(let i=0;i<9;i++){const x=30+i*15;art+=`<path d="M90 58Q${x} 44 ${x} 145" stroke="#5f8657" stroke-width="3" fill="none"/>`;for(let y=80;y<144;y+=15)art+=leaf(x,y,-25,.28,'#8dab70');}
+      }else if(adult&&route==='ginkgo'){
+        for(let i=0;i<13;i++){const x=90+Math.sin(i*2.4)*49,y=77+Math.cos(i*2.4)*34;art+=`<path d="M${x} ${y+29}L${x-25} ${y-6}Q${x} ${y-33} ${x+25} ${y-6}Z" fill="${i%2?'#d2b559':'#e9cd77'}" stroke="#b29949" stroke-width="1"/>`;}
+      }else{
+        for(const [x,y,r] of [[49,92,29],[72,63,32],[111,63,33],[132,94,29],[90,103,38]])art+=C(x,y,r,'#86a575');
+        for(let i=0;i<(adult?20:8);i++)art+=leaf(90+Math.sin(i*2.4)*49,89+Math.cos(i*2.4)*29,i*33,.4,i%2?'#6b915d':'#abc18e');
+        if(adult)for(const x of [48,130])art+=`<ellipse cx="${x}" cy="115" rx="7" ry="10" fill="#b39362"/><path d="M${x-8} 109Q${x} 98 ${x+8} 109Z" fill="#7d704a"/>`;
+      }
     }else{
       if(!adult){
         art='<path d="M76 128L75 186Q90 195 109 185L104 128Z" fill="#bdab80"/>';
@@ -122,7 +182,7 @@
     const charm=`<ellipse cx="${fx-18}" cy="${fy+7}" rx="4" ry="2.5" fill="${color}"/><ellipse cx="${fx+18}" cy="${fy+7}" rx="4" ry="2.5" fill="${color}"/>`;
     // SVG filter is local to each SVG. Silhouette removes all fill/stroke colors and facial detail.
     if(silhouette)art=art.replace(/fill="[^"]+"/g,'fill="#34453d"').replace(/stroke="[^"]+"/g,'stroke="#34453d"').replace(/opacity="[^"]+"/g,'opacity="1"');
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210" aria-hidden="true"><g transform="translate(${90*(1-g.scale)} ${197*(1-g.scale)}) scale(${g.scale})">${art}${silhouette?'':charm+face}</g></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210" aria-hidden="true"><g transform="translate(${90*(1-g.scale)} ${197*(1-g.scale)}) scale(${g.scale})">${art}${silhouette?'':charm+`<g class="expression-normal">${face}</g><g class="expression-lift"><circle cx="${fx-10}" cy="${fy}" r="4" fill="#38442d"/><circle cx="${fx+10}" cy="${fy}" r="4" fill="#38442d"/><ellipse cx="${fx}" cy="${fy+10}" rx="4" ry="6" fill="#68483a"/></g><g class="expression-land"><path d="M${fx-15} ${fy-4}l7 4-7 4M${fx+15} ${fy-4}l-7 4 7 4M${fx-5} ${fy+12}q5 -5 10 0" stroke="#38442d" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`}</g></svg>`;
   }
   const LOOK_DEFAULT = Object.freeze({pet:'', color:'mint', head:'none', face:'none', neck:'none', scene:'meadow', back:'none', charm:'none', name:''});
   // [id, label, icon or color, required level]. Unlocks never consume XP.
@@ -156,44 +216,57 @@
     };
     return art[id]?`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><g fill="none" stroke="#776c54" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${art[id]}</g></svg>`:'';
   }
+  WARDROBE.scene.items.push(['studentgarden','수강생 정원','✦',1]);
+  WARDROBE.pet.items.push(...STUDENT_PETS.map(p=>[p,GROWTH[p].name,GROWTH[p].icon,3]));
   const SLOTS=['head','face','neck','back','charm'];
   const SLOT_NAMES={head:'머리 장식',face:'얼굴 장식',neck:'목 장식',back:'날개·망토',charm:'성장 보석'};
   const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
   function safePoses(raw){
     const out={};
     if(raw&&typeof raw==='object')for(const [key,p] of Object.entries(raw).slice(0,150)){
-      if(!/^(seed|sprout|petal|mushroom|succulent):(young|adult-[a-z]+):(head|face|neck|back|charm):[a-z]+$/.test(key)||!p)continue;
+      if(!/^(seed|sprout|petal|mushroom|succulent|clover|berry|tree):(young|adult-[a-z]+):(head|face|neck|back|charm):[a-z]+$/.test(key)||!p)continue;
       if(['x','y','scale','rotation'].every(k=>typeof p[k]==='number'&&Number.isFinite(p[k])))out[key]={x:clamp(p.x,-1,1),y:clamp(p.y,-1,1),scale:clamp(p.scale,.4,2),rotation:clamp(p.rotation,-180,180)};
     }return out;
   }
   function safeLook(raw,level){
     const look={...LOOK_DEFAULT,poses:safePoses(raw?.poses)};
     for(const [key,group] of Object.entries(WARDROBE))if(group.items.some(i=>i[0]===raw?.[key]&&i[3]<=level))look[key]=raw[key];
+    if(!petAllowed(look.pet))look.pet='';
     if(typeof raw?.name==='string')look.name=raw.name.trim().slice(0,12);
+    if(look.scene==='studentgarden'&&!STUDENT_BG)look.scene='meadow';
     return look;
   }
-  let profile={schema:4,xp:0,level:1,voice:'',rate:.9,auto:false,look:{...LOOK_DEFAULT,poses:{}},routes:{},family:null};
   let storageAvailable=true;
-  try{
-    const saved=JSON.parse(localStorage.getItem(KEY)||'null');
-    if(saved&&Number.isSafeInteger(saved.xp)&&saved.xp>=0){
-      const level=Math.floor(saved.xp/100)+1;
-      profile={...profile,xp:saved.xp,level,voice:typeof saved.voice==='string'?saved.voice:'',rate:[.75,.9,1].includes(saved.rate)?saved.rate:.9,auto:false,
-        look:safeLook(saved.look,level),routes:safeRoutes(saved.routes,level),family:level>=3&&GROWTH[saved.family]?saved.family:null};
-      if(profile.family)profile.look.pet=profile.family;
-    }
-  }catch{storageAvailable=false;}
+  function loadForest(index){
+    let loaded={schema:5,xp:0,level:1,voice:'',rate:.9,auto:false,look:{...LOOK_DEFAULT,poses:{}},routes:{},family:null};
+    try{
+      const saved=JSON.parse(localStorage.getItem(forestKey(index))||'null');
+      if(saved&&Number.isSafeInteger(saved.xp)&&saved.xp>=0){
+        const oldLevel=Math.floor(saved.xp/100)+1;
+        const migrated=xpStart(oldLevel)+Math.floor((saved.xp%100)/100*xpNeeded(oldLevel));
+        const xp=saved.schema>=5?saved.xp:Math.min(Number.MAX_SAFE_INTEGER,migrated);
+        const level=levelFromXP(xp);
+        loaded={...loaded,xp,level,voice:typeof saved.voice==='string'?saved.voice:'',rate:[.75,.9,1].includes(saved.rate)?saved.rate:.9,
+          look:safeLook(saved.look,level),routes:safeRoutes(saved.routes,level),family:level>=3&&petAllowed(saved.family)&&GROWTH[saved.family]?saved.family:null};
+        if(loaded.family)loaded.look.pet=loaded.family;
+      }
+    }catch{storageAvailable=false;}
+    return loaded;
+  }
+  const forestProfiles=FORESTS.map((_,i)=>loadForest(i));
+  let profile=forestProfiles[activeForest];
   function save(){
-    try{localStorage.setItem(KEY,JSON.stringify(profile));}catch{storageAvailable=false;}
+    try{localStorage.setItem(forestKey(activeForest),JSON.stringify(profile));}catch{storageAvailable=false;}
     $('storageNotice').textContent=storageAvailable?'성장과 꾸미기는 이 브라우저에 저장돼요.':'저장할 수 없는 환경입니다. 현재 화면에서만 기록이 유지돼요.';
   }
   function renderProfile(){
-    $('levelTag').textContent=`LV. ${profile.level}`;$('xpLabel').textContent=`${profile.xp%100} / 100 XP`;$('xpBar').value=profile.xp%100;$('totalXp').textContent=`누적 ${profile.xp.toLocaleString()} XP`;
+    const progress=profile.xp-xpStart(profile.level), needed=xpNeeded(profile.level);
+    $('levelTag').textContent=`LV. ${profile.level}`;$('xpLabel').textContent=`${progress.toLocaleString()} / ${needed.toLocaleString()} XP`;$('xpBar').max=needed;$('xpBar').value=progress;$('totalXp').textContent=`누적 ${profile.xp.toLocaleString()} XP`;
     const name=growthName(profile.look.pet,profile.routes,profile.level);
     $('characterName').textContent=profile.look.name||name;$('characterMessage').textContent=profile.look.name?name:profile.level<3?'작은 씨앗에서 시작하는 나의 이야기':'매일 배우며 조금씩 자라고 있어요.';
-    const current=profile.level===1?0:profile.level===2?1:!profile.family?1:profile.level<5?2:profile.level<10?3:4;
-    document.querySelector('.growth-path').innerHTML=[['🫘','씨앗 · 1'],['🌱','새싹 · 2'],['🔀','선택 · 3'],['🌿','성장 · 5~9'],['✨','진화 · 10']].map(([icon,label],i)=>`<span class="${i<=current?'active':''}">${icon}<small>${label}</small></span>`).join('');
-    renderLook($('mascot'),$('homeHabitat'),profile.look);renderUnlockHint();
+    const current=profile.level===1?0:profile.level===2?1:!profile.family?1:profile.level<4?2:profile.level<10?3:4;
+    document.querySelector('.growth-path').innerHTML=[['🫘','씨앗 · 1'],['🌱','새싹 · 2'],['🔀','선택 · 3'],['🌿','성장 · 4~9'],['✨','진화 · 10']].map(([icon,label],i)=>`<span class="${i<=current?'active':''}">${icon}<small>${label}</small></span>`).join('');
+    renderLook($('mascot'),$('homeHabitat'),profile.look);renderUnlockHint();renderForestTabs();
   }
   function poseKey(look,routes,slot){
     const pet=displayPet(look.pet,profile.level),route=routeFor(look.pet,routes);
@@ -216,7 +289,7 @@
     avatar.classList.add('forest-avatar');avatar.style.background='transparent';
     let illustration=avatar.querySelector('.creature-art');if(!illustration){illustration=document.createElement('div');illustration.className='creature-art';avatar.prepend(illustration);}
     const concealed=avatar.id==='previewAvatar'&&g.adult&&profile.routes[look.pet]!==route?.id;
-    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,WARDROBE.color.items.find(i=>i[0]===look.color)[2],concealed);habitat.dataset.scene=look.scene;
+    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,WARDROBE.color.items.find(i=>i[0]===look.color)[2],concealed);habitat.dataset.scene=look.scene;habitat.style.backgroundImage=look.scene==='studentgarden'&&STUDENT_BG?`url("${STUDENT_BG}")`:'';habitat.style.backgroundSize='cover';
     for(const key of SLOTS){
       let el=avatar.querySelector('.wear-'+key);if(!el){el=document.createElement('span');el.className='wear-'+key;avatar.append(el);}
       const item=WARDROBE[key].items.find(i=>i[0]===look[key]);
@@ -228,7 +301,7 @@
     placeAccessories(avatar,look,routes);
   }
   function renderUnlockHint(){
-    if(profile.level<3){$('unlockHint').textContent='Lv.3에 마음꽃·마음송이·마음담이 중 한 친구로 자라요.';return;}
+    if(profile.level<3){$('unlockHint').textContent='Lv.3에 내 친구 꾸미기에서 성장 계열을 고를 수 있어요.';return;}
     if(!profile.family||!routeFor(profile.look.pet,profile.routes)){$('unlockHint').textContent='내 친구 꾸미기에서 성장 방향을 선택해 주세요!';return;}
     if(profile.level<10){$('unlockHint').textContent=`Lv.10까지 조금씩 성장해요. 최종 모습은 아직 비밀!`;return;}
     $('unlockHint').textContent='최종 진화 완료! 성장 보석을 달아 보세요.';
@@ -236,7 +309,7 @@
   let draftLook=null,draftRoutes=null,drag=null,selectedSlot='head';
   function renderRouteChoices(){
     const pet=draftLook.pet,info=GROWTH[pet],committed=profile.routes[pet];$('routeCards').replaceChildren();
-    $('routeStatus').textContent=!info?'Lv.3부터 아래에서 마음꽃·마음송이·마음담이 중 하나를 골라 주세요.':committed?'선택한 길을 따라 자라요. Lv.10에 진화한 모습이 공개돼요.':'실루엣을 보고 성장길을 골라 주세요. 저장하면 친구와 성장길이 확정돼요.';
+    $('routeStatus').textContent=!info?'Lv.3부터 아래에서 열린 성장 계열 중 하나를 골라 주세요.':committed?'선택한 길을 따라 자라요. Lv.10에 진화한 모습이 공개돼요.':'실루엣을 보고 성장길을 골라 주세요. 저장하면 친구와 성장길이 확정돼요.';
     for(const route of info?.routes||[]){
       const revealed=profile.level>=10&&committed===route.id;
       const card=document.createElement('button');card.type='button';card.className='route-card';card.dataset.route=route.id;card.setAttribute('aria-pressed',String(draftRoutes[pet]===route.id));card.disabled=profile.level<3||Boolean(committed&&committed!==route.id);
@@ -247,7 +320,7 @@
       card.append(art,name,final,note);card.addEventListener('click',()=>{draftRoutes[pet]=route.id;updatePreview();$('routeCards').querySelector(`[data-route="${route.id}"]`)?.focus();});$('routeCards').append(card);
     }
     $('previewStage').textContent=growthName(pet,draftRoutes,profile.level);
-    $('routeTimeline').textContent='Lv.1 씨앗 → Lv.2 새싹 → Lv.3 계열 선택 → Lv.5~9 점진적 성장 → Lv.10 최종 진화';
+    $('routeTimeline').textContent='Lv.1 씨앗 → Lv.2 새싹 → Lv.3 계열 선택 → Lv.4~9 점진적 성장 → Lv.10 최종 진화';
   }
   function refreshPositionControls(){
     const equipped=SLOTS.filter(s=>draftLook[s]!=='none'&&!$('previewAvatar').querySelector('.wear-'+s).hidden);
@@ -267,7 +340,13 @@
     $('closetOptions').querySelectorAll('button[data-group]').forEach(button=>{
       const key=button.dataset.group,id=button.dataset.item;
       button.setAttribute('aria-pressed',String(draftLook[key]===id));
-      if(key==='pet'){button.disabled=profile.level<3||Boolean(profile.family&&profile.family!==id);button.querySelector('small').textContent=profile.level<3?'잠김 · Lv.3':profile.family===id?'나의 성장 계열':profile.family?'다른 성장 계열':'선택 가능';}
+      if(key==='pet'){button.disabled=!petAllowed(id)||profile.level<3||Boolean(profile.family&&profile.family!==id);button.querySelector('small').textContent=!petAllowed(id)?'잠김 · 수강생 전용':profile.level<3?'잠김 · Lv.3':profile.family===id?'나의 성장 계열':profile.family?'다른 성장 계열':'선택 가능';}
+      if(key==='pet'){
+        let badge=button.querySelector('.other-forest-note');
+        if(!badge){badge=document.createElement('small');badge.className='other-forest-note';button.append(badge);}
+        const others=forestProfiles.flatMap((p,i)=>i!==activeForest&&p.family===id?[FORESTS[i].grades]:[]);
+        badge.textContent=others.length?others.join(' · ')+'에서도 키우는 계열':'';badge.hidden=!others.length;
+      }
       if(id==='routegift'){button.disabled=profile.level<10||!routeFor(draftLook.pet,draftRoutes);button.querySelector('small').textContent=profile.level<10?'잠김 · Lv.10':routeFor(draftLook.pet,draftRoutes)?.gift||'성장길 선택 필요';}
     });refreshPositionControls();
   }
@@ -304,7 +383,7 @@
     if(state&&!['result'].includes(state.phase))return;
     forestAudio.unlock();
     draftLook={...profile.look,poses:safePoses(profile.look.poses)};draftRoutes={...profile.routes};
-    const avatar=$('mascot').cloneNode(true);avatar.id='previewAvatar';const ground=document.createElement('div');ground.className='ground';$('previewHabitat').replaceChildren(avatar,ground);setupDragging(avatar);
+    const avatar=$('mascot').cloneNode(true);avatar.id='previewAvatar';avatar.classList.remove('friend-held','friend-falling','friend-landed');avatar.style.translate='';avatar.removeAttribute('role');avatar.removeAttribute('tabindex');avatar.removeAttribute('aria-label');const ground=document.createElement('div');ground.className='ground';$('previewHabitat').replaceChildren(avatar,ground);setupDragging(avatar);
     $('petName').value=draftLook.name;$('closetLevel').textContent=`LV. ${profile.level}`;$('closetOptions').replaceChildren();
     for(const [key,group] of Object.entries(WARDROBE)){
       const field=document.createElement('fieldset');field.className='wardrobe-group';const legend=document.createElement('legend');legend.textContent=group.label;field.append(legend);const grid=document.createElement('div');grid.className='item-grid';
@@ -312,7 +391,7 @@
         const button=document.createElement('button');button.type='button';button.className='wardrobe-item';button.dataset.group=key;button.dataset.item=id;
         const art=document.createElement('span');art.className='item-art';art.setAttribute('aria-hidden','true');
         if(key==='color'){art.classList.add('swatch');art.style.background=icon;}else if(key==='pet'){art.classList.add('pet-thumbnail');art.innerHTML=creatureSVG(id,null,3,'#aac875');}else if(SLOTS.includes(key)&&id!=='none'){art.classList.add('accessory-thumbnail');art.innerHTML=accessorySVG(id);}else art.textContent=icon;
-        const name=document.createElement('strong');name.textContent=label;const note=document.createElement('small');note.textContent=level>profile.level?`잠김 · Lv.${level}`:'사용 가능';button.disabled=level>profile.level;button.append(art,name,note);
+        const name=document.createElement('strong');name.textContent=label;const note=document.createElement('small');const privateLocked=(id==='studentgarden'&&!STUDENT_BG)||(key==='pet'&&!petAllowed(id));note.textContent=privateLocked?'수강생 전용':level>profile.level?`잠김 · Lv.${level}`:'사용 가능';button.disabled=privateLocked||level>profile.level;button.append(art,name,note);
         button.addEventListener('click',()=>{draftLook[key]=id;if(SLOTS.includes(key))selectedSlot=key;updatePreview();});grid.append(button);
       }field.append(grid);$('closetOptions').append(field);
     }updatePreview();$('closet').showModal();$('closeCloset').focus();
@@ -409,7 +488,7 @@
       oscillator.start(time);oscillator.stop(time+.09);
     }
     const phrases={tap:[[76,0,.11,.075]],correct:[[76,0,.18,.12],[81,.11,.27,.09]],bonus:[[76,0,.16,.11],[79,.1,.18,.1],[84,.2,.3,.09]],wrong:[[64,0,.17,.055],[60,.12,.22,.04]],level:[[72,0,.18,.09],[76,.11,.2,.09],[79,.22,.23,.09],[84,.34,.48,.09]],finish:[[72,0,.2,.07],[76,.15,.22,.07],[79,.3,.4,.065]],dress:[[79,0,.14,.08],[84,.08,.2,.07]]};
-    function effect(name,delay=0){if(!settings.effects||document.hidden)return;if(!ctx||ctx.state!=='running')return;if(name==='timer'){clockTick(ctx.currentTime+.015+delay);return;}for(const [pitch,offset,length,gain] of phrases[name]||phrases.tap)note(pitch,ctx.currentTime+.015+offset+delay,length,gain,'effect','bell');}
+    function effect(name,delay=0){if(!settings.effects||document.hidden)return;if(!ctx||ctx.state!=='running')return;if(name==='land'){const t=ctx.currentTime+.015;note(38,t,.18,.17,'effect','bass');note(45,t+.04,.12,.08,'effect','bass');return;}if(name==='timer'){clockTick(ctx.currentTime+.015+delay);return;}for(const [pitch,offset,length,gain] of phrases[name]||phrases.tap)note(pitch,ctx.currentTime+.015+offset+delay,length,gain,'effect','bell');}
     function duck(value){ducked=value;mix();}
     function pause(){stopMusic();if(ctx){for(const v of [...voices]){try{v.oscillator.stop();}catch{}voices.delete(v);}ctx.suspend().catch(()=>{});}status(active?'다른 화면을 보는 동안 음악을 쉬고 있어요.':'게임 시작 또는 소리 듣기를 누르면 재생돼요.');}
     $('bgmEnabled').checked=settings.music;$('sfxEnabled').checked=settings.effects;
@@ -495,14 +574,14 @@
       activeAudio.play().catch(()=>{if(token===soundToken)forestAudio.duck(false);fallback();});
     } else fallback();
   }
-  function screen(name) {['setup','game','result'].forEach(id=>$(id).hidden=id!==name);$('openCloset').disabled=name==='game';document.body.classList.toggle('playing',name==='game');}
+  function screen(name) {$('forestTabs').querySelectorAll('button').forEach(b=>b.disabled=name==='game');['setup','game','result'].forEach(id=>$(id).hidden=id!==name);$('openCloset').disabled=name==='game';document.body.classList.toggle('playing',name==='game');}
   function clearTimer(){if(timer!==null){clearInterval(timer);timer=null;}}
   function changeXP(delta) {
     if(state.mode==='practice') return 0;
     const before=profile.xp;
     // Keep the XP floor at the start of the level already earned.
-    profile.xp=Math.max((profile.level-1)*RULES.perLevel,profile.xp+delta);
-    profile.level=Math.max(profile.level,Math.floor(profile.xp/RULES.perLevel)+1);
+    profile.xp=Math.max(xpStart(profile.level),profile.xp+delta);
+    profile.level=Math.max(profile.level,levelFromXP(profile.xp));
     save();renderProfile();
     return profile.xp-before;
   }
@@ -524,7 +603,8 @@
     state.phase=bonus?'bonus':'basic';
     const word=state.queue[state.index];
     state.word=word;
-    state.directionNow=bonus?'ko-zh':state.direction==='mixed'?(Math.random()<.5?'zh-ko':'ko-zh'):state.direction;
+    // A bonus inherits its basic question direction, including mixed mode.
+    if(!bonus)state.directionNow=state.direction==='mixed'?(Math.random()<.5?'zh-ko':'ko-zh'):state.direction;
     state.entry=bonus?shuffle(word.collocations)[0]:word;
     const e=state.entry;
     const candidates=bonus
@@ -542,7 +622,7 @@
     $('roundProgress').max=state.queue.length;$('roundProgress').value=state.index;
     $('sessionXp').textContent=state.mode==='practice'?'경험치 없음':`${state.netXP>=0?'+':''}${state.netXP} XP`;
     $('questionKind').textContent=bonus?'✦ 짝꿍어휘 보너스 · +5 XP':'기본 단어 · '+(state.mode==='main'?'+10 XP':'천천히 풀어요');
-    $('questionInstruction').textContent=bonus?'이 뜻에 맞는 짝꿍 표현을 골라 주세요.':state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
+    $('questionInstruction').textContent=bonus?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
     $('questionText').textContent=state.directionNow==='zh-ko'?e.hanzi:e.meaning;
     $('questionText').classList.toggle('korean',state.directionNow==='ko-zh');
     $('questionText').lang=state.directionNow==='zh-ko'?'zh-CN':'ko';
@@ -586,13 +666,24 @@
     $('feedbackIcon').textContent=correct?'✓':id===null?'◷':'↻';
     $('feedbackTitle').textContent=correct?'정답이에요!':id===null?'시간이 다 됐어요':'다시 익히면 괜찮아요';
     $('rewardText').textContent=state.mode==='practice'?'부담 없이 익히는 중':delta?`${delta>0?'+':''}${delta} XP`:bonus?'보너스 오답 · 경험치 차감 없음':'레벨 보호 · 경험치 차감 없음';
-    $('answerHanzi').textContent=state.entry.hanzi;$('answerPinyin').textContent=state.entry.pinyin;$('answerMeaning').textContent=state.entry.meaning;
+    const koreanPrompt=state.directionNow==='ko-zh';
+    $('answerHanzi').textContent=koreanPrompt?state.entry.meaning:state.entry.hanzi;
+    $('answerHanzi').lang=koreanPrompt?'ko':'zh-CN';
+    $('answerHanzi').setAttribute('aria-expanded','false');
+    $('answerPinyin').hidden=true;$('answerMeaning').hidden=true;
+    $('answerPinyin').textContent=state.entry.pinyin;
+    $('answerMeaning').textContent=koreanPrompt?state.entry.hanzi:state.entry.meaning;
+    $('answerMeaning').lang=koreanPrompt?'zh-CN':'ko';
+    const details=$('answerMeaning').parentElement;
+    if(koreanPrompt)details.insertBefore($('answerMeaning'),$('answerPinyin'));
+    else details.insertBefore($('answerPinyin'),$('answerMeaning'));
+    $('pinyinHint').textContent=koreanPrompt?'먼저 중국어로 말해 보세요 · 뜻을 누르면 한자와 병음이 보여요':'먼저 읽고 뜻을 떠올려 보세요 · 한자를 누르면 병음과 뜻이 보여요';
     $('feedbackNote').textContent=state.offerBonus?'이 단어와 함께 쓰는 표현도 익혀 볼까요?':correct?'발음을 듣고 한 번 따라 말해 보세요.':'정답을 확인하세요. 결과 화면에서 다시 연습할 수 있어요.';
     $('continueBtn').textContent=state.offerBonus?'짝꿍어휘 도전 · +5 XP':state.index===state.queue.length-1?'학습 결과 보기':'다음 단어 →';
     $('skipBonus').hidden=!state.offerBonus;
     if(profile.level>previousLevel){
       const gifts=Object.values(WARDROBE).flatMap(g=>g.items).filter(i=>i[3]>previousLevel&&i[3]<=profile.level);
-      $('feedbackNote').textContent=`레벨 ${profile.level} 달성! `+([2,3,5,10].includes(profile.level)?(profile.level===2?'마음씨가 마음싹로 자랐어요!':profile.level===3?'학습 후 내 친구 꾸미기에서 성장 계열과 길을 선택하세요!':'친구가 더 자랐어요! 학습 후 달라진 모습을 확인하세요.'):gifts.length?gifts.map(i=>i[1]).join(' · ')+' 선물이 열렸어요. 학습 후 꾸며 보세요!':'친구와 한 걸음 더 자랐어요!');
+      $('feedbackNote').textContent=`레벨 ${profile.level} 달성! `+([2,3,4,5,10].includes(profile.level)?(profile.level===2?'마음씨가 마음싹로 자랐어요!':profile.level===3?'학습 후 내 친구 꾸미기에서 성장 계열과 길을 선택하세요!':'친구가 더 자랐어요! 학습 후 달라진 모습을 확인하세요.'):gifts.length?gifts.map(i=>i[1]).join(' · ')+' 선물이 열렸어요. 학습 후 꾸며 보세요!':'친구와 한 걸음 더 자랐어요!');
     }
     forestAudio.effect(correct?(bonus?'bonus':'correct'):'wrong');
     if(profile.level>previousLevel)forestAudio.effect('level',.32);
@@ -650,14 +741,113 @@
   $('voiceSelect').onchange=()=>{profile.voice=$('voiceSelect').value;save();};
   document.addEventListener('click',e=>{const control=e.target.closest('button,summary,a,input,select');if(control&&!control.disabled)forestAudio.unlock().then(ok=>{if(ok)forestAudio.effect('tap');});},{capture:true});
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopSound();});
+  const FRIEND_PHRASES=[
+    ['你好！','안녕!'],['加油！','힘내!'],['你真棒！','정말 잘했어!'],['谢谢你！','고마워!'],['我们一起学习吧！','우리 함께 공부하자!'],['慢慢来。','천천히 해.'],['再试一次！','한 번 더 해 봐!'],['别着急。','서두르지 마.'],['今天也要开心哦！','오늘도 즐겁게 보내!'],['休息一下吧！','잠깐 쉬자!'],['我很高兴！','난 정말 기뻐!'],['明天见！','내일 만나!']
+  ];
+  let phraseBag=[],bubbleTimer,bubbleEnd;
+  const friend=$('mascot'),bubble=$('friendBubble');
+  document.body.append(bubble);
+  const reducedMotion=()=>window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  function positionBubble(){
+    if(bubble.hidden)return;
+    const rect=friend.getBoundingClientRect(),route=routeFor(profile.look.pet,profile.routes);
+    const g=plantGeometry(profile.look.pet,route?.id,profile.level);
+    const headY=rect.top+(197*(1-g.scale)+g.head[1]*g.scale)*rect.height/210;
+    const width=bubble.offsetWidth||220;
+    bubble.style.left=Math.max(8,Math.min(window.innerWidth-width-8,rect.left+rect.width/2-width/2))+'px';
+    bubble.style.top=Math.max(8,headY-(bubble.offsetHeight||78)-15)+'px';
+  }
+  function hideBubble(){clearTimeout(bubbleTimer);clearTimeout(bubbleEnd);bubble.classList.remove('bubble-visible');bubbleEnd=setTimeout(()=>{bubble.hidden=true;},reducedMotion()?0:260);}
+  function chatWithFriend(){
+    if(!phraseBag.length)phraseBag=shuffle(FRIEND_PHRASES);
+    const [zh,ko]=phraseBag.pop();$('friendChinese').textContent=zh;$('friendKorean').textContent=ko;
+    clearTimeout(bubbleTimer);clearTimeout(bubbleEnd);bubble.hidden=false;positionBubble();
+    requestAnimationFrame(()=>bubble.classList.add('bubble-visible'));
+    bubbleTimer=setTimeout(hideBubble,4200);
+  }
+  friend.setAttribute('role','button');friend.tabIndex=0;
+  friend.setAttribute('aria-label','친구와 이야기하기. 길게 누르면 끌어 올릴 수 있어요');
+  let grip=null,holdTimer,fallFrame,landTimer,offsetX=0,offsetY=0,suppressClick=false;
+  const setOffset=()=>{friend.style.translate=`${offsetX}px ${offsetY}px`;positionBubble();};
+  function stopFall(){cancelAnimationFrame(fallFrame);clearTimeout(landTimer);friend.classList.remove('friend-falling','friend-landed');}
+  function land(){
+    offsetY=0;setOffset();friend.classList.remove('friend-held','friend-falling');friend.classList.add('friend-landed');
+    forestAudio.effect('land');
+    const stage=$('homeHabitat');stage.classList.remove('landing-dust');void stage.offsetWidth;stage.classList.add('landing-dust');
+    stage.style.setProperty('--impact-x',`calc(50% + ${offsetX}px)`);
+    landTimer=setTimeout(()=>{friend.classList.remove('friend-landed');stage.classList.remove('landing-dust');},650);
+  }
+  function fall(){
+    friend.classList.remove('friend-held');
+    if(offsetY>=-2){offsetY=0;setOffset();return;}
+    friend.classList.add('friend-falling');
+    if(reducedMotion()){land();return;}
+    let last=performance.now(),velocity=0;
+    const step=now=>{const dt=Math.min((now-last)/1000,.035);last=now;velocity+=1600*dt;offsetY=Math.min(0,offsetY+velocity*dt);setOffset();if(offsetY<0)fallFrame=requestAnimationFrame(step);else land();};
+    fallFrame=requestAnimationFrame(step);
+  }
+  friend.addEventListener('pointerdown',e=>{
+    if(e.button!==0||grip)return;
+    stopFall();suppressClick=false;forestAudio.unlock();
+    grip={id:e.pointerId,startX:e.clientX,startY:e.clientY,x:offsetX,y:offsetY,active:false};
+    friend.setPointerCapture?.(e.pointerId);
+    holdTimer=setTimeout(()=>{if(!grip)return;grip.active=true;suppressClick=true;hideBubble();friend.classList.add('friend-held');},220);
+  });
+  friend.addEventListener('pointermove',e=>{
+    if(!grip||e.pointerId!==grip.id||!grip.active)return;
+    const rect=friend.getBoundingClientRect(),stage=$('homeHabitat').getBoundingClientRect();
+    const maxX=Math.max(0,(stage.width-rect.width)/2);
+    offsetX=clamp(grip.x+e.clientX-grip.startX,-maxX,maxX);
+    const baseTop=rect.top-offsetY;
+    offsetY=clamp(grip.y+e.clientY-grip.startY,-Math.max(0,baseTop-12),0);setOffset();
+  });
+  function release(e){if(!grip||e.pointerId!==grip.id)return;clearTimeout(holdTimer);grip=null;friend.classList.remove('friend-held');if(friend.hasPointerCapture?.(e.pointerId))friend.releasePointerCapture(e.pointerId);fall();}
+  friend.addEventListener('pointerup',release);friend.addEventListener('pointercancel',release);friend.addEventListener('lostpointercapture',release);
+  friend.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.preventDefault();return;}chatWithFriend();});
+  friend.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();chatWithFriend();}});
+  function resetFriend(){clearTimeout(holdTimer);grip=null;stopFall();offsetX=offsetY=0;setOffset();friend.classList.remove('friend-held');$('homeHabitat').classList.remove('landing-dust');hideBubble();}
+  window.addEventListener('resize',resetFriend);window.addEventListener('scroll',positionBubble,{passive:true});
+  $('openCloset').addEventListener('click',resetFriend);$('startBtn').addEventListener('click',resetFriend);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)resetFriend();});
+  $('answerHanzi').onclick=()=>{const show=$('answerPinyin').hidden;$('answerPinyin').hidden=!show;$('answerMeaning').hidden=!show;$('answerHanzi').setAttribute('aria-expanded',String(show));};
   $('testVoice').onclick=()=>speak({hanzi:'你好，我们一起学习汉语吧！'});
   if('speechSynthesis' in window)window.speechSynthesis.addEventListener('voiceschanged',populateVoices);
-  for(const level of [...new Set(data.map(w=>w.level))]){
-    const option=[...$('levelSelect').options].find(o=>Number(o.value)===level);
-    if(option){option.disabled=false;option.textContent=`HSK ${level}급`;}
+  function renderForestTabs(){
+    document.body.dataset.forest=String(activeForest);
+    $('forestDescription').textContent=`${FORESTS[activeForest].name} · HSK ${FORESTS[activeForest].grades}은 한 친구와 함께해요. 숲마다 성장 기록은 따로 저장돼요.`;
+    $('forestTabs').querySelectorAll('button').forEach((button,i)=>{
+      button.setAttribute('aria-pressed',String(i===activeForest));
+      const p=forestProfiles[i];button.querySelector('small').textContent=`Lv.${p.level} · ${p.family?GROWTH[p.family].name:'마음씨부터 시작'}`;
+    });
   }
-  const updateCount=()=>{$('wordCount').textContent=`${data.filter(w=>w.level===Number($('levelSelect').value)).length}개의 단어`;};
+  function updateCount(){
+    const count=data.filter(w=>w.level===Number($('levelSelect').value)).length;
+    $('wordCount').textContent=count?`${count}개의 단어`:'어휘 준비 중';$('startBtn').disabled=count<4;
+  }
+  function populateGrades(preferred){
+    $('levelSelect').replaceChildren();
+    const first=FORESTS[activeForest].start;
+    for(let level=first;level<first+3;level++){
+      const count=data.filter(w=>w.level===level).length;
+      const option=document.createElement('option');option.value=String(level);option.disabled=count<4;
+      option.textContent=`HSK ${level}급${count<4?' · 준비 중':''}`;$('levelSelect').append(option);
+    }
+    const available=[...$('levelSelect').options].filter(o=>!o.disabled);
+    $('levelSelect').value=available.find(o=>o.value===String(preferred))?.value||available[0]?.value||String(first);
+    updateCount();
+  }
+  function switchForest(index){
+    if(index===activeForest||!FORESTS[index]||state&&['basic','bonus','feedback'].includes(state.phase))return;
+    save();stopSound();clearTimer();resetFriend();state=null;activeForest=index;profile=forestProfiles[index];
+    screen('setup');populateGrades();renderProfile();$('speechRate').value=profile.rate;populateVoices();modeChanged();save();
+  }
+  FORESTS.forEach((f,i)=>{
+    const button=document.createElement('button');button.type='button';button.className='forest-tab';
+    const title=document.createElement('strong');title.textContent=f.name+' · '+f.grades;
+    const note=document.createElement('small');button.append(title,note);button.onclick=()=>switchForest(i);$('forestTabs').append(button);
+  });
   $('levelSelect').onchange=updateCount;
+  populateGrades();
   updateCount();renderProfile();save();populateVoices();modeChanged();
   if(data.length<4){$('startBtn').disabled=true;$('ruleBox').textContent='data.js를 불러오지 못했어요. 네 파일을 같은 폴더에 두었는지 확인해 주세요.';}
 })();
