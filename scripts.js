@@ -4,19 +4,20 @@
  */
 (() => {
   'use strict';
-  const RULES = Object.freeze({seconds:7, baseXP:10, penalty:2, bonusXP:5});
+  const RULES = Object.freeze({seconds:7, baseXP:5, penalty:2, bonusXP:3});
   const KEY = 'word-forest-v1';
   let activeForest=0;
   const FORESTS=[{name:'초록빛 숲',grades:'1~3급',start:1},{name:'살구빛 숲',grades:'4~6급',start:4},{name:'보랏빛 숲',grades:'7~9급',start:7}];
   const forestKey=i=>i===0?KEY:KEY+'-forest-'+i;
   const STUDENT_BG = '';
   // HSK grade and character level are independent. Costs continue beyond Lv.10.
-  const xpNeeded = level => 100 + 50*(level-1) + 10*(level-1)**2;
-  const xpStart = level => {const n=level-1;return 100*n+25*n*(n-1)+10*n*(n-1)*(2*n-1)/6;};
-  function levelFromXP(xp){
+  const XP_MULTIPLIERS=[1,1.5,2];
+  const xpNeeded = (level,forest=activeForest) => (100 + 50*(level-1) + 10*(level-1)**2)*XP_MULTIPLIERS[forest];
+  const xpStart = (level,forest=activeForest) => {const n=level-1;return (100*n+25*n*(n-1)+10*n*(n-1)*(2*n-1)/6)*XP_MULTIPLIERS[forest];};
+  function levelFromXP(xp,forest=activeForest){
     let lo=1,hi=2;
-    while(xpStart(hi)<=xp)hi*=2;
-    while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(xpStart(mid)<=xp)lo=mid;else hi=mid;}
+    while(xpStart(hi,forest)<=xp)hi*=2;
+    while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(xpStart(mid,forest)<=xp)lo=mid;else hi=mid;}
     return lo;
   }
   const $ = id => document.getElementById(id);
@@ -238,14 +239,15 @@
   }
   let storageAvailable=true;
   function loadForest(index){
-    let loaded={schema:5,xp:0,level:1,voice:'',rate:.9,auto:false,look:{...LOOK_DEFAULT,poses:{}},routes:{},family:null};
+    let loaded={schema:6,xp:0,level:1,voice:'',rate:.9,auto:false,look:{...LOOK_DEFAULT,poses:{}},routes:{},family:null};
     try{
       const saved=JSON.parse(localStorage.getItem(forestKey(index))||'null');
       if(saved&&Number.isSafeInteger(saved.xp)&&saved.xp>=0){
         const oldLevel=Math.floor(saved.xp/100)+1;
-        const migrated=xpStart(oldLevel)+Math.floor((saved.xp%100)/100*xpNeeded(oldLevel));
-        const xp=saved.schema>=5?saved.xp:Math.min(Number.MAX_SAFE_INTEGER,migrated);
-        const level=levelFromXP(xp);
+        const migrated=xpStart(oldLevel,0)+Math.floor((saved.xp%100)/100*xpNeeded(oldLevel,0));
+        const baseXP=saved.schema>=5?saved.xp:migrated;
+        const xp=saved.schema>=6?saved.xp:Math.min(Number.MAX_SAFE_INTEGER,Math.floor(baseXP*XP_MULTIPLIERS[index]));
+        const level=levelFromXP(xp,index);
         loaded={...loaded,xp,level,voice:typeof saved.voice==='string'?saved.voice:'',rate:[.75,.9,1].includes(saved.rate)?saved.rate:.9,
           look:safeLook(saved.look,level),routes:safeRoutes(saved.routes,level),family:level>=3&&petAllowed(saved.family)&&GROWTH[saved.family]?saved.family:null};
         if(loaded.family)loaded.look.pet=loaded.family;
@@ -289,7 +291,7 @@
     avatar.classList.add('forest-avatar');avatar.style.background='transparent';
     let illustration=avatar.querySelector('.creature-art');if(!illustration){illustration=document.createElement('div');illustration.className='creature-art';avatar.prepend(illustration);}
     const concealed=avatar.id==='previewAvatar'&&g.adult&&profile.routes[look.pet]!==route?.id;
-    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,WARDROBE.color.items.find(i=>i[0]===look.color)[2],concealed);habitat.dataset.scene=look.scene;habitat.style.backgroundImage=look.scene==='studentgarden'&&STUDENT_BG?`url("${STUDENT_BG}")`:'';habitat.style.backgroundSize='cover';
+    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,WARDROBE.color.items.find(i=>i[0]===look.color)[2],concealed);habitat.dataset.scene=look.scene;habitat.style.backgroundImage=look.scene==='studentgarden'&&STUDENT_BG?`url("${[STUDENT_BG,'assets/garden-apricot.svg','assets/garden-violet.svg'][activeForest]}")`:'';habitat.style.backgroundSize='cover';
     for(const key of SLOTS){
       let el=avatar.querySelector('.wear-'+key);if(!el){el=document.createElement('span');el.className='wear-'+key;avatar.append(el);}
       const item=WARDROBE[key].items.find(i=>i[0]===look[key]);
@@ -418,13 +420,15 @@
     try{const raw=JSON.parse(localStorage.getItem(STORE)||'null');if(raw){for(const key of ['music','effects'])if(typeof raw[key]==='boolean')settings[key]=raw[key];for(const key of ['musicVolume','effectVolume'])if(typeof raw[key]==='number'&&Number.isFinite(raw[key]))settings[key]=Math.max(0,Math.min(1,raw[key]));}}catch{}
     let ctx=null,musicGain,effectGain,clock=null,nextTime=0,beat=0,active=false,ducked=false;
     // Five distinct original scores. Shuffle bag plays every track before reshuffling.
-    const TRACKS=[
+    const GREEN_TRACKS=[
       {name:'햇살이 내려앉은 숲',bpm:76,tone:'keys',pattern:[1,3,2,3],chords:[[48,52,55,59],[45,48,52,55],[53,57,60,64],[55,59,62,64]],melody:[72,null,76,79,77,76,null,72,69,null,72,76,74,null,72,null,72,76,77,null,81,79,77,null,74,null,76,79,77,74,null,71]},
       {name:'이슬 맺힌 아침 정원',bpm:70,tone:'bell',pattern:[2,1,3,1],chords:[[50,54,57,61],[47,50,54,57],[55,59,62,66],[57,61,64,66]],melody:[78,null,81,null,85,81,78,null,78,76,74,null,73,null,74,null,79,null,78,76,74,null,78,null,76,73,69,null,73,76,78,null]},
       {name:'구름 위의 낮잠',bpm:62,tone:'keys',pattern:[1,2,3,2],chords:[[53,57,60,64],[50,53,57,60],[46,50,53,57],[48,52,55,59]],melody:[69,null,null,72,76,null,72,null,74,null,69,null,65,null,null,69,70,null,74,null,77,74,null,70,67,null,64,67,72,null,null,null]},
       {name:'도토리 산책길',bpm:84,tone:'keys',pattern:[1,3,1,2],chords:[[55,59,62,66],[52,55,59,62],[48,52,55,59],[50,54,57,60]],melody:[74,71,null,67,69,null,71,74,76,74,71,null,67,71,76,null,72,76,79,76,74,72,71,null,69,74,78,76,74,69,null,66]},
       {name:'달빛 아래 작은 연못',bpm:66,tone:'bell',pattern:[3,1,2,1],chords:[[45,48,52,55],[53,57,60,64],[48,52,55,59],[55,59,62,64]],melody:[76,null,72,69,null,71,72,null,77,null,76,72,69,null,72,null,76,79,null,83,79,76,null,72,74,null,71,67,null,71,74,null]}
     ];
+    const MUSIC_BANKS=[GREEN_TRACKS,[{"name": "살구빛 소풍", "bpm": 104, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[48, 52, 55, 59], [53, 57, 60, 64], [50, 53, 57, 60], [55, 59, 62, 65]], "melody": [72, 76, 79, null, 76, 74, 72, 67, 69, 72, 77, 76, 74, null, 72, 69, 74, 77, 81, 77, 76, 74, null, 72, 71, 74, 79, 77, 74, 71, 72, null], "mood": "lively"}, {"name": "딸기 우체부", "bpm": 112, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[50, 54, 57, 61], [55, 59, 62, 66], [52, 55, 59, 62], [57, 61, 64, 67]], "melody": [74, null, 78, 81, 83, 81, 78, 74, 79, 83, 86, 83, 81, 79, 78, null, 76, 79, 83, 81, 79, 76, 74, 76, 73, 76, 81, 83, 81, 76, 74, null], "mood": "lively"}, {"name": "바람개비 장터", "bpm": 108, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[53, 57, 60, 64], [50, 53, 57, 60], [58, 62, 65, 69], [48, 52, 55, 58]], "melody": [77, 81, 84, 81, null, 79, 77, 76, 74, 77, 81, null, 79, 77, 74, 72, 74, 77, 82, 86, 84, 82, 81, 77, 76, 79, 84, 82, 79, 76, 77, null], "mood": "lively"}, {"name": "통통 도토리 버스", "bpm": 118, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[55, 59, 62, 66], [48, 52, 55, 59], [52, 55, 59, 62], [50, 54, 57, 60]], "melody": [79, 83, null, 86, 83, 81, 79, 74, 76, 79, 84, 83, 81, 79, 76, null, 76, 79, 83, 86, 83, null, 81, 79, 78, 81, 86, 84, 81, 78, 79, null], "mood": "lively"}, {"name": "노을의 작은 축제", "bpm": 100, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[48, 52, 55, 59], [45, 48, 52, 55], [53, 57, 60, 64], [55, 59, 62, 65]], "melody": [76, 79, 84, null, 83, 79, 76, 72, 72, 76, 81, 79, 76, 72, 69, null, 77, 81, 84, 81, 79, 77, 76, 72, 74, 77, 79, 83, 81, 77, 76, null], "mood": "lively"}],[{"name": "달빛 탐험 지도", "bpm": 88, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[45, 48, 52, 55], [53, 57, 60, 64], [50, 53, 57, 60], [52, 56, 59, 62]], "melody": [69, null, 72, 76, 71, null, 72, 69, 77, null, 76, 72, 69, 72, null, 76, 74, 77, null, 81, 77, 74, 72, null, 71, 68, 71, null, 76, 74, 71, null], "mood": "mystery"}, {"name": "안개 속 반딧불", "bpm": 82, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[50, 53, 57, 60], [58, 62, 65, 69], [55, 58, 62, 65], [57, 61, 64, 67]], "melody": [74, null, 77, null, 81, 77, 76, null, 77, 81, 82, null, 81, 77, 74, null, 79, null, 82, 86, 82, null, 79, 77, 76, 73, null, 76, 81, 79, 76, null], "mood": "mystery"}, {"name": "별을 찾는 발걸음", "bpm": 96, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[52, 55, 59, 62], [48, 52, 55, 59], [45, 48, 52, 55], [47, 51, 54, 57]], "melody": [76, 79, null, 83, 81, 79, 78, null, 79, 76, 72, null, 76, 79, 83, null, 81, 76, null, 72, 69, 72, 76, null, 78, 75, 78, 81, null, 78, 76, null], "mood": "mystery"}, {"name": "보랏빛 숲의 비밀", "bpm": 90, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[48, 51, 55, 58], [56, 60, 63, 67], [53, 56, 60, 63], [55, 59, 62, 65]], "melody": [72, null, 75, 79, 77, null, 75, 72, 80, 79, null, 75, 72, 75, 79, null, 77, 80, 84, null, 80, 77, 75, null, 74, 71, 74, 77, 79, null, 74, null], "mood": "mystery"}, {"name": "새벽의 보물상자", "bpm": 94, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[57, 60, 64, 67], [53, 57, 60, 64], [50, 53, 57, 60], [52, 56, 59, 62]], "melody": [81, 84, null, 88, 86, 84, 83, null, 84, 81, 77, 81, null, 84, 88, null, 86, 81, 77, null, 74, 77, 81, null, 80, 83, 88, null, 86, 83, 81, null], "mood": "mystery"}]];
+    let TRACKS=MUSIC_BANKS[0];
     const voices=new Set();let trackIndex=-1,bag=[];
     function chooseTrack(){
       if(!bag.length){bag=shuffle(TRACKS.map((_,i)=>i));if(bag[0]===trackIndex)[bag[0],bag[1]]=[bag[1],bag[0]];}
@@ -457,12 +461,19 @@
         if(pulse===0)note(chord[0]-12,nextTime,tempo*3.5,.065,'music','bass');
         note(chord[track.pattern[pulse]],nextTime,tempo*1.7,.05);
         if(pulse===2)note(chord[1]+12,nextTime+tempo*.5,tempo,.018,'music','bell');
+        if(track.mood==='lively'){
+          if(pulse===2)note(chord[0]-12,nextTime,tempo*.65,.035,'music','bass');
+          if(pulse===1||pulse===3)note(chord[2]+12,nextTime+tempo*.55,tempo*.35,.024,'music','keys');
+        }else if(track.mood==='mystery'){
+          note(chord[pulse%2?2:0]+12,nextTime+tempo*.5,tempo*.55,.016,'music','bell');
+        }
         const melody=track.melody[beat%track.melody.length];if(melody!==null)note(melody,nextTime+.035,tempo*1.55,.048,'music',track.tone);
         beat++;nextTime+=tempo;
         if(beat>=track.melody.length*2){chooseTrack();nextTime+=1.2;}
       }
     }
-    function startMusic(){if(!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status('♪ 오리지널 5곡을 무작위 순서로 재생 중');}
+    function setForest(index){stopMusic();TRACKS=MUSIC_BANKS[index];bag=[];trackIndex=-1;chooseTrack();startMusic();}
+    function startMusic(){if(!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status(`♪ ${FORESTS[activeForest].name} · 오리지널 5곡 무작위 재생`);}
     async function unlock(){
       active=true;
       try{
@@ -505,7 +516,7 @@
     window.addEventListener('pagehide',pause);window.addEventListener('pageshow',()=>{if(active&&!document.hidden)unlock();});
     document.addEventListener('pointerdown',()=>{if(active&&ctx&&ctx.state!=='running'&&!document.hidden)unlock();},{passive:true});
     status('게임 시작 또는 소리 듣기를 누르면 재생돼요.');
-    return {unlock,effect,duck};
+    return {unlock,effect,duck,setForest};
   })();
   $('welcomeFriends').innerHTML=['mushroom','petal','succulent'].map(p=>'<span>'+creatureSVG(p,null,3)+'</span>').join('');
   $('enterLobby').onclick=()=>{
@@ -617,11 +628,11 @@
     for(const candidate of ordered){if(!seen.has(label(candidate))){wrong.push(candidate);seen.add(label(candidate));}if(wrong.length===3)break;}
     if(wrong.length!==3) {finish();$('resultSubtitle').textContent='서로 다른 보기가 부족해 종료했어요. data.js 내용을 확인해 주세요.';return;}
     state.options=shuffle([e,...wrong]);
-    $('gameMode').textContent=state.mode==='practice'?'☘ 연습 모드':'⚡ 본게임';
+    $('gameMode').textContent=state.mode==='practice'?'☘ 준비 운동':'⚡ 덩어리 숲속으로';
     $('questionNumber').textContent=`${state.index+1} / ${state.queue.length} 단어`;
     $('roundProgress').max=state.queue.length;$('roundProgress').value=state.index;
     $('sessionXp').textContent=state.mode==='practice'?'경험치 없음':`${state.netXP>=0?'+':''}${state.netXP} XP`;
-    $('questionKind').textContent=bonus?'✦ 짝꿍어휘 보너스 · +5 XP':'기본 단어 · '+(state.mode==='main'?'+10 XP':'천천히 풀어요');
+    $('questionKind').textContent=bonus?'✦ 짝꿍어휘 보너스 · +3 XP':'기본 단어 · '+(state.mode==='main'?'+5 XP':'천천히 풀어요');
     $('questionInstruction').textContent=bonus?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
     $('questionText').textContent=state.directionNow==='zh-ko'?e.hanzi:e.meaning;
     $('questionText').classList.toggle('korean',state.directionNow==='ko-zh');
@@ -679,7 +690,7 @@
     else details.insertBefore($('answerPinyin'),$('answerMeaning'));
     $('pinyinHint').textContent=koreanPrompt?'먼저 중국어로 말해 보세요 · 뜻을 누르면 한자와 병음이 보여요':'먼저 읽고 뜻을 떠올려 보세요 · 한자를 누르면 병음과 뜻이 보여요';
     $('feedbackNote').textContent=state.offerBonus?'이 단어와 함께 쓰는 표현도 익혀 볼까요?':correct?'발음을 듣고 한 번 따라 말해 보세요.':'정답을 확인하세요. 결과 화면에서 다시 연습할 수 있어요.';
-    $('continueBtn').textContent=state.offerBonus?'짝꿍어휘 도전 · +5 XP':state.index===state.queue.length-1?'학습 결과 보기':'다음 단어 →';
+    $('continueBtn').textContent=state.offerBonus?'짝꿍어휘 도전 · +3 XP':state.index===state.queue.length-1?'학습 결과 보기':'다음 단어 →';
     $('skipBonus').hidden=!state.offerBonus;
     if(profile.level>previousLevel){
       const gifts=Object.values(WARDROBE).flatMap(g=>g.items).filter(i=>i[3]>previousLevel&&i[3]<=profile.level);
@@ -719,7 +730,7 @@
   }
   function modeChanged(){
     const practice=document.querySelector('input[name="mode"]:checked').value==='practice';
-    $('ruleBox').innerHTML=practice?'시간제한 없이 기본 단어만 연습해요.<br>경험치 획득·차감과 보너스 문제는 없어요.':'기본 정답 <b>+10 XP</b> · 오답/시간 초과 <b>−2 XP</b><br>보너스 정답 <b>+5 XP</b> · 보너스 오답 차감 없음';
+    $('ruleBox').innerHTML=practice?'시간제한 없이 기본 단어만 연습해요.<br>경험치 획득·차감과 보너스 문제는 없어요.':'기본 정답 <b>+5 XP</b> · 오답/시간 초과 <b>−2 XP</b><br>보너스 정답 <b>+3 XP</b> · 보너스 오답 차감 없음';
     $('startBtn').firstChild.textContent=practice?'연습 시작하기 ':'모험 시작하기 ';
     $('startBtn').nextElementSibling.textContent=practice?'틀려도 괜찮아요. 발음을 듣고 천천히 익혀 보세요.':'기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
   }
@@ -814,7 +825,7 @@
   if('speechSynthesis' in window)window.speechSynthesis.addEventListener('voiceschanged',populateVoices);
   function renderForestTabs(){
     document.body.dataset.forest=String(activeForest);
-    $('forestDescription').textContent=`${FORESTS[activeForest].name} · HSK ${FORESTS[activeForest].grades}은 한 친구와 함께해요. 숲마다 성장 기록은 따로 저장돼요.`;
+    $('forestDescription').textContent=`${FORESTS[activeForest].name} · HSK ${FORESTS[activeForest].grades}은 한 친구와 함께해요. 숲마다 성장 기록은 따로 저장돼요. 다음 레벨 필요 XP ×${XP_MULTIPLIERS[activeForest]}.`;
     $('forestTabs').querySelectorAll('button').forEach((button,i)=>{
       button.setAttribute('aria-pressed',String(i===activeForest));
       const p=forestProfiles[i];button.querySelector('small').textContent=`Lv.${p.level} · ${p.family?GROWTH[p.family].name:'마음씨부터 시작'}`;
@@ -839,7 +850,7 @@
   function switchForest(index){
     if(index===activeForest||!FORESTS[index]||state&&['basic','bonus','feedback'].includes(state.phase))return;
     save();stopSound();clearTimer();resetFriend();state=null;activeForest=index;profile=forestProfiles[index];
-    screen('setup');populateGrades();renderProfile();$('speechRate').value=profile.rate;populateVoices();modeChanged();save();
+    forestAudio.setForest(index);screen('setup');populateGrades();renderProfile();$('speechRate').value=profile.rate;populateVoices();modeChanged();save();
   }
   FORESTS.forEach((f,i)=>{
     const button=document.createElement('button');button.type='button';button.className='forest-tab';

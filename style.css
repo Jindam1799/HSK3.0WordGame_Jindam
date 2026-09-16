@@ -273,3 +273,15 @@ body[data-forest="1"] .friend-bubble,body[data-forest="2"] .friend-bubble {backg
 body[data-forest="1"] .friend-bubble::before,body[data-forest="2"] .friend-bubble::before {background:var(--paper);border-color:var(--line);}
 .friend-bubble strong{color:var(--green);}.other-forest-note{color:var(--green);font-size:10px;line-height:1.5;}
 @media(max-width:620px){.forest-tabs{gap:6px}.forest-tab{padding:10px 7px;border-radius:12px}.forest-tab strong{font-size:12px}.forest-tab small{font-size:10px}.forest-selector{margin-bottom:14px}}
+
+/* Coordinate the companion panel and mode cards with each forest. */
+body[data-forest="1"] {--companion-paper:#f6e8dc;--badge-paper:#edd2bb;--xp-track:#e8d3c2;--panel-button:#fff8f1;}
+body[data-forest="2"] {--companion-paper:#ede5f5;--badge-paper:#dfd1ec;--xp-track:#dcd1e8;--panel-button:#faf6ff;}
+body[data-forest="1"] .companion,body[data-forest="2"] .companion {background:var(--companion-paper);border-color:var(--line);}
+body[data-forest="1"] .tag,body[data-forest="2"] .tag,body[data-forest="1"] .soft-tag,body[data-forest="2"] .soft-tag,body[data-forest="1"] .mode-pill,body[data-forest="2"] .mode-pill {background:var(--badge-paper);color:var(--green);}
+body[data-forest="1"] progress,body[data-forest="2"] progress {background:var(--xp-track);}
+body[data-forest="1"] progress::-webkit-progress-bar,body[data-forest="2"] progress::-webkit-progress-bar {background:var(--xp-track);}
+body[data-forest="1"] .growth-path,body[data-forest="2"] .growth-path {border-color:var(--line);}
+body[data-forest="1"] .closet-open,body[data-forest="2"] .closet-open {background:var(--panel-button);border-color:var(--line);}
+body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(input:checked) {background:var(--light);}
+.mode strong {line-height:1.4;word-break:keep-all;}.mode small {font-size:11px;line-height:1.65;word-break:keep-all;}
