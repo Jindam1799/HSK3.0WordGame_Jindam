@@ -3,7 +3,7 @@
  * Some meanings/unfinished phrases have been clarified for quiz use.
  * Phrase pinyin is a draft generated with context overrides; review before publication.
  * audio: optional relative URL to a reviewed female-voice recording.
- * Levels 1–3 use unique IDs. sourceHanzi preserves edited source expressions.
+ * Levels 1–4 use unique IDs. sourceHanzi preserves edited source expressions.
  */
 window.HSK_DATA = [
   {
@@ -24132,7 +24132,7 @@ window.HSK_DATA = [
     "level": 3,
     "hanzi": "种",
     "pinyin": "zhǒng / zhòng",
-    "meaning": "종류(zhǒng); 심다(zhòng)",
+    "meaning": "종류; 심다",
     "audio": "",
     "collocations": [
       {
@@ -24650,6 +24650,3111 @@ window.HSK_DATA = [
         "hanzi": "做客礼仪",
         "pinyin": "zuò kè lǐ yí",
         "meaning": "방문 예절",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-001",
+    "level": 4,
+    "hanzi": "爱",
+    "pinyin": "ài",
+    "meaning": "사랑하다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-001-p1",
+        "hanzi": "爱学习",
+        "pinyin": "ài xué xí",
+        "meaning": "공부를 좋아하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-001-p2",
+        "hanzi": "爱运动",
+        "pinyin": "ài yùn dòng",
+        "meaning": "운동을 좋아하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-001-p3",
+        "hanzi": "爱祖国",
+        "pinyin": "ài zǔ guó",
+        "meaning": "조국을 사랑하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-002",
+    "level": 4,
+    "hanzi": "八",
+    "pinyin": "bā",
+    "meaning": "여덟, 8",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-002-p1",
+        "hanzi": "八个人",
+        "pinyin": "bā gè rén",
+        "meaning": "여덟 명",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-002-p2",
+        "hanzi": "八本书",
+        "pinyin": "bā běn shū",
+        "meaning": "책 여덟 권",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-002-p3",
+        "hanzi": "八月",
+        "pinyin": "bā yuè",
+        "meaning": "8월",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-003",
+    "level": 4,
+    "hanzi": "爸爸",
+    "pinyin": "bàba",
+    "meaning": "아빠",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-003-p1",
+        "hanzi": "我爸爸",
+        "pinyin": "wǒ bà ba",
+        "meaning": "우리 아빠",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-003-p2",
+        "hanzi": "爸爸妈妈",
+        "pinyin": "bà ba mā ma",
+        "meaning": "아빠와 엄마",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-003-p3",
+        "hanzi": "爸爸的车",
+        "pinyin": "bà ba de chē",
+        "meaning": "아빠의 차",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-004",
+    "level": 4,
+    "hanzi": "杯子",
+    "pinyin": "bēizi",
+    "meaning": "컵, 잔",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-004-p1",
+        "hanzi": "一个杯子",
+        "pinyin": "yí gè bēi zi",
+        "meaning": "컵 하나",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-004-p2",
+        "hanzi": "洗杯子",
+        "pinyin": "xǐ bēi zi",
+        "meaning": "컵을 씻다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-004-p3",
+        "hanzi": "打破杯子",
+        "pinyin": "dǎ pò bēi zi",
+        "meaning": "컵을 깨뜨리다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-005",
+    "level": 4,
+    "hanzi": "北京",
+    "pinyin": "Běijīng",
+    "meaning": "베이징",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-005-p1",
+        "hanzi": "北京大学",
+        "pinyin": "běi jīng dà xué",
+        "meaning": "베이징 대학교",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-005-p2",
+        "hanzi": "去北京",
+        "pinyin": "qù běi jīng",
+        "meaning": "베이징에 가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-005-p3",
+        "hanzi": "北京烤鸭",
+        "pinyin": "běi jīng kǎo yā",
+        "meaning": "베이징 오리구이",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-006",
+    "level": 4,
+    "hanzi": "本",
+    "pinyin": "běn",
+    "meaning": "권(양사), 근본",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-006-p1",
+        "hanzi": "一本书",
+        "pinyin": "yì běn shū",
+        "meaning": "책 한 권",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-006-p2",
+        "hanzi": "本子",
+        "pinyin": "běn zi",
+        "meaning": "공책",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-006-p3",
+        "hanzi": "课本",
+        "pinyin": "kè běn",
+        "meaning": "교과서",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-007",
+    "level": 4,
+    "hanzi": "不",
+    "pinyin": "bù",
+    "meaning": "아니다, ~하지 않다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-007-p1",
+        "hanzi": "不知道",
+        "pinyin": "bù zhī dào",
+        "meaning": "모르다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-007-p2",
+        "hanzi": "不客气",
+        "pinyin": "bú kè qi",
+        "meaning": "천만에요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-007-p3",
+        "hanzi": "不喜欢",
+        "pinyin": "bù xǐ huan",
+        "meaning": "좋아하지 않다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-008",
+    "level": 4,
+    "hanzi": "不客气",
+    "pinyin": "bú kèqi",
+    "meaning": "천만에요, 사양하지 않다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-008-p1",
+        "hanzi": "您别客气",
+        "pinyin": "nín bié kè qi",
+        "meaning": "사양하지 마세요",
+        "audio": "",
+        "sourceHanzi": "您不客气"
+      },
+      {
+        "id": "hsk4-008-p2",
+        "hanzi": "不客气，请坐",
+        "pinyin": "bú kè qi， qǐng zuò",
+        "meaning": "천만에요, 앉으세요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-008-p3",
+        "hanzi": "不用客气",
+        "pinyin": "bú yòng kè qi",
+        "meaning": "사양하지 마세요",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-009",
+    "level": 4,
+    "hanzi": "菜",
+    "pinyin": "cài",
+    "meaning": "요리, 음식",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-009-p1",
+        "hanzi": "做菜",
+        "pinyin": "zuò cài",
+        "meaning": "요리를 하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-009-p2",
+        "hanzi": "点菜",
+        "pinyin": "diǎn cài",
+        "meaning": "요리를 주문하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-009-p3",
+        "hanzi": "买菜",
+        "pinyin": "mǎi cài",
+        "meaning": "채소를 사다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-010",
+    "level": 4,
+    "hanzi": "茶",
+    "pinyin": "chá",
+    "meaning": "차(음료)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-010-p1",
+        "hanzi": "喝茶",
+        "pinyin": "hē chá",
+        "meaning": "차를 마시다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-010-p2",
+        "hanzi": "泡茶",
+        "pinyin": "pào chá",
+        "meaning": "차를 우리다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-010-p3",
+        "hanzi": "绿茶",
+        "pinyin": "lǜ chá",
+        "meaning": "녹차",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-011",
+    "level": 4,
+    "hanzi": "吃",
+    "pinyin": "chī",
+    "meaning": "먹다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-011-p1",
+        "hanzi": "吃饭",
+        "pinyin": "chī fàn",
+        "meaning": "밥을 먹다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-011-p2",
+        "hanzi": "吃药",
+        "pinyin": "chī yào",
+        "meaning": "약을 먹다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-011-p3",
+        "hanzi": "吃惊",
+        "pinyin": "chī jīng",
+        "meaning": "놀라다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-012",
+    "level": 4,
+    "hanzi": "出租车",
+    "pinyin": "chūzūchē",
+    "meaning": "택시",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-012-p1",
+        "hanzi": "坐出租车",
+        "pinyin": "zuò chū zū chē",
+        "meaning": "택시를 타다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-012-p2",
+        "hanzi": "叫出租车",
+        "pinyin": "jiào chū zū chē",
+        "meaning": "택시를 부르다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-012-p3",
+        "hanzi": "出租车司机",
+        "pinyin": "chū zū chē sī jī",
+        "meaning": "택시 기사",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-013",
+    "level": 4,
+    "hanzi": "打电话",
+    "pinyin": "dǎ diànhuà",
+    "meaning": "전화를 걸다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-013-p1",
+        "hanzi": "给我打电话",
+        "pinyin": "gěi wǒ dǎ diàn huà",
+        "meaning": "나에게 전화하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-013-p2",
+        "hanzi": "打电话联系",
+        "pinyin": "dǎ diàn huà lián xì",
+        "meaning": "전화로 연락하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-013-p3",
+        "hanzi": "打电话订票",
+        "pinyin": "dǎ diàn huà dìng piào",
+        "meaning": "전화로 예약하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-014",
+    "level": 4,
+    "hanzi": "大",
+    "pinyin": "dà",
+    "meaning": "크다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-014-p1",
+        "hanzi": "大城市",
+        "pinyin": "dài chéng shì",
+        "meaning": "대도시",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-014-p2",
+        "hanzi": "长大",
+        "pinyin": "zhǎng dà",
+        "meaning": "자라다, 크다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-014-p3",
+        "hanzi": "大声",
+        "pinyin": "dà shēng",
+        "meaning": "큰 소리로",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-015",
+    "level": 4,
+    "hanzi": "的",
+    "pinyin": "de",
+    "meaning": "~의(관형어 표지)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-015-p1",
+        "hanzi": "我的书",
+        "pinyin": "wǒ de shū",
+        "meaning": "나의 책",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-015-p2",
+        "hanzi": "红色的花",
+        "pinyin": "hóng sè de huā",
+        "meaning": "빨간 꽃",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-015-p3",
+        "hanzi": "他的家",
+        "pinyin": "tā de jiā",
+        "meaning": "그의 집",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-016",
+    "level": 4,
+    "hanzi": "点",
+    "pinyin": "diǎn",
+    "meaning": "시(시각), 조금, 주문하다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-016-p1",
+        "hanzi": "一点儿",
+        "pinyin": "yì diǎnr",
+        "meaning": "조금",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-016-p2",
+        "hanzi": "点菜",
+        "pinyin": "diǎn cài",
+        "meaning": "요리를 주문하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-016-p3",
+        "hanzi": "八点",
+        "pinyin": "bā diǎn",
+        "meaning": "8시",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-017",
+    "level": 4,
+    "hanzi": "电脑",
+    "pinyin": "diànnǎo",
+    "meaning": "컴퓨터",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-017-p1",
+        "hanzi": "用电脑",
+        "pinyin": "yòng diàn nǎo",
+        "meaning": "컴퓨터를 사용하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-017-p2",
+        "hanzi": "电脑游戏",
+        "pinyin": "diàn nǎo yóu xì",
+        "meaning": "컴퓨터 게임",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-017-p3",
+        "hanzi": "买电脑",
+        "pinyin": "mǎi diàn nǎo",
+        "meaning": "컴퓨터를 사다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-018",
+    "level": 4,
+    "hanzi": "电视",
+    "pinyin": "diànshì",
+    "meaning": "텔레비전",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-018-p1",
+        "hanzi": "看电视",
+        "pinyin": "kàn diàn shì",
+        "meaning": "텔레비전을 보다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-018-p2",
+        "hanzi": "电视节目",
+        "pinyin": "diàn shì jié mù",
+        "meaning": "텔레비전 프로그램",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-018-p3",
+        "hanzi": "打开电视",
+        "pinyin": "dǎ kāi diàn shì",
+        "meaning": "텔레비전을 켜다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-019",
+    "level": 4,
+    "hanzi": "电影",
+    "pinyin": "diànyǐng",
+    "meaning": "영화",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-019-p1",
+        "hanzi": "看电影",
+        "pinyin": "kàn diàn yǐng",
+        "meaning": "영화를 보다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-019-p2",
+        "hanzi": "电影院",
+        "pinyin": "diàn yǐng yuàn",
+        "meaning": "영화관",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-019-p3",
+        "hanzi": "拍电影",
+        "pinyin": "pāi diàn yǐng",
+        "meaning": "영화를 촬영하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-020",
+    "level": 4,
+    "hanzi": "东西",
+    "pinyin": "dōngxi",
+    "meaning": "물건, 것",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-020-p1",
+        "hanzi": "买东西",
+        "pinyin": "mǎi dōng xī",
+        "meaning": "물건을 사다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-020-p2",
+        "hanzi": "收拾东西",
+        "pinyin": "shōu shí dōng xī",
+        "meaning": "물건을 정리하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-020-p3",
+        "hanzi": "这个东西",
+        "pinyin": "zhè ge dōng xī",
+        "meaning": "이 물건",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-021",
+    "level": 4,
+    "hanzi": "都",
+    "pinyin": "dōu",
+    "meaning": "모두, 다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-021-p1",
+        "hanzi": "都喜欢",
+        "pinyin": "dōu xǐ huan",
+        "meaning": "모두 좋아하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-021-p2",
+        "hanzi": "全都对",
+        "pinyin": "quán dōu duì",
+        "meaning": "전부 맞다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-021-p3",
+        "hanzi": "都来了",
+        "pinyin": "dōu lái le",
+        "meaning": "모두 왔다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-022",
+    "level": 4,
+    "hanzi": "读",
+    "pinyin": "dú",
+    "meaning": "읽다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-022-p1",
+        "hanzi": "读书",
+        "pinyin": "dú shū",
+        "meaning": "책을 읽다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-022-p2",
+        "hanzi": "读课文",
+        "pinyin": "dú kè wén",
+        "meaning": "본문을 읽다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-022-p3",
+        "hanzi": "朗读",
+        "pinyin": "lǎng dú",
+        "meaning": "낭독하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-023",
+    "level": 4,
+    "hanzi": "对不起",
+    "pinyin": "duìbuqǐ",
+    "meaning": "미안합니다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-023-p1",
+        "hanzi": "对不起，来晚了",
+        "pinyin": "duì bu qǐ， lái wǎn le",
+        "meaning": "늦어서 미안해요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-023-p2",
+        "hanzi": "对不起，我错了",
+        "pinyin": "duì bu qǐ， wǒ cuò le",
+        "meaning": "제 잘못이에요, 죄송해요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-023-p3",
+        "hanzi": "真的对不起",
+        "pinyin": "zhēn de duì bu qǐ",
+        "meaning": "정말 죄송해요",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-024",
+    "level": 4,
+    "hanzi": "多",
+    "pinyin": "duō",
+    "meaning": "많다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-024-p1",
+        "hanzi": "多少钱",
+        "pinyin": "duō shǎo qián",
+        "meaning": "얼마예요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-024-p2",
+        "hanzi": "很多人",
+        "pinyin": "hěn duō rén",
+        "meaning": "많은 사람",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-024-p3",
+        "hanzi": "多年",
+        "pinyin": "duō nián",
+        "meaning": "여러 해",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-025",
+    "level": 4,
+    "hanzi": "多少",
+    "pinyin": "duōshao",
+    "meaning": "얼마, 몇",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-025-p1",
+        "hanzi": "多少钱",
+        "pinyin": "duō shǎo qián",
+        "meaning": "얼마예요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-025-p2",
+        "hanzi": "多少人",
+        "pinyin": "duō shǎo rén",
+        "meaning": "몇 명",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-025-p3",
+        "hanzi": "多少岁",
+        "pinyin": "duō shǎo suì",
+        "meaning": "몇 살",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-026",
+    "level": 4,
+    "hanzi": "儿子",
+    "pinyin": "érzi",
+    "meaning": "아들",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-026-p1",
+        "hanzi": "我的儿子",
+        "pinyin": "wǒ de ér zi",
+        "meaning": "내 아들",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-026-p2",
+        "hanzi": "儿子和女儿",
+        "pinyin": "ér zi hé nǚ ér",
+        "meaning": "아들과 딸",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-026-p3",
+        "hanzi": "养儿子",
+        "pinyin": "yǎng ér zi",
+        "meaning": "아들을 키우다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-027",
+    "level": 4,
+    "hanzi": "二",
+    "pinyin": "èr",
+    "meaning": "둘, 2",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-027-p1",
+        "hanzi": "二月",
+        "pinyin": "èr yuè",
+        "meaning": "2월",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-027-p2",
+        "hanzi": "第二",
+        "pinyin": "dì èr",
+        "meaning": "두 번째",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-027-p3",
+        "hanzi": "二楼",
+        "pinyin": "èr lóu",
+        "meaning": "2층",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-028",
+    "level": 4,
+    "hanzi": "饭馆",
+    "pinyin": "fànguǎn",
+    "meaning": "식당",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-028-p1",
+        "hanzi": "去饭馆",
+        "pinyin": "qù fàn guǎn",
+        "meaning": "식당에 가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-028-p2",
+        "hanzi": "开饭馆",
+        "pinyin": "kāi fàn guǎn",
+        "meaning": "식당을 열다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-028-p3",
+        "hanzi": "在饭馆吃饭",
+        "pinyin": "zài fàn guǎn chī fàn",
+        "meaning": "식당에서 밥을 먹다",
+        "audio": "",
+        "sourceHanzi": "饭馆吃饭"
+      }
+    ]
+  },
+  {
+    "id": "hsk4-029",
+    "level": 4,
+    "hanzi": "飞机",
+    "pinyin": "fēijī",
+    "meaning": "비행기",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-029-p1",
+        "hanzi": "坐飞机",
+        "pinyin": "zuò fēi jī",
+        "meaning": "비행기를 타다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-029-p2",
+        "hanzi": "飞机票",
+        "pinyin": "fēi jī piào",
+        "meaning": "비행기 표",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-029-p3",
+        "hanzi": "飞机场",
+        "pinyin": "fēi jī chǎng",
+        "meaning": "공항",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-030",
+    "level": 4,
+    "hanzi": "分钟",
+    "pinyin": "fēnzhōng",
+    "meaning": "분(시간 단위)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-030-p1",
+        "hanzi": "五分钟",
+        "pinyin": "wǔ fēn zhōng",
+        "meaning": "5분",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-030-p2",
+        "hanzi": "等一分钟",
+        "pinyin": "děng yì fēn zhōng",
+        "meaning": "1분 기다리다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-030-p3",
+        "hanzi": "十分钟",
+        "pinyin": "shí fēn zhōng",
+        "meaning": "10분",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-031",
+    "level": 4,
+    "hanzi": "高兴",
+    "pinyin": "gāoxìng",
+    "meaning": "기쁘다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-031-p1",
+        "hanzi": "很高兴",
+        "pinyin": "hěn gāo xìng",
+        "meaning": "매우 기쁘다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-031-p2",
+        "hanzi": "高兴地笑",
+        "pinyin": "gāo xìng de xiào",
+        "meaning": "기쁘게 웃다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-031-p3",
+        "hanzi": "认识你很高兴",
+        "pinyin": "rèn shi nǐ hěn gāo xìng",
+        "meaning": "만나서 반갑습니다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-032",
+    "level": 4,
+    "hanzi": "个",
+    "pinyin": "gè",
+    "meaning": "개, 명(양사)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-032-p1",
+        "hanzi": "一个人",
+        "pinyin": "yí gè rén",
+        "meaning": "한 사람",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-032-p2",
+        "hanzi": "几个",
+        "pinyin": "jǐ gè",
+        "meaning": "몇 개",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-032-p3",
+        "hanzi": "这个",
+        "pinyin": "zhè ge",
+        "meaning": "이것",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-033",
+    "level": 4,
+    "hanzi": "工作",
+    "pinyin": "gōngzuò",
+    "meaning": "일하다, 직업",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-033-p1",
+        "hanzi": "找工作",
+        "pinyin": "zhǎo gōng zuò",
+        "meaning": "직업을 구하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-033-p2",
+        "hanzi": "工作时间",
+        "pinyin": "gōng zuò shí jiān",
+        "meaning": "근무 시간",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-033-p3",
+        "hanzi": "努力工作",
+        "pinyin": "nǔ lì gōng zuò",
+        "meaning": "열심히 일하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-034",
+    "level": 4,
+    "hanzi": "狗",
+    "pinyin": "gǒu",
+    "meaning": "개(동물)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-034-p1",
+        "hanzi": "养狗",
+        "pinyin": "yǎng gǒu",
+        "meaning": "개를 기르다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-034-p2",
+        "hanzi": "小狗",
+        "pinyin": "xiǎo gǒu",
+        "meaning": "강아지",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-034-p3",
+        "hanzi": "狗叫",
+        "pinyin": "gǒu jiào",
+        "meaning": "개가 짖다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-035",
+    "level": 4,
+    "hanzi": "汉语",
+    "pinyin": "Hànyǔ",
+    "meaning": "중국어",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-035-p1",
+        "hanzi": "学汉语",
+        "pinyin": "xué hàn yǔ",
+        "meaning": "중국어를 배우다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-035-p2",
+        "hanzi": "汉语水平",
+        "pinyin": "hàn yǔ shuǐ píng",
+        "meaning": "중국어 실력",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-035-p3",
+        "hanzi": "说汉语",
+        "pinyin": "shuō hàn yǔ",
+        "meaning": "중국어를 말하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-036",
+    "level": 4,
+    "hanzi": "好",
+    "pinyin": "hǎo",
+    "meaning": "좋다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-036-p1",
+        "hanzi": "很好",
+        "pinyin": "hěn hǎo",
+        "meaning": "매우 좋다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-036-p2",
+        "hanzi": "好朋友",
+        "pinyin": "hǎo péng yǒu",
+        "meaning": "친한 친구",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-036-p3",
+        "hanzi": "身体好",
+        "pinyin": "shēn tǐ hǎo",
+        "meaning": "몸이 건강하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-037",
+    "level": 4,
+    "hanzi": "喝",
+    "pinyin": "hē",
+    "meaning": "마시다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-037-p1",
+        "hanzi": "喝水",
+        "pinyin": "hē shuǐ",
+        "meaning": "물을 마시다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-037-p2",
+        "hanzi": "喝茶",
+        "pinyin": "hē chá",
+        "meaning": "차를 마시다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-037-p3",
+        "hanzi": "喝酒",
+        "pinyin": "hē jiǔ",
+        "meaning": "술을 마시다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-038",
+    "level": 4,
+    "hanzi": "和",
+    "pinyin": "hé",
+    "meaning": "~와, 화목하다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-038-p1",
+        "hanzi": "我和你",
+        "pinyin": "wǒ hé nǐ",
+        "meaning": "나와 너",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-038-p2",
+        "hanzi": "和平",
+        "pinyin": "hé píng",
+        "meaning": "평화",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-038-p3",
+        "hanzi": "和好",
+        "pinyin": "hé hǎo",
+        "meaning": "화해하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-039",
+    "level": 4,
+    "hanzi": "很",
+    "pinyin": "hěn",
+    "meaning": "매우",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-039-p1",
+        "hanzi": "很高兴",
+        "pinyin": "hěn gāo xìng",
+        "meaning": "매우 기쁘다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-039-p2",
+        "hanzi": "很好",
+        "pinyin": "hěn hǎo",
+        "meaning": "매우 좋다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-039-p3",
+        "hanzi": "很多",
+        "pinyin": "hěn duō",
+        "meaning": "아주 많다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-040",
+    "level": 4,
+    "hanzi": "后面",
+    "pinyin": "hòumiàn",
+    "meaning": "뒤, 뒤쪽",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-040-p1",
+        "hanzi": "房子后面",
+        "pinyin": "fáng zi hòu miàn",
+        "meaning": "집 뒤",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-040-p2",
+        "hanzi": "在后面",
+        "pinyin": "zài hòu miàn",
+        "meaning": "뒤에 있다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-040-p3",
+        "hanzi": "后面的人",
+        "pinyin": "hòu miàn de rén",
+        "meaning": "뒤에 있는 사람",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-041",
+    "level": 4,
+    "hanzi": "回",
+    "pinyin": "huí",
+    "meaning": "돌아가다, 대답하다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-041-p1",
+        "hanzi": "回家",
+        "pinyin": "huí jiā",
+        "meaning": "집에 돌아가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-041-p2",
+        "hanzi": "回来",
+        "pinyin": "huí lái",
+        "meaning": "돌아오다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-041-p3",
+        "hanzi": "回答",
+        "pinyin": "huí dá",
+        "meaning": "대답하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-042",
+    "level": 4,
+    "hanzi": "会",
+    "pinyin": "huì",
+    "meaning": "할 줄 알다, 만나다, 기회",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-042-p1",
+        "hanzi": "会开车",
+        "pinyin": "huì kāi chē",
+        "meaning": "운전할 줄 알다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-042-p2",
+        "hanzi": "开会",
+        "pinyin": "kāi huì",
+        "meaning": "회의를 열다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-042-p3",
+        "hanzi": "机会",
+        "pinyin": "jī huì",
+        "meaning": "기회",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-043",
+    "level": 4,
+    "hanzi": "火车站",
+    "pinyin": "huǒchēzhàn",
+    "meaning": "기차역",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-043-p1",
+        "hanzi": "去火车站",
+        "pinyin": "qù huǒ chē zhàn",
+        "meaning": "기차역에 가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-043-p2",
+        "hanzi": "到火车站",
+        "pinyin": "dào huǒ chē zhàn",
+        "meaning": "기차역에 도착하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-043-p3",
+        "hanzi": "在火车站接人",
+        "pinyin": "zài huǒ chē zhàn jiē rén",
+        "meaning": "기차역에서 사람을 마중하다",
+        "audio": "",
+        "sourceHanzi": "火车站接人"
+      }
+    ]
+  },
+  {
+    "id": "hsk4-044",
+    "level": 4,
+    "hanzi": "几",
+    "pinyin": "jǐ",
+    "meaning": "몇",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-044-p1",
+        "hanzi": "几个人",
+        "pinyin": "jǐ gè rén",
+        "meaning": "몇 사람",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-044-p2",
+        "hanzi": "几点",
+        "pinyin": "jǐ diǎn",
+        "meaning": "몇 시",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-044-p3",
+        "hanzi": "几本书",
+        "pinyin": "jǐ běn shū",
+        "meaning": "책 몇 권",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-045",
+    "level": 4,
+    "hanzi": "家",
+    "pinyin": "jiā",
+    "meaning": "집, 가정",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-045-p1",
+        "hanzi": "回家",
+        "pinyin": "huí jiā",
+        "meaning": "집에 돌아가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-045-p2",
+        "hanzi": "一家人",
+        "pinyin": "yì jiā rén",
+        "meaning": "한 가족",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-045-p3",
+        "hanzi": "家里",
+        "pinyin": "jiā lǐ",
+        "meaning": "집 안에",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-046",
+    "level": 4,
+    "hanzi": "叫",
+    "pinyin": "jiào",
+    "meaning": "부르다, ~라고 하다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-046-p1",
+        "hanzi": "叫什么名字",
+        "pinyin": "jiào shén me míng zì",
+        "meaning": "이름이 무엇입니까",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-046-p2",
+        "hanzi": "叫他来",
+        "pinyin": "jiào tā lái",
+        "meaning": "그를 오라고 하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-046-p3",
+        "hanzi": "大叫",
+        "pinyin": "dà jiào",
+        "meaning": "크게 소리치다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-047",
+    "level": 4,
+    "hanzi": "她",
+    "pinyin": "tā",
+    "meaning": "그녀",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-047-p1",
+        "hanzi": "她的书",
+        "pinyin": "tā de shū",
+        "meaning": "그녀의 책",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-047-p2",
+        "hanzi": "她们",
+        "pinyin": "tā men",
+        "meaning": "그녀들",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-047-p3",
+        "hanzi": "认识她",
+        "pinyin": "rèn shi tā",
+        "meaning": "그녀를 알다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-048",
+    "level": 4,
+    "hanzi": "今天",
+    "pinyin": "jīntiān",
+    "meaning": "오늘",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-048-p1",
+        "hanzi": "今天天气",
+        "pinyin": "jīn tiān tiān qì",
+        "meaning": "오늘 날씨",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-048-p2",
+        "hanzi": "今天上课",
+        "pinyin": "jīn tiān shàng kè",
+        "meaning": "오늘 수업하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-048-p3",
+        "hanzi": "今天晚上",
+        "pinyin": "jīn tiān wǎn shàng",
+        "meaning": "오늘 저녁",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-049",
+    "level": 4,
+    "hanzi": "九",
+    "pinyin": "jiǔ",
+    "meaning": "아홉, 9",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-049-p1",
+        "hanzi": "九月",
+        "pinyin": "jiǔ yuè",
+        "meaning": "9월",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-049-p2",
+        "hanzi": "九点",
+        "pinyin": "jiǔ diǎn",
+        "meaning": "9시",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-049-p3",
+        "hanzi": "第九",
+        "pinyin": "dì jiǔ",
+        "meaning": "아홉 번째",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-050",
+    "level": 4,
+    "hanzi": "开",
+    "pinyin": "kāi",
+    "meaning": "열다, 운전하다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-050-p1",
+        "hanzi": "开门",
+        "pinyin": "kāi mén",
+        "meaning": "문을 열다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-050-p2",
+        "hanzi": "开车",
+        "pinyin": "kāi chē",
+        "meaning": "운전하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-050-p3",
+        "hanzi": "开会",
+        "pinyin": "kāi huì",
+        "meaning": "회의를 열다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-051",
+    "level": 4,
+    "hanzi": "看",
+    "pinyin": "kàn",
+    "meaning": "보다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-051-p1",
+        "hanzi": "看书",
+        "pinyin": "kàn shū",
+        "meaning": "책을 보다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-051-p2",
+        "hanzi": "看电影",
+        "pinyin": "kàn diàn yǐng",
+        "meaning": "영화를 보다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-051-p3",
+        "hanzi": "看见",
+        "pinyin": "kàn jiàn",
+        "meaning": "눈에 띄다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-052",
+    "level": 4,
+    "hanzi": "看见",
+    "pinyin": "kànjiàn",
+    "meaning": "보이다, 보다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-052-p1",
+        "hanzi": "我看见了",
+        "pinyin": "wǒ kàn jiàn le",
+        "meaning": "보였다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-052-p2",
+        "hanzi": "没看见",
+        "pinyin": "méi kàn jiàn",
+        "meaning": "보지 못했다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-052-p3",
+        "hanzi": "看见他",
+        "pinyin": "kàn jiàn tā",
+        "meaning": "그를 보다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-053",
+    "level": 4,
+    "hanzi": "块",
+    "pinyin": "kuài",
+    "meaning": "위안(화폐 단위), 덩어리",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-053-p1",
+        "hanzi": "一块钱",
+        "pinyin": "yí kuài qián",
+        "meaning": "1위안",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-053-p2",
+        "hanzi": "一块蛋糕",
+        "pinyin": "yí kuài dàn gāo",
+        "meaning": "케이크 한 조각",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-053-p3",
+        "hanzi": "石块",
+        "pinyin": "shí kuài",
+        "meaning": "돌덩이",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-054",
+    "level": 4,
+    "hanzi": "来",
+    "pinyin": "lái",
+    "meaning": "오다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-054-p1",
+        "hanzi": "过来",
+        "pinyin": "guò lái",
+        "meaning": "이리 오다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-054-p2",
+        "hanzi": "来中国",
+        "pinyin": "lái zhōng guó",
+        "meaning": "중국에 오다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-054-p3",
+        "hanzi": "来不及",
+        "pinyin": "lái bu jí",
+        "meaning": "시간에 맞추지 못하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-055",
+    "level": 4,
+    "hanzi": "老师",
+    "pinyin": "lǎoshī",
+    "meaning": "선생님",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-055-p1",
+        "hanzi": "汉语老师",
+        "pinyin": "hàn yǔ lǎo shī",
+        "meaning": "중국어 선생님",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-055-p2",
+        "hanzi": "老师讲课",
+        "pinyin": "lǎo shī jiǎng kè",
+        "meaning": "선생님이 강의하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-055-p3",
+        "hanzi": "问老师",
+        "pinyin": "wèn lǎo shī",
+        "meaning": "선생님께 여쭤보다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-056",
+    "level": 4,
+    "hanzi": "冷",
+    "pinyin": "lěng",
+    "meaning": "춥다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-056-p1",
+        "hanzi": "天气冷",
+        "pinyin": "tiān qì lěng",
+        "meaning": "날씨가 춥다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-056-p2",
+        "hanzi": "冷水",
+        "pinyin": "lěng shuǐ",
+        "meaning": "찬물",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-056-p3",
+        "hanzi": "很冷",
+        "pinyin": "hěn lěng",
+        "meaning": "매우 춥다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-057",
+    "level": 4,
+    "hanzi": "里",
+    "pinyin": "lǐ",
+    "meaning": "안, 속",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-057-p1",
+        "hanzi": "房间里",
+        "pinyin": "fáng jiān lǐ",
+        "meaning": "방 안",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-057-p2",
+        "hanzi": "心里",
+        "pinyin": "xīn lǐ",
+        "meaning": "마음속",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-057-p3",
+        "hanzi": "书里",
+        "pinyin": "shū lǐ",
+        "meaning": "책 속에",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-058",
+    "level": 4,
+    "hanzi": "了",
+    "pinyin": "le",
+    "meaning": "~했다(완료·변화 조사)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-058-p1",
+        "hanzi": "吃了",
+        "pinyin": "chī le",
+        "meaning": "먹었다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-058-p2",
+        "hanzi": "去了",
+        "pinyin": "qù le",
+        "meaning": "갔다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-058-p3",
+        "hanzi": "好了",
+        "pinyin": "hǎo le",
+        "meaning": "다 됐다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-059",
+    "level": 4,
+    "hanzi": "零",
+    "pinyin": "líng",
+    "meaning": "영, 0",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-059-p1",
+        "hanzi": "零下",
+        "pinyin": "líng xià",
+        "meaning": "영하",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-059-p2",
+        "hanzi": "零食",
+        "pinyin": "líng shí",
+        "meaning": "간식",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-059-p3",
+        "hanzi": "从零开始",
+        "pinyin": "cóng líng kāi shǐ",
+        "meaning": "0부터 시작하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-060",
+    "level": 4,
+    "hanzi": "六",
+    "pinyin": "liù",
+    "meaning": "여섯, 6",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-060-p1",
+        "hanzi": "六月",
+        "pinyin": "liù yuè",
+        "meaning": "6월",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-060-p2",
+        "hanzi": "六点",
+        "pinyin": "liù diǎn",
+        "meaning": "6시",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-060-p3",
+        "hanzi": "六本",
+        "pinyin": "liù běn",
+        "meaning": "여섯 권",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-061",
+    "level": 4,
+    "hanzi": "妈妈",
+    "pinyin": "māma",
+    "meaning": "엄마",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-061-p1",
+        "hanzi": "我妈妈",
+        "pinyin": "wǒ mā ma",
+        "meaning": "우리 엄마",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-061-p2",
+        "hanzi": "妈妈做饭",
+        "pinyin": "mā ma zuò fàn",
+        "meaning": "엄마가 밥을 하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-061-p3",
+        "hanzi": "爸爸妈妈",
+        "pinyin": "bà ba mā ma",
+        "meaning": "아빠와 엄마",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-062",
+    "level": 4,
+    "hanzi": "吗",
+    "pinyin": "ma",
+    "meaning": "~까?(의문 조사)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-062-p1",
+        "hanzi": "你好吗",
+        "pinyin": "nǐ hǎo ma",
+        "meaning": "잘 지내세요?",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-062-p2",
+        "hanzi": "是你吗",
+        "pinyin": "shì nǐ ma",
+        "meaning": "당신인가요?",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-062-p3",
+        "hanzi": "去吗",
+        "pinyin": "qù ma",
+        "meaning": "가나요?",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-063",
+    "level": 4,
+    "hanzi": "买",
+    "pinyin": "mǎi",
+    "meaning": "사다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-063-p1",
+        "hanzi": "买东西",
+        "pinyin": "mǎi dōng xī",
+        "meaning": "물건을 사다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-063-p2",
+        "hanzi": "买票",
+        "pinyin": "mǎi piào",
+        "meaning": "표를 사다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-063-p3",
+        "hanzi": "买菜",
+        "pinyin": "mǎi cài",
+        "meaning": "채소를 사다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-064",
+    "level": 4,
+    "hanzi": "猫",
+    "pinyin": "māo",
+    "meaning": "고양이",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-064-p1",
+        "hanzi": "养猫",
+        "pinyin": "yǎng māo",
+        "meaning": "고양이를 기르다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-064-p2",
+        "hanzi": "小猫",
+        "pinyin": "xiǎo māo",
+        "meaning": "새끼 고양이",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-064-p3",
+        "hanzi": "猫叫",
+        "pinyin": "māo jiào",
+        "meaning": "고양이가 울다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-065",
+    "level": 4,
+    "hanzi": "没",
+    "pinyin": "méi",
+    "meaning": "없다, ~하지 않았다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-065-p1",
+        "hanzi": "没关系",
+        "pinyin": "méi guān xì",
+        "meaning": "괜찮다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-065-p2",
+        "hanzi": "没有",
+        "pinyin": "méi yǒu",
+        "meaning": "없다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-065-p3",
+        "hanzi": "没去",
+        "pinyin": "méi qù",
+        "meaning": "가지 않았다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-066",
+    "level": 4,
+    "hanzi": "没关系",
+    "pinyin": "méi guānxi",
+    "meaning": "괜찮습니다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-066-p1",
+        "hanzi": "没关系，慢慢来",
+        "pinyin": "méi guān xì， màn màn lái",
+        "meaning": "괜찮아요, 천천히 하세요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-066-p2",
+        "hanzi": "别担心，没关系",
+        "pinyin": "bié dān xīn， méi guān xì",
+        "meaning": "걱정 마세요, 괜찮아요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-066-p3",
+        "hanzi": "真的没关系",
+        "pinyin": "zhēn de méi guān xì",
+        "meaning": "정말 괜찮아요",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-067",
+    "level": 4,
+    "hanzi": "米饭",
+    "pinyin": "mǐfàn",
+    "meaning": "쌀밥",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-067-p1",
+        "hanzi": "吃米饭",
+        "pinyin": "chī mǐ fàn",
+        "meaning": "쌀밥을 먹다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-067-p2",
+        "hanzi": "做米饭",
+        "pinyin": "zuò mǐ fàn",
+        "meaning": "밥을 짓다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-067-p3",
+        "hanzi": "一碗米饭",
+        "pinyin": "yì wǎn mǐ fàn",
+        "meaning": "밥 한 그릇",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-068",
+    "level": 4,
+    "hanzi": "名字",
+    "pinyin": "míngzi",
+    "meaning": "이름",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-068-p1",
+        "hanzi": "起名字",
+        "pinyin": "qǐ míng zì",
+        "meaning": "이름을 짓다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-068-p2",
+        "hanzi": "写名字",
+        "pinyin": "xiě míng zì",
+        "meaning": "이름을 쓰다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-068-p3",
+        "hanzi": "叫什么名字",
+        "pinyin": "jiào shén me míng zì",
+        "meaning": "이름이 무엇입니까",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-069",
+    "level": 4,
+    "hanzi": "明天",
+    "pinyin": "míngtiān",
+    "meaning": "내일",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-069-p1",
+        "hanzi": "明天见",
+        "pinyin": "míng tiān jiàn",
+        "meaning": "내일 만나요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-069-p2",
+        "hanzi": "明天上班",
+        "pinyin": "míng tiān shàng bān",
+        "meaning": "내일 출근하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-069-p3",
+        "hanzi": "明天下雨",
+        "pinyin": "míng tiān xià yǔ",
+        "meaning": "내일 비가 오다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-070",
+    "level": 4,
+    "hanzi": "哪（哪儿）",
+    "pinyin": "nǎ (nǎr)",
+    "meaning": "어디, 어느",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-070-p1",
+        "hanzi": "去哪儿",
+        "pinyin": "qù nǎr",
+        "meaning": "어디에 가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-070-p2",
+        "hanzi": "在哪儿",
+        "pinyin": "zài nǎr",
+        "meaning": "어디에 있다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-070-p3",
+        "hanzi": "哪个",
+        "pinyin": "nǎ gè",
+        "meaning": "어느 것",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-071",
+    "level": 4,
+    "hanzi": "那（那儿）",
+    "pinyin": "nà (nàr)",
+    "meaning": "그, 저, 그곳",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-071-p1",
+        "hanzi": "那儿有",
+        "pinyin": "nàr yǒu",
+        "meaning": "그곳에 있다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-071-p2",
+        "hanzi": "那个人",
+        "pinyin": "nà ge rén",
+        "meaning": "그 사람",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-071-p3",
+        "hanzi": "去那儿",
+        "pinyin": "qù nàr",
+        "meaning": "그곳에 가다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-072",
+    "level": 4,
+    "hanzi": "呢",
+    "pinyin": "ne",
+    "meaning": "~는요?(의문 조사)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-072-p1",
+        "hanzi": "你呢",
+        "pinyin": "nǐ ne",
+        "meaning": "당신은요?",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-072-p2",
+        "hanzi": "他在哪儿呢",
+        "pinyin": "tā zài nǎr ne",
+        "meaning": "그는 어디에 있을까요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-072-p3",
+        "hanzi": "怎么办呢",
+        "pinyin": "zěn me bàn ne",
+        "meaning": "어떻게 하죠",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-073",
+    "level": 4,
+    "hanzi": "能",
+    "pinyin": "néng",
+    "meaning": "~할 수 있다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-073-p1",
+        "hanzi": "能不能",
+        "pinyin": "néng bu néng",
+        "meaning": "할 수 있나요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-073-p2",
+        "hanzi": "能说汉语",
+        "pinyin": "néng shuō hàn yǔ",
+        "meaning": "중국어를 할 수 있다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-073-p3",
+        "hanzi": "不能去",
+        "pinyin": "bù néng qù",
+        "meaning": "갈 수 없다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-074",
+    "level": 4,
+    "hanzi": "你",
+    "pinyin": "nǐ",
+    "meaning": "너, 당신",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-074-p1",
+        "hanzi": "你好",
+        "pinyin": "nǐ hǎo",
+        "meaning": "안녕하세요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-074-p2",
+        "hanzi": "你们",
+        "pinyin": "nǐ men",
+        "meaning": "너희들",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-074-p3",
+        "hanzi": "你的名字",
+        "pinyin": "nǐ de míng zì",
+        "meaning": "당신의 이름",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-075",
+    "level": 4,
+    "hanzi": "年",
+    "pinyin": "nián",
+    "meaning": "해, 년",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-075-p1",
+        "hanzi": "去年",
+        "pinyin": "qù nián",
+        "meaning": "작년",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-075-p2",
+        "hanzi": "今年",
+        "pinyin": "jīn nián",
+        "meaning": "올해",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-075-p3",
+        "hanzi": "年纪",
+        "pinyin": "nián jì",
+        "meaning": "나이",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-076",
+    "level": 4,
+    "hanzi": "女儿",
+    "pinyin": "nǚ'ér",
+    "meaning": "딸",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-076-p1",
+        "hanzi": "我的女儿",
+        "pinyin": "wǒ de nǚ ér",
+        "meaning": "내 딸",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-076-p2",
+        "hanzi": "女儿和儿子",
+        "pinyin": "nǚ ér hé ér zi",
+        "meaning": "딸과 아들",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-076-p3",
+        "hanzi": "宠爱女儿",
+        "pinyin": "chǒng ài nǚ ér",
+        "meaning": "딸을 예뻐하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-077",
+    "level": 4,
+    "hanzi": "朋友",
+    "pinyin": "péngyou",
+    "meaning": "친구",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-077-p1",
+        "hanzi": "好朋友",
+        "pinyin": "hǎo péng yǒu",
+        "meaning": "친한 친구",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-077-p2",
+        "hanzi": "交朋友",
+        "pinyin": "jiāo péng yǒu",
+        "meaning": "친구를 사귀다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-077-p3",
+        "hanzi": "朋友聚会",
+        "pinyin": "péng yǒu jù huì",
+        "meaning": "친구 모임",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-078",
+    "level": 4,
+    "hanzi": "漂亮",
+    "pinyin": "piàoliang",
+    "meaning": "예쁘다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-078-p1",
+        "hanzi": "很漂亮",
+        "pinyin": "hěn piào liang",
+        "meaning": "매우 예쁘다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-078-p2",
+        "hanzi": "漂亮的衣服",
+        "pinyin": "piào liang de yī fu",
+        "meaning": "예쁜 옷",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-078-p3",
+        "hanzi": "长得漂亮",
+        "pinyin": "zhǎng de piào liang",
+        "meaning": "예쁘게 생기다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-079",
+    "level": 4,
+    "hanzi": "苹果",
+    "pinyin": "píngguǒ",
+    "meaning": "사과",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-079-p1",
+        "hanzi": "吃苹果",
+        "pinyin": "chī píng guǒ",
+        "meaning": "사과를 먹다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-079-p2",
+        "hanzi": "一个苹果",
+        "pinyin": "yí gè píng guǒ",
+        "meaning": "사과 하나",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-079-p3",
+        "hanzi": "苹果树",
+        "pinyin": "píng guǒ shù",
+        "meaning": "사과나무",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-080",
+    "level": 4,
+    "hanzi": "七",
+    "pinyin": "qī",
+    "meaning": "일곱, 7",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-080-p1",
+        "hanzi": "七月",
+        "pinyin": "qī yuè",
+        "meaning": "7월",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-080-p2",
+        "hanzi": "七点",
+        "pinyin": "qī diǎn",
+        "meaning": "7시",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-080-p3",
+        "hanzi": "第七",
+        "pinyin": "dì qī",
+        "meaning": "일곱 번째",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-081",
+    "level": 4,
+    "hanzi": "前面",
+    "pinyin": "qiánmiàn",
+    "meaning": "앞, 앞쪽",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-081-p1",
+        "hanzi": "房子前面",
+        "pinyin": "fáng zi qián miàn",
+        "meaning": "집 앞",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-081-p2",
+        "hanzi": "在前面",
+        "pinyin": "zài qián miàn",
+        "meaning": "앞에 있다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-081-p3",
+        "hanzi": "往前走",
+        "pinyin": "wǎng qián zǒu",
+        "meaning": "앞으로 걷다",
+        "audio": "",
+        "sourceHanzi": "前面走"
+      }
+    ]
+  },
+  {
+    "id": "hsk4-082",
+    "level": 4,
+    "hanzi": "钱",
+    "pinyin": "qián",
+    "meaning": "돈",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-082-p1",
+        "hanzi": "花钱",
+        "pinyin": "huā qián",
+        "meaning": "돈을 쓰다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-082-p2",
+        "hanzi": "有钱",
+        "pinyin": "yǒu qián",
+        "meaning": "돈이 있다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-082-p3",
+        "hanzi": "钱包",
+        "pinyin": "qián bāo",
+        "meaning": "지갑",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-083",
+    "level": 4,
+    "hanzi": "请",
+    "pinyin": "qǐng",
+    "meaning": "청하다, ~해 주세요",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-083-p1",
+        "hanzi": "请坐",
+        "pinyin": "qǐng zuò",
+        "meaning": "앉으세요",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-083-p2",
+        "hanzi": "请问",
+        "pinyin": "qǐng wèn",
+        "meaning": "말씀 좀 여쭙겠습니다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-083-p3",
+        "hanzi": "请客",
+        "pinyin": "qǐng kè",
+        "meaning": "한턱내다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-084",
+    "level": 4,
+    "hanzi": "去",
+    "pinyin": "qù",
+    "meaning": "가다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-084-p1",
+        "hanzi": "去学校",
+        "pinyin": "qù xué xiào",
+        "meaning": "학교에 가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-084-p2",
+        "hanzi": "去北京",
+        "pinyin": "qù běi jīng",
+        "meaning": "베이징에 가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-084-p3",
+        "hanzi": "回去",
+        "pinyin": "huí qù",
+        "meaning": "돌아가다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-085",
+    "level": 4,
+    "hanzi": "热",
+    "pinyin": "rè",
+    "meaning": "덥다, 뜨겁다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-085-p1",
+        "hanzi": "天气热",
+        "pinyin": "tiān qì rè",
+        "meaning": "날씨가 덥다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-085-p2",
+        "hanzi": "热水",
+        "pinyin": "rè shuǐ",
+        "meaning": "뜨거운 물",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-085-p3",
+        "hanzi": "很热闹",
+        "pinyin": "hěn rè nào",
+        "meaning": "매우 시끌벅적하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-086",
+    "level": 4,
+    "hanzi": "人",
+    "pinyin": "rén",
+    "meaning": "사람",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-086-p1",
+        "hanzi": "中国人",
+        "pinyin": "zhōng guó rén",
+        "meaning": "중국 사람",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-086-p2",
+        "hanzi": "很多人",
+        "pinyin": "hěn duō rén",
+        "meaning": "많은 사람",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-086-p3",
+        "hanzi": "客人",
+        "pinyin": "kè rén",
+        "meaning": "손님",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-087",
+    "level": 4,
+    "hanzi": "认识",
+    "pinyin": "rènshi",
+    "meaning": "알다(사람·글자)",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-087-p1",
+        "hanzi": "认识你",
+        "pinyin": "rèn shi nǐ",
+        "meaning": "당신을 알게 되다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-087-p2",
+        "hanzi": "认识汉字",
+        "pinyin": "rèn shi hàn zì",
+        "meaning": "한자를 알다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-087-p3",
+        "hanzi": "互相认识",
+        "pinyin": "hù xiāng rèn shi",
+        "meaning": "서로 알다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-088",
+    "level": 4,
+    "hanzi": "日",
+    "pinyin": "rì",
+    "meaning": "일(날), 해",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-088-p1",
+        "hanzi": "生日",
+        "pinyin": "shēng rì",
+        "meaning": "생일",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-088-p2",
+        "hanzi": "星期日",
+        "pinyin": "xīng qī rì",
+        "meaning": "일요일",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-088-p3",
+        "hanzi": "日子",
+        "pinyin": "rì zi",
+        "meaning": "날, 세월",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-089",
+    "level": 4,
+    "hanzi": "三",
+    "pinyin": "sān",
+    "meaning": "셋, 3",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-089-p1",
+        "hanzi": "三月",
+        "pinyin": "sān yuè",
+        "meaning": "3월",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-089-p2",
+        "hanzi": "三点",
+        "pinyin": "sān diǎn",
+        "meaning": "3시",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-089-p3",
+        "hanzi": "第三",
+        "pinyin": "dì sān",
+        "meaning": "세 번째",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-090",
+    "level": 4,
+    "hanzi": "商店",
+    "pinyin": "shāngdiàn",
+    "meaning": "상점",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-090-p1",
+        "hanzi": "去商店",
+        "pinyin": "qù shāng diàn",
+        "meaning": "상점에 가다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-090-p2",
+        "hanzi": "在商店买东西",
+        "pinyin": "zài shāng diàn mǎi dōng xī",
+        "meaning": "상점에서 물건을 사다",
+        "audio": "",
+        "sourceHanzi": "商店买东西"
+      },
+      {
+        "id": "hsk4-090-p3",
+        "hanzi": "开商店",
+        "pinyin": "kāi shāng diàn",
+        "meaning": "상점을 열다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-091",
+    "level": 4,
+    "hanzi": "上",
+    "pinyin": "shàng",
+    "meaning": "위, ~에 오르다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-091-p1",
+        "hanzi": "上课",
+        "pinyin": "shàng kè",
+        "meaning": "수업하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-091-p2",
+        "hanzi": "上班",
+        "pinyin": "shàng bān",
+        "meaning": "출근하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-091-p3",
+        "hanzi": "早上",
+        "pinyin": "zǎo shàng",
+        "meaning": "아침",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-092",
+    "level": 4,
+    "hanzi": "上午",
+    "pinyin": "shàngwǔ",
+    "meaning": "오전",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-092-p1",
+        "hanzi": "上午上课",
+        "pinyin": "shàng wǔ shàng kè",
+        "meaning": "오전에 수업하다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-092-p2",
+        "hanzi": "今天上午",
+        "pinyin": "jīn tiān shàng wǔ",
+        "meaning": "오늘 오전",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-092-p3",
+        "hanzi": "上午九点",
+        "pinyin": "shàng wǔ jiǔ diǎn",
+        "meaning": "오전 9시",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-093",
+    "level": 4,
+    "hanzi": "少",
+    "pinyin": "shǎo",
+    "meaning": "적다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-093-p1",
+        "hanzi": "很少",
+        "pinyin": "hěn shǎo",
+        "meaning": "매우 적다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-093-p2",
+        "hanzi": "少一点",
+        "pinyin": "shǎo yì diǎn",
+        "meaning": "조금 줄이다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-093-p3",
+        "hanzi": "多少",
+        "pinyin": "duō shǎo",
+        "meaning": "얼마나",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-094",
+    "level": 4,
+    "hanzi": "十",
+    "pinyin": "shí",
+    "meaning": "열, 10",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-094-p1",
+        "hanzi": "十月",
+        "pinyin": "shí yuè",
+        "meaning": "10월",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-094-p2",
+        "hanzi": "十点",
+        "pinyin": "shí diǎn",
+        "meaning": "10시",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-094-p3",
+        "hanzi": "第十",
+        "pinyin": "dì shí",
+        "meaning": "열 번째",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-095",
+    "level": 4,
+    "hanzi": "什么",
+    "pinyin": "shénme",
+    "meaning": "무엇, 무슨",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-095-p1",
+        "hanzi": "什么时候",
+        "pinyin": "shén me shí hòu",
+        "meaning": "언제",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-095-p2",
+        "hanzi": "什么东西",
+        "pinyin": "shén me dōng xī",
+        "meaning": "무슨 물건",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-095-p3",
+        "hanzi": "为什么",
+        "pinyin": "wèi shén me",
+        "meaning": "왜",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-096",
+    "level": 4,
+    "hanzi": "时候",
+    "pinyin": "shíhou",
+    "meaning": "때, 시각",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-096-p1",
+        "hanzi": "什么时候",
+        "pinyin": "shén me shí hòu",
+        "meaning": "언제",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-096-p2",
+        "hanzi": "小时候",
+        "pinyin": "xiǎo shí hòu",
+        "meaning": "어릴 때",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-096-p3",
+        "hanzi": "有时候",
+        "pinyin": "yǒu shí hòu",
+        "meaning": "가끔",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-097",
+    "level": 4,
+    "hanzi": "是",
+    "pinyin": "shì",
+    "meaning": "~이다",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-097-p1",
+        "hanzi": "我是学生",
+        "pinyin": "wǒ shì xué shēng",
+        "meaning": "저는 학생입니다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-097-p2",
+        "hanzi": "是的",
+        "pinyin": "shì de",
+        "meaning": "맞습니다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-097-p3",
+        "hanzi": "不是",
+        "pinyin": "bú shì",
+        "meaning": "아니다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-098",
+    "level": 4,
+    "hanzi": "书",
+    "pinyin": "shū",
+    "meaning": "책",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-098-p1",
+        "hanzi": "看书",
+        "pinyin": "kàn shū",
+        "meaning": "책을 보다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-098-p2",
+        "hanzi": "买书",
+        "pinyin": "mǎi shū",
+        "meaning": "책을 사다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-098-p3",
+        "hanzi": "读书",
+        "pinyin": "dú shū",
+        "meaning": "독서하다",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-099",
+    "level": 4,
+    "hanzi": "谁",
+    "pinyin": "shéi",
+    "meaning": "누구",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-099-p1",
+        "hanzi": "这是谁",
+        "pinyin": "zhè shì shuí",
+        "meaning": "이 사람은 누구입니까",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-099-p2",
+        "hanzi": "谁的书",
+        "pinyin": "shuí de shū",
+        "meaning": "누구의 책",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-099-p3",
+        "hanzi": "谁知道",
+        "pinyin": "shuí zhī dào",
+        "meaning": "누가 알겠어요",
+        "audio": ""
+      }
+    ]
+  },
+  {
+    "id": "hsk4-100",
+    "level": 4,
+    "hanzi": "水",
+    "pinyin": "shuǐ",
+    "meaning": "물",
+    "audio": "",
+    "collocations": [
+      {
+        "id": "hsk4-100-p1",
+        "hanzi": "喝水",
+        "pinyin": "hē shuǐ",
+        "meaning": "물을 마시다",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-100-p2",
+        "hanzi": "水果",
+        "pinyin": "shuǐ guǒ",
+        "meaning": "과일",
+        "audio": ""
+      },
+      {
+        "id": "hsk4-100-p3",
+        "hanzi": "热水",
+        "pinyin": "rè shuǐ",
+        "meaning": "뜨거운 물",
         "audio": ""
       }
     ]

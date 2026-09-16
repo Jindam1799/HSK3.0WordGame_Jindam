@@ -198,6 +198,9 @@
     scene: {label:'08 · 친구의 정원',items:[['meadow','초록 들판','🌿',1],['sunset','노을 정원','🌅',2],['night','별빛 정원','🌙',4],['rainbow','무지개 정원','🌈',7]]}
   };
   // Original vector artwork shares the plants' soft outlines and muted palette.
+  const FOREST_ACCESSORIES=[{"forest": 1, "slot": "head", "id": "sunhat", "name": "소풍 밀짚모자", "level": 2, "art": "<path d=\"M24 59L30 26Q50 15 70 26L77 59Z\" fill=\"#e5c18b\"/><ellipse cx=\"50\" cy=\"64\" rx=\"44\" ry=\"13\" fill=\"#efd4a5\"/><path d=\"M28 49Q50 57 73 49\" stroke=\"#be8068\" stroke-width=\"9\"/>"}, {"forest": 1, "slot": "head", "id": "peachribbon", "name": "살구꽃 리본", "level": 4, "art": "<path d=\"M45 45L10 20V76L45 55M55 45L90 20V76L55 55\" fill=\"#e5ab95\"/><g fill=\"#fff0d1\"><circle cx=\"48\" cy=\"38\" r=\"9\"/><circle cx=\"60\" cy=\"48\" r=\"9\"/><circle cx=\"48\" cy=\"58\" r=\"9\"/><circle cx=\"39\" cy=\"48\" r=\"9\"/></g><circle cx=\"49\" cy=\"48\" r=\"7\" fill=\"#d7a45e\"/>"}, {"forest": 1, "slot": "face", "id": "sunglasses", "name": "노을 선글라스", "level": 3, "art": "<path d=\"M5 36H43L39 65Q25 77 10 63ZM57 36H95L90 63Q75 77 61 65Z\" fill=\"#b88a77\"/><path d=\"M43 43H57M15 43H31M66 43H83\" stroke=\"#f5ddaf\" stroke-width=\"4\"/>"}, {"forest": 1, "slot": "face", "id": "freckles", "name": "햇살 주근깨", "level": 2, "art": "<g fill=\"#c68362\" stroke=\"none\"><circle cx=\"13\" cy=\"53\" r=\"3\"/><circle cx=\"24\" cy=\"47\" r=\"3\"/><circle cx=\"32\" cy=\"57\" r=\"3\"/><circle cx=\"68\" cy=\"57\" r=\"3\"/><circle cx=\"76\" cy=\"47\" r=\"3\"/><circle cx=\"87\" cy=\"53\" r=\"3\"/></g>"}, {"forest": 1, "slot": "neck", "id": "picnicscarf", "name": "소풍 체크 스카프", "level": 4, "art": "<path d=\"M10 26Q50 41 90 26L50 83Z\" fill=\"#deaa86\"/><path d=\"M24 39L62 70M42 36L75 54M28 60L56 35M43 76L80 39\" stroke=\"#fff0d3\" stroke-width=\"5\"/>"}, {"forest": 1, "slot": "neck", "id": "sunpendant", "name": "햇살 목걸이", "level": 5, "art": "<path d=\"M15 15Q50 69 85 15\" fill=\"none\" stroke=\"#bc975b\" stroke-width=\"4\"/><circle cx=\"50\" cy=\"63\" r=\"18\" fill=\"#efd087\"/><path d=\"M50 35V28M50 91V84M22 63H15M85 63H78M30 43L25 38M70 83L75 88\" stroke=\"#d6a155\" stroke-width=\"4\"/>"}, {"forest": 1, "slot": "back", "id": "picnicpack", "name": "도토리 소풍 가방", "level": 6, "art": "<path d=\"M33 28V16H67V28\" fill=\"none\" stroke-width=\"5\"/><rect x=\"19\" y=\"26\" width=\"62\" height=\"66\" rx=\"16\" fill=\"#c19570\"/><rect x=\"30\" y=\"56\" width=\"40\" height=\"27\" rx=\"6\" fill=\"#ebc7a0\"/><path d=\"M20 44H80M50 40V51\" stroke=\"#8c7056\" stroke-width=\"4\"/>"}, {"forest": 1, "slot": "back", "id": "butterfly", "name": "살구 나비 날개", "level": 8, "art": "<path d=\"M48 55Q2 3 5 44Q9 68 35 62Q5 90 30 93Q48 87 50 60M52 55Q98 3 95 44Q91 68 65 62Q95 90 70 93Q52 87 50 60\" fill=\"#edc4a6\" stroke=\"#be9278\"/><path d=\"M14 35L44 58M86 35L56 58\" stroke=\"#fff1d9\" stroke-width=\"4\"/>"}, {"forest": 1, "slot": "charm", "id": "peachcharm", "name": "살구 열매 장식", "level": 7, "art": "<path d=\"M50 27Q17 8 16 47Q21 74 50 88Q79 74 84 47Q83 8 50 27Z\" fill=\"#e4a38c\"/><path d=\"M50 27Q39 53 50 88\" fill=\"none\" stroke=\"#c78570\"/><path d=\"M50 26Q57 2 80 8Q77 26 50 26\" fill=\"#adb37a\"/>"}, {"forest": 1, "slot": "charm", "id": "windmill", "name": "노을 바람개비", "level": 9, "art": "<path d=\"M50 47V94\" stroke-width=\"5\"/><path d=\"M50 48L15 15H50ZM50 48L83 15V48ZM50 48L83 81H50ZM50 48L17 81V48Z\" fill=\"#dca788\"/><path d=\"M50 48L15 15L15 48ZM50 48L83 81L83 48Z\" fill=\"#efd6aa\"/><circle cx=\"50\" cy=\"48\" r=\"6\" fill=\"#b98966\"/>"}, {"forest": 2, "slot": "head", "id": "mooncrown", "name": "초승달 왕관", "level": 2, "art": "<path d=\"M16 74L10 41 33 53 50 29 68 53 90 41 84 74Z\" fill=\"#b7a5ce\"/><path d=\"M58 7A17 17 0 1 0 65 35A14 14 0 0 1 58 7\" fill=\"#f3dfa7\"/>"}, {"forest": 2, "slot": "head", "id": "astralhat", "name": "별빛 탐험 모자", "level": 5, "art": "<path d=\"M25 75L46 8 76 75Z\" fill=\"#9182b3\"/><ellipse cx=\"50\" cy=\"79\" rx=\"42\" ry=\"10\" fill=\"#73638f\"/><path d=\"M47 32l4 9 10 2-8 6 2 11-8-5-9 5 2-11-8-6 11-2Z\" fill=\"#efdca5\"/>"}, {"forest": 2, "slot": "face", "id": "moonglasses", "name": "달빛 동그란 안경", "level": 3, "art": "<g fill=\"#d7d3ee\" fill-opacity=\".5\" stroke=\"#8a77a3\" stroke-width=\"4\"><circle cx=\"27\" cy=\"51\" r=\"21\"/><circle cx=\"73\" cy=\"51\" r=\"21\"/></g><path d=\"M48 48H52M14 46L23 39M60 46L70 38\" stroke=\"#fbefd0\" stroke-width=\"3\"/>"}, {"forest": 2, "slot": "face", "id": "starcheeks", "name": "별빛 볼장식", "level": 2, "art": "<path d=\"M20 36l4 10 11 2-8 7 2 11-9-6-10 6 3-11-9-7 12-2ZM80 36l4 10 11 2-8 7 2 11-9-6-10 6 3-11-9-7 12-2Z\" fill=\"#d7bddb\" stroke=\"#a58ab4\"/>"}, {"forest": 2, "slot": "neck", "id": "nightsscarf", "name": "밤하늘 스카프", "level": 4, "art": "<path d=\"M12 25Q50 41 88 25V49L63 55 73 91 52 91 43 57 12 49Z\" fill=\"#9380b2\"/><g fill=\"#efe0b4\"><circle cx=\"30\" cy=\"40\" r=\"3\"/><circle cx=\"60\" cy=\"41\" r=\"3\"/><circle cx=\"60\" cy=\"74\" r=\"3\"/></g>"}, {"forest": 2, "slot": "neck", "id": "moonpendant", "name": "달조각 목걸이", "level": 6, "art": "<path d=\"M16 13Q50 70 84 13\" fill=\"none\" stroke=\"#ada0bc\" stroke-width=\"4\"/><path d=\"M57 43A22 22 0 1 0 69 77A19 19 0 0 1 57 43\" fill=\"#f0deb0\"/>"}, {"forest": 2, "slot": "back", "id": "nightcape", "name": "별지기 망토", "level": 7, "art": "<path d=\"M33 12H67L92 87Q73 79 52 93Q29 79 8 87Z\" fill=\"#8876a5\"/><path d=\"M35 17Q50 30 65 17\" stroke=\"#d9c69e\" stroke-width=\"5\"/><g fill=\"#ead7b3\"><circle cx=\"33\" cy=\"54\" r=\"3\"/><circle cx=\"67\" cy=\"66\" r=\"3\"/><path d=\"M50 37l3 7 8 2-6 5 1 8-6-4-7 4 2-8-6-5 8-2Z\"/></g>"}, {"forest": 2, "slot": "back", "id": "aurorawings", "name": "오로라 날개", "level": 9, "art": "<path d=\"M49 58Q4 5 8 37L22 66 8 84Q37 92 49 58M51 58Q96 5 92 37L78 66 92 84Q63 92 51 58\" fill=\"#b8b4d9\"/><path d=\"M16 31L43 61 20 81M84 31L57 61 80 81\" stroke=\"#d5e3dd\" stroke-width=\"6\" fill=\"none\"/>"}, {"forest": 2, "slot": "charm", "id": "starlantern", "name": "별빛 랜턴", "level": 8, "art": "<path d=\"M37 25V15Q50 1 63 15V25\" fill=\"none\" stroke-width=\"4\"/><path d=\"M24 29H76L69 85H31Z\" fill=\"#b9a6c9\"/><path d=\"M36 39H64V73H36Z\" fill=\"#f4ddb0\"/><path d=\"M22 28H78M27 86H73\" stroke=\"#877492\" stroke-width=\"6\"/>"}, {"forest": 2, "slot": "charm", "id": "comet", "name": "꼬마 혜성", "level": 10, "art": "<path d=\"M20 70L83 9 70 56 91 31 66 83Z\" fill=\"#c1b2d9\"/><path d=\"M31 65L70 29M40 76L77 50\" stroke=\"#e6d8ed\" stroke-width=\"4\"/><circle cx=\"27\" cy=\"74\" r=\"19\" fill=\"#f1dba9\"/>"}];
+  const accessoryAllowed=(id,forest=activeForest)=>!FOREST_ACCESSORIES.some(x=>x.id===id&&x.forest!==forest);
+  for(const x of FOREST_ACCESSORIES)WARDROBE[x.slot].items.push([x.id,x.name,'',x.level]);
   function accessorySVG(id){
     const art={
       ribbon:'<path d="M46 43Q19 17 10 28L13 67Q30 72 46 54M54 43Q81 17 90 28L87 67Q70 72 54 54" fill="#d88d91"/><path d="M39 55L28 86 45 80 51 62M61 55L73 86 56 80 49 62" fill="#c8757c"/><path d="M17 35L40 46M82 35L61 46" stroke="#f0bec0"/><rect x="41" y="39" width="18" height="24" rx="7" fill="#e7a4a6"/>',
@@ -215,6 +218,7 @@
       sparkle:'<g fill="#e7cc8d" stroke="#c1a771" stroke-width="1"><path d="M18 10l4 12 11 4-11 4-4 12-4-12-11-4 11-4Z"/><path d="M81 47l5 14 12 5-12 5-5 14-5-14-12-5 12-5Z"/><path d="M24 74l3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"/><circle cx="77" cy="18" r="3"/><circle cx="10" cy="60" r="2"/></g>',
       routegift:'<path d="M23 21H77L92 43 50 87 8 43Z" fill="#9ebaaa"/><path d="M23 21L36 43 50 87 64 43 77 21M8 43H92M36 43L50 21 64 43" fill="none" stroke="#e4ecce"/><path d="M22 28l5 8" stroke="#fff7d8" stroke-width="3"/>'
     };
+    const exclusive=FOREST_ACCESSORIES.find(x=>x.id===id);if(exclusive)art[id]=exclusive.art;
     return art[id]?`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><g fill="none" stroke="#776c54" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${art[id]}</g></svg>`:'';
   }
   WARDROBE.scene.items.push(['studentgarden','수강생 정원','✦',1]);
@@ -229,9 +233,9 @@
       if(['x','y','scale','rotation'].every(k=>typeof p[k]==='number'&&Number.isFinite(p[k])))out[key]={x:clamp(p.x,-1,1),y:clamp(p.y,-1,1),scale:clamp(p.scale,.4,2),rotation:clamp(p.rotation,-180,180)};
     }return out;
   }
-  function safeLook(raw,level){
+  function safeLook(raw,level,forest=activeForest){
     const look={...LOOK_DEFAULT,poses:safePoses(raw?.poses)};
-    for(const [key,group] of Object.entries(WARDROBE))if(group.items.some(i=>i[0]===raw?.[key]&&i[3]<=level))look[key]=raw[key];
+    for(const [key,group] of Object.entries(WARDROBE))if(group.items.some(i=>i[0]===raw?.[key]&&i[3]<=level&&accessoryAllowed(i[0],forest)))look[key]=raw[key];
     if(!petAllowed(look.pet))look.pet='';
     if(typeof raw?.name==='string')look.name=raw.name.trim().slice(0,12);
     if(look.scene==='studentgarden'&&!STUDENT_BG)look.scene='meadow';
@@ -249,7 +253,7 @@
         const xp=saved.schema>=6?saved.xp:Math.min(Number.MAX_SAFE_INTEGER,Math.floor(baseXP*XP_MULTIPLIERS[index]));
         const level=levelFromXP(xp,index);
         loaded={...loaded,xp,level,voice:typeof saved.voice==='string'?saved.voice:'',rate:[.75,.9,1].includes(saved.rate)?saved.rate:.9,
-          look:safeLook(saved.look,level),routes:safeRoutes(saved.routes,level),family:level>=3&&petAllowed(saved.family)&&GROWTH[saved.family]?saved.family:null};
+          look:safeLook(saved.look,level,index),routes:safeRoutes(saved.routes,level),family:level>=3&&petAllowed(saved.family)&&GROWTH[saved.family]?saved.family:null};
         if(loaded.family)loaded.look.pet=loaded.family;
       }
     }catch{storageAvailable=false;}
@@ -296,7 +300,7 @@
       let el=avatar.querySelector('.wear-'+key);if(!el){el=document.createElement('span');el.className='wear-'+key;avatar.append(el);}
       const item=WARDROBE[key].items.find(i=>i[0]===look[key]);
       el.dataset.item=look[key];el.dataset.slot=key;el.classList.add('editable-accessory');
-      el.innerHTML=look[key]==='none'||(key==='charm'&&!g.adult)?'':accessorySVG(look[key]);
+      el.innerHTML=look[key]==='none'||(key==='charm'&&look[key]==='routegift'&&!g.adult)?'':accessorySVG(look[key]);
       el.hidden=!el.firstElementChild;
       if(avatar.id==='previewAvatar'){el.tabIndex=el.hidden?-1:0;el.setAttribute('role','button');el.setAttribute('aria-label',`${SLOT_NAMES[key]} 이동: 끌거나 선택 후 방향키로 조절`);}
     }
@@ -390,10 +394,11 @@
     for(const [key,group] of Object.entries(WARDROBE)){
       const field=document.createElement('fieldset');field.className='wardrobe-group';const legend=document.createElement('legend');legend.textContent=group.label;field.append(legend);const grid=document.createElement('div');grid.className='item-grid';
       for(const [id,label,icon,level] of group.items){
+        if(!accessoryAllowed(id))continue;
         const button=document.createElement('button');button.type='button';button.className='wardrobe-item';button.dataset.group=key;button.dataset.item=id;
         const art=document.createElement('span');art.className='item-art';art.setAttribute('aria-hidden','true');
         if(key==='color'){art.classList.add('swatch');art.style.background=icon;}else if(key==='pet'){art.classList.add('pet-thumbnail');art.innerHTML=creatureSVG(id,null,3,'#aac875');}else if(SLOTS.includes(key)&&id!=='none'){art.classList.add('accessory-thumbnail');art.innerHTML=accessorySVG(id);}else art.textContent=icon;
-        const name=document.createElement('strong');name.textContent=label;const note=document.createElement('small');const privateLocked=(id==='studentgarden'&&!STUDENT_BG)||(key==='pet'&&!petAllowed(id));note.textContent=privateLocked?'수강생 전용':level>profile.level?`잠김 · Lv.${level}`:'사용 가능';button.disabled=privateLocked||level>profile.level;button.append(art,name,note);
+        const name=document.createElement('strong');name.textContent=label;const note=document.createElement('small');const privateLocked=(id==='studentgarden'&&!STUDENT_BG)||(key==='pet'&&!petAllowed(id));note.textContent=privateLocked?'수강생 전용':level>profile.level?`잠김 · Lv.${level}`:'사용 가능';button.disabled=privateLocked||level>profile.level;button.append(art,name,note);const exclusive=FOREST_ACCESSORIES.find(x=>x.id===id);if(exclusive){const badge=document.createElement('small');badge.textContent=FORESTS[exclusive.forest].grades+' 전용';button.append(badge);}
         button.addEventListener('click',()=>{draftLook[key]=id;if(SLOTS.includes(key))selectedSlot=key;updatePreview();});grid.append(button);
       }field.append(grid);$('closetOptions').append(field);
     }updatePreview();$('closet').showModal();$('closeCloset').focus();
@@ -609,6 +614,11 @@
       mistakes:new Map(),startLevel:profile.level};
     screen('game');showQuestion(false);
   }
+  // Pronunciation belongs to the reveal panel, never to quiz choices.
+  function cleanQuizText(value){
+    return String(value||'').replace(/[（(][^()（）]*[A-Za-z\u00c0-\u024f\u1e00-\u1eff][^()（）]*[)）]/g,'')
+      .replace(/[A-Za-z\u00c0-\u024f\u1e00-\u1eff]+/g,'').replace(/\s+/g,' ').trim();
+  }
   function showQuestion(bonus) {
     clearTimer();stopSound();
     state.phase=bonus?'bonus':'basic';
@@ -621,11 +631,11 @@
     const candidates=bonus
       ? allPhrases.filter(p=>p.level===word.level&&p.id!==e.id&&p.meaning!==e.meaning&&canon(p.hanzi)!==canon(e.hanzi))
       : state.pool.filter(p=>compatible(e,p));
-    const label=x=>state.directionNow==='zh-ko'?x.meaning:x.hanzi;
+    const label=x=>cleanQuizText(state.directionNow==='zh-ko'?x.meaning:x.hanzi);
     const seen=new Set([label(e)]), wrong=[];
     // Prefer other phrases of this word for a meaningful bonus, then fill from the pool.
     const ordered=bonus?[...shuffle(candidates.filter(p=>p.parent===word.id)),...shuffle(candidates.filter(p=>p.parent!==word.id))]:shuffle(candidates);
-    for(const candidate of ordered){if(!seen.has(label(candidate))){wrong.push(candidate);seen.add(label(candidate));}if(wrong.length===3)break;}
+    for(const candidate of ordered){if(label(candidate)&&!seen.has(label(candidate))){wrong.push(candidate);seen.add(label(candidate));}if(wrong.length===3)break;}
     if(wrong.length!==3) {finish();$('resultSubtitle').textContent='서로 다른 보기가 부족해 종료했어요. data.js 내용을 확인해 주세요.';return;}
     state.options=shuffle([e,...wrong]);
     $('gameMode').textContent=state.mode==='practice'?'☘ 준비 운동':'⚡ 덩어리 숲속으로';
@@ -693,7 +703,7 @@
     $('continueBtn').textContent=state.offerBonus?'짝꿍어휘 도전 · +3 XP':state.index===state.queue.length-1?'학습 결과 보기':'다음 단어 →';
     $('skipBonus').hidden=!state.offerBonus;
     if(profile.level>previousLevel){
-      const gifts=Object.values(WARDROBE).flatMap(g=>g.items).filter(i=>i[3]>previousLevel&&i[3]<=profile.level);
+      const gifts=Object.values(WARDROBE).flatMap(g=>g.items).filter(i=>accessoryAllowed(i[0])&&i[3]>previousLevel&&i[3]<=profile.level);
       $('feedbackNote').textContent=`레벨 ${profile.level} 달성! `+([2,3,4,5,10].includes(profile.level)?(profile.level===2?'마음씨가 마음싹로 자랐어요!':profile.level===3?'학습 후 내 친구 꾸미기에서 성장 계열과 길을 선택하세요!':'친구가 더 자랐어요! 학습 후 달라진 모습을 확인하세요.'):gifts.length?gifts.map(i=>i[1]).join(' · ')+' 선물이 열렸어요. 학습 후 꾸며 보세요!':'친구와 한 걸음 더 자랐어요!');
     }
     forestAudio.effect(correct?(bonus?'bonus':'correct'):'wrong');
