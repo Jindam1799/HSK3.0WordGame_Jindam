@@ -817,8 +817,21 @@
   friend.addEventListener('pointermove',e=>{
     if(!grip||e.pointerId!==grip.id||!grip.active)return;
     const rect=friend.getBoundingClientRect(),stage=$('homeHabitat').getBoundingClientRect();
-    const maxX=Math.max(0,(stage.width-rect.width)/2);
-    offsetX=clamp(grip.x+e.clientX-grip.startX,-maxX,maxX);
+    // Use the card's full play area on phones, with a small safe screen margin.
+    const mobile=window.matchMedia?.('(max-width: 620px)').matches;
+    const area=mobile?friend.closest('.companion').getBoundingClientRect():stage;
+    const center=rect.left-offsetX+rect.width/2;
+    const route=routeFor(profile.look.pet,profile.routes);
+    const geometry=plantGeometry(profile.look.pet,route?.id,profile.level);
+    // The SVG canvas includes empty space around small plants.
+    let halfWidth=mobile?rect.width*.45*Math.max(.55,geometry.scale):rect.width/2;
+    friend.querySelectorAll('.editable-accessory:not([hidden])').forEach(item=>{
+      const box=item.getBoundingClientRect();
+      halfWidth=Math.max(halfWidth,Math.abs(box.left-(rect.left+rect.width/2)),Math.abs(box.right-(rect.left+rect.width/2)));
+    });
+    const left=Math.max(8,area.left)+halfWidth-center;
+    const right=Math.min(window.innerWidth-8,area.right)-halfWidth-center;
+    offsetX=left<=right?clamp(grip.x+e.clientX-grip.startX,left,right):0;
     const baseTop=rect.top-offsetY;
     offsetY=clamp(grip.y+e.clientY-grip.startY,-Math.max(0,baseTop-12),0);setOffset();
   });
@@ -867,6 +880,25 @@
     const title=document.createElement('strong');title.textContent=f.name+' · '+f.grades;
     const note=document.createElement('small');button.append(title,note);button.onclick=()=>switchForest(i);$('forestTabs').append(button);
   });
+  // Move real nodes so visual order and keyboard/screen-reader order agree.
+  const mobileLayout=window.matchMedia?.('(max-width: 620px)');
+  const forestSelector=document.querySelector('.forest-selector');
+  const layout=document.querySelector('.layout');
+  const closetButton=$('openCloset');
+  const forestAnchor=document.createComment('desktop forest selector');
+  const closetAnchor=document.createComment('desktop closet button');
+  forestSelector.before(forestAnchor);closetButton.before(closetAnchor);
+  function arrangeLobby(){
+    if(mobileLayout?.matches){
+      document.querySelector('.workspace').before(forestSelector);
+      $('homeHabitat').after(closetButton);
+    }else{
+      forestAnchor.after(forestSelector);closetAnchor.after(closetButton);
+    }
+    resetFriend();
+  }
+  mobileLayout?.addEventListener('change',arrangeLobby);
+  arrangeLobby();
   $('levelSelect').onchange=updateCount;
   populateGrades();
   updateCount();renderProfile();save();populateVoices();modeChanged();

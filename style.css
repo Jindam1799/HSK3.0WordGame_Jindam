@@ -285,3 +285,22 @@ body[data-forest="1"] .growth-path,body[data-forest="2"] .growth-path {border-co
 body[data-forest="1"] .closet-open,body[data-forest="2"] .closet-open {background:var(--panel-button);border-color:var(--line);}
 body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(input:checked) {background:var(--light);}
 .mode strong {line-height:1.4;word-break:keep-all;}.mode small {font-size:11px;line-height:1.65;word-break:keep-all;}
+
+/* Mobile lobby: friend first, with a full-width play area and immediate dress-up. */
+@media(max-width:620px){
+ .app>.topbar{height:64px}
+ .app main>.intro{display:none}
+ .app main>.layout{margin-top:14px}
+ .layout>.forest-selector{margin:0;padding:6px 0}
+ body:not(.playing) .companion{padding:14px 12px;overflow:visible}
+ body:not(.playing) .companion>#homeHabitat{width:calc(100% + 24px);margin:0 -12px;height:clamp(230px,34svh,290px);min-height:230px}
+ body:not(.playing) .companion .mascot.forest-avatar{width:210px;height:245px;flex-basis:210px;scale:1}
+ body:not(.playing) .companion #openCloset{display:block;width:100%;max-width:none;min-height:48px;margin:6px 0 10px;font-size:16px}
+ body:not(.playing) .companion h2{font-size:20px;margin:8px 0 4px}
+ body:not(.playing) .companion .friend-chat-hint{font-size:12px;margin:4px 0}
+ body:not(.playing) .companion>.subtle{font-size:13px;margin-bottom:8px}
+ body:not(.playing) .companion .xp-label{font-size:12px;margin-top:10px;max-width:none}
+ body:not(.playing) .companion #xpBar{max-width:none}
+ .forest-tab{min-height:64px}
+ .playing .layout>.forest-selector{display:none}
+}
