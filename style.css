@@ -304,3 +304,87 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
  .forest-tab{min-height:64px}
  .playing .layout>.forest-selector{display:none}
 }
+
+/* Gentle care and an earned-currency shop, colored by the current forest. */
+.care-panel{margin:18px 0 8px;padding:16px 0 4px;border-top:1px solid var(--line);text-align:left}
+.care-heading,.care-water-label,.shop-wallet{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.care-heading h3{font-size:15px;margin:0}.coin-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--ink);white-space:nowrap}
+.forest-coin{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:50%;background:#f4d78e;color:#765222;border:2px solid #ddb76a;font-size:11px;font-weight:bold}
+.care-water-label{font-size:12px;margin:12px 0 0}.care-water-label strong{font-weight:600;color:var(--green)}
+.care-panel progress{height:6px;margin:7px 0 12px}.care-panel[data-dry="true"] .care-water-label strong{color:var(--red)}
+.care-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.care-actions button{display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 6px;min-height:56px;margin:0;color:var(--green);background:var(--panel-button,#fff);border:1px solid var(--line)}
+.care-actions svg{width:29px;height:29px;flex-shrink:0}.care-actions span{font-size:14px;font-weight:700;text-align:left;line-height:1.45}.care-actions small{display:block;font-size:10px;font-weight:400;color:var(--muted)}
+.care-fertilizer{font-size:12px;line-height:1.7;color:var(--green);margin:12px 0 4px;overflow-wrap:anywhere}
+.care-help,.care-message{font-size:11px;line-height:1.7;margin:4px 0;color:var(--muted)}.care-message:empty{display:none}.care-message{color:var(--green)}
+.care-rules{font-size:11px;margin-top:9px;color:var(--muted)}.care-rules summary{cursor:pointer;min-height:32px;display:list-item}.care-rules p{margin:6px 0;line-height:1.8}
+#gardenShop{width:min(650px,calc(100% - 24px));padding:24px;background:var(--paper);max-height:90vh;max-height:90svh}
+.shop-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.shop-header .eyebrow{margin:0 0 5px;letter-spacing:.5px}.shop-header h2{font-size:23px;margin:0;line-height:1.4;word-break:keep-all}.shop-header .icon-button{flex-shrink:0;min-width:44px;min-height:44px}
+.shop-wallet{margin-top:19px;padding:13px 16px;background:var(--light);border:1px solid var(--line);border-radius:14px;font-size:13px}.shop-wallet strong{font-size:19px;color:var(--green)}
+.shop-intro{font-size:13px;color:var(--muted);line-height:1.8;margin:14px 0 9px}.shop-active{font-size:12px;color:var(--green);min-height:20px;margin:8px 0 15px}
+.shop-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.shop-item{background:var(--panel-button,#fff);border:1px solid var(--line);border-radius:20px;padding:14px;text-align:center;min-width:0}
+.shop-item>svg{display:block;width:150px;max-width:100%;height:115px;margin:auto;color:var(--green)}.shop-item h3{font-size:19px;margin:3px 0 5px}.fertilizer-benefit{font-size:13px;margin:0}.fertilizer-benefit strong{color:var(--green)}.shop-duration{font-size:11px;color:var(--muted);margin:5px 0 12px}.stock{display:inline-block;font-size:12px;background:var(--light);color:var(--green);border-radius:30px;padding:3px 11px;margin:0 0 10px}
+.shop-item button{display:block;min-height:46px;width:100%;margin:7px 0 0;padding:9px 5px;font-size:13px}.shop-hint{font-size:11px;color:var(--muted);line-height:1.7;margin:10px 0 0;min-height:38px}.shop-message{color:var(--green);font-size:13px;line-height:1.8;margin:14px 0 5px}.shop-message:empty{display:none}.shop-footnote{font-size:11px;color:var(--muted);line-height:1.8;margin:14px 0 0}.result-garden{font-size:13px;color:var(--green);background:var(--light);border-radius:12px;padding:12px 14px}
+.playing .companion .care-panel{display:none}
+@media(max-width:620px){.care-panel{margin-top:14px;padding:14px 0 2px}.care-heading h3{font-size:16px}.care-help,.care-message,.care-rules{font-size:12px}.care-actions button{min-height:60px}.care-actions small{font-size:11px}.care-fertilizer{font-size:13px}#gardenShop{padding:18px 16px}.shop-header h2{font-size:21px}.shop-items{gap:10px}.shop-item{padding:12px 9px}.shop-item>svg{width:128px;height:105px}.shop-item h3{font-size:17px}.shop-wallet{margin-top:14px}}
+@media(max-width:380px){.shop-items{grid-template-columns:1fr}.shop-item>svg{height:96px}.shop-hint{min-height:0}.shop-header h2{font-size:19px}}
+
+/* Care: visible tools, smiling expressions and a gentle burst of energy. */
+.expression-happy{display:none}
+.care-happy .expression-normal,.care-energized .expression-normal{display:none}
+.care-happy .expression-happy,.care-energized .expression-happy{display:inline}
+#homeHabitat .care-scene{position:absolute;inset:0;width:100%;height:100%;overflow:visible;z-index:6;pointer-events:none}
+.care-tool{position:absolute;width:132px;height:108px;z-index:7;pointer-events:none;opacity:1;filter:drop-shadow(0 3px 2px #23473b22)}.care-tool>svg{display:block;width:100%;height:100%;overflow:visible}.care-can{transform-origin:20% 60%;animation:care-pour 2.7s ease-in-out both}
+.care-bag{transform-box:fill-box;transform-origin:50% 70%;animation:care-feed 2.7s ease-in-out both}
+.care-drop,.care-grain{opacity:0;animation:care-fall .65s ease-in both}
+.care-energy{opacity:0;animation:care-spark 1.2s ease-out both;transform-box:fill-box;transform-origin:center}
+.care-happy .creature-art,.care-happy .editable-accessory{animation:care-sway .65s ease-in-out 3}
+.care-energized .creature-art,.care-energized .editable-accessory{animation:care-power .7s ease-in-out 3}
+@keyframes care-pour{0%{opacity:1;transform:translate(20px,-14px) rotate(8deg)}18%{opacity:1;transform:translate(0,0) rotate(0)}35%,73%{opacity:1;transform:rotate(-18deg)}100%{opacity:0;transform:translate(24px,-20px) rotate(8deg)}}
+@keyframes care-feed{0%{opacity:0;transform:translate(22px,-22px) rotate(0)}20%{opacity:1;transform:translate(0,0) rotate(-25deg)}35%,65%{opacity:1;transform:rotate(-90deg)}45%,75%{transform:rotate(-75deg)}100%{opacity:0;transform:translate(22px,-20px) rotate(0)}}
+@keyframes care-fall{0%{opacity:0;transform:translateY(0)}15%{opacity:1}85%{opacity:.9}100%{opacity:0;transform:translateY(62px)}}
+@keyframes care-spark{0%{opacity:0;transform:translateY(8px) scale(.3)}25%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-28px) scale(.6)}}
+@keyframes care-sway{0%,100%{translate:0 0}35%{translate:0 -4px}65%{translate:0 -2px}}
+@keyframes care-power{0%,100%{translate:0 0}25%{translate:0 2px}55%{translate:0 -9px}}
+@media(prefers-reduced-motion:reduce){.care-can,.care-bag{animation:none;opacity:1}.care-drop,.care-grain{animation:none;opacity:.8}.care-energy{animation:none;opacity:.8}.care-happy .creature-art,.care-energized .creature-art{animation:none}}
+
+/* One three-second celebration after a round that earned a new level. */
+#evolutionDialog{width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;border:0;border-radius:0;padding:20px;background:transparent;overflow:hidden;color:#fffbed;box-shadow:none}
+#evolutionDialog::backdrop{background:color-mix(in srgb,var(--green) 80%,#142320);backdrop-filter:blur(8px)}
+.evolution-content{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px}
+.evolution-kicker{font-size:12px;letter-spacing:2px;margin:0;color:#f6e6b7}.evolution-content h2{font-size:clamp(21px,4.8vw,30px);margin:0;line-height:1.5}
+.evolution-stage{position:relative;width:240px;height:280px;flex-shrink:0;margin:10px 0;isolation:isolate}
+.evolution-form{position:absolute;inset:0;transition:opacity .65s ease,filter .65s ease,scale .65s ease;display:flex;align-items:center;justify-content:center}
+.evolution-form .mascot.evolution-avatar{position:relative;width:240px;height:280px;flex:0 0 240px;scale:1;margin:0;animation:none;transform:none;box-shadow:none}
+#evolutionBefore{opacity:1}#evolutionAfter{opacity:0;scale:.86;filter:brightness(1.6)}
+.evolution-revealed #evolutionBefore{opacity:0;scale:1.12;filter:brightness(1.8)}.evolution-revealed #evolutionAfter{opacity:1;scale:1;filter:brightness(1)}
+.evolution-revealed #evolutionAfter .expression-normal{display:none}.evolution-revealed #evolutionAfter .expression-happy{display:inline}
+.evolution-halo{position:absolute;inset:-15px -25px;border-radius:50%;background:radial-gradient(ellipse,#fff3bbaa 0%,#eadd8540 42%,transparent 70%);animation:evolution-glow 2.8s ease-in-out both;z-index:-2}
+.evolution-rays{position:absolute;inset:-20px;z-index:-1;border-radius:50%;background:repeating-conic-gradient(from 0deg,transparent 0deg 24deg,#fff8cb18 25deg 31deg,transparent 32deg 45deg);mask-image:radial-gradient(circle,#000 20%,transparent 68%);animation:evolution-turn 3s linear both}
+.evolution-stars{position:absolute;inset:-14px;pointer-events:none;z-index:2}.evolution-stars i{position:absolute;width:13px;height:13px;background:#ffeb9a;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:evolution-star 2.8s ease-in-out both}
+.evolution-stars i:nth-child(1){top:18%;left:3%}.evolution-stars i:nth-child(2){top:5%;left:75%;animation-delay:.1s}.evolution-stars i:nth-child(3){top:56%;left:95%;animation-delay:.2s}.evolution-stars i:nth-child(4){top:88%;left:72%;animation-delay:.1s}.evolution-stars i:nth-child(5){top:78%;left:10%;animation-delay:.2s}.evolution-stars i:nth-child(6){top:35%;left:88%;width:8px;height:8px}
+.evolution-phrase{position:relative;order:0;margin:0;background:#fffcf0;color:var(--green);border-radius:20px;padding:13px 20px;font-size:clamp(18px,4.8vw,25px);font-weight:700;line-height:1.5;max-width:min(90vw,440px);opacity:0;translate:0 7px;transition:opacity .35s ease,translate .35s ease}
+.evolution-phrase::before{content:"";position:absolute;width:14px;height:14px;background:inherit;bottom:-6px;left:calc(50% - 7px);rotate:45deg}.evolution-revealed .evolution-phrase{opacity:1;translate:0 0}
+.evolution-levels{order:3;margin:0;font-weight:700;letter-spacing:1px;color:#f6e6b7;font-size:19px}
+.evolution-skip{position:absolute;right:16px;top:max(16px,env(safe-area-inset-top));min-height:44px;padding:8px 14px;border:1px solid #ffffff55;border-radius:24px;background:#ffffff15;color:#fffbed;font-size:12px;z-index:10}
+@keyframes evolution-glow{0%{opacity:0;scale:.7}40%{opacity:1;scale:1.1}100%{opacity:.65;scale:1.15}}
+@keyframes evolution-turn{from{rotate:-15deg;opacity:0}30%{opacity:1}to{rotate:35deg;opacity:.6}}
+@keyframes evolution-star{0%{opacity:0;scale:.3;translate:0 15px}40%{opacity:1;scale:1.2}100%{opacity:0;scale:.6;translate:0 -35px}}
+@media(max-height:640px){.evolution-content{gap:5px}.evolution-stage{width:180px;height:210px;margin:0}.evolution-form .mascot.evolution-avatar{width:180px;height:210px;flex-basis:180px}.evolution-kicker{display:none}.evolution-phrase{font-size:18px;padding:8px 14px}}
+@media(prefers-reduced-motion:reduce){.evolution-halo,.evolution-rays,.evolution-stars i{animation:none;opacity:.8}.evolution-form,.evolution-phrase{transition:none}}
+
+/* Visible-time forest visits: one bug or rain event at a time. */
+.world-notice{margin-top:12px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--paper);font-size:12px;line-height:1.6}.world-notice p{margin:0;color:var(--ink)}.world-notice button{width:100%;min-height:44px;font-size:12px;margin:8px 0 0;padding:8px}
+.protection-items{margin-top:12px}.world-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden;border-radius:16px;z-index:2}.world-layer[data-kind="rain"]{background:linear-gradient(#8396a62b,transparent)}
+.world-raindrop{position:absolute;top:-20%;width:2px;height:18px;background:#76abcbbb;border-radius:4px;rotate:12deg;animation:forest-rain 1s linear infinite}
+.world-bug{position:absolute;left:12%;top:54%;width:48px;height:44px;animation:forest-bug 2s ease-in-out infinite}.world-bug svg{width:100%;height:100%}
+.world-umbrella{position:absolute;left:50%;width:130px;height:92px;translate:-50% -86%;z-index:8;pointer-events:none}.world-umbrella svg{width:100%;height:100%;overflow:visible}
+.world-distressed:not(.care-happy):not(.care-energized) .expression-normal{display:none}.world-distressed:not(.care-happy):not(.care-energized) .expression-lift{display:inline}
+.world-distressed .creature-art{animation:forest-shiver 2.5s ease-in-out infinite}
+.world-spray-tool{width:65px;height:85px;left:12%;top:35%;animation:forest-spray 1.8s ease-in-out both}
+.world-mist{position:absolute;left:75%;top:12%;width:95px;height:48px;background:radial-gradient(ellipse,#b8dfd2aa,transparent 70%);animation:forest-mist .6s ease-out 3;transform-origin:left center}
+@keyframes forest-rain{to{top:120%}}
+@keyframes forest-bug{0%,100%{translate:0 0;rotate:-7deg}50%{translate:14px -7px;rotate:8deg}}
+@keyframes forest-shiver{0%,70%,100%{translate:0 0}76%,88%{translate:-2px 0}82%,94%{translate:2px 0}}
+@keyframes forest-spray{0%{opacity:0;translate:-10px 0}20%,80%{opacity:1;translate:0 0}100%{opacity:0;translate:-10px 0}}
+@keyframes forest-mist{from{opacity:.2;scale:.3}50%{opacity:1}to{opacity:0;scale:1.3}}
+@media(prefers-reduced-motion:reduce){.world-raindrop{animation:none;top:25%}.world-raindrop:nth-child(even){top:65%}.world-bug,.world-distressed .creature-art,.world-spray-tool,.world-mist{animation:none}}
