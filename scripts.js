@@ -309,9 +309,18 @@
     renderLook($('mascot'),$('homeHabitat'),profile.look);renderUnlockHint();renderForestTabs();renderCare();
   }
   const gardenBusy=()=>!!state&&['basic','bonus','feedback'].includes(state.phase);
+  function renderWaterCountdown(){
+    const seconds=Math.max(0,Math.ceil((profile.garden.lastWatered+GARDEN_RULES.graceHours*HOUR-Date.now())/1000));
+    const moisture=Math.ceil(seconds/(GARDEN_RULES.graceHours*3600)*100);
+    $('waterBar').value=moisture;$('waterBar').setAttribute('aria-valuetext',`수분 ${moisture}%`);
+    if(!seconds)$('waterState').textContent='목이 말라요';
+    const hours=Math.floor(seconds/3600),minutes=Math.floor(seconds%3600/60),rest=seconds%60;
+    $('waterCountdown').textContent=seconds?`수분 0%까지 ${hours}시간 ${String(minutes).padStart(2,'0')}분 ${String(rest).padStart(2,'0')}초`:'수분 0% · 물이 필요해요';
+  }
   function renderCare(){
+    renderWaterCountdown();
     const g=profile.garden,age=Math.max(0,Date.now()-g.lastWatered),hours=age/HOUR;
-    const moisture=Math.max(0,Math.round(100*(1-hours/GARDEN_RULES.graceHours)));
+    const moisture=Math.max(0,Math.ceil(100*(1-hours/GARDEN_RULES.graceHours)));
     $('careCoins').textContent=g.coins.toLocaleString();
     $('waterBar').value=moisture;$('waterBar').setAttribute('aria-valuetext',`수분 ${moisture}%`);
     $('waterState').textContent=hours>=48?'목이 말라요':hours>=24?'물을 주면 좋아요':'촉촉해요';
@@ -562,12 +571,14 @@
       {name:'달빛 아래 작은 연못',bpm:66,tone:'bell',pattern:[3,1,2,1],chords:[[45,48,52,55],[53,57,60,64],[48,52,55,59],[55,59,62,64]],melody:[76,null,72,69,null,71,72,null,77,null,76,72,69,null,72,null,76,79,null,83,79,76,null,72,74,null,71,67,null,71,74,null]}
     ];
     const MUSIC_BANKS=[GREEN_TRACKS,[{"name": "살구빛 소풍", "bpm": 104, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[48, 52, 55, 59], [53, 57, 60, 64], [50, 53, 57, 60], [55, 59, 62, 65]], "melody": [72, 76, 79, null, 76, 74, 72, 67, 69, 72, 77, 76, 74, null, 72, 69, 74, 77, 81, 77, 76, 74, null, 72, 71, 74, 79, 77, 74, 71, 72, null], "mood": "lively"}, {"name": "딸기 우체부", "bpm": 112, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[50, 54, 57, 61], [55, 59, 62, 66], [52, 55, 59, 62], [57, 61, 64, 67]], "melody": [74, null, 78, 81, 83, 81, 78, 74, 79, 83, 86, 83, 81, 79, 78, null, 76, 79, 83, 81, 79, 76, 74, 76, 73, 76, 81, 83, 81, 76, 74, null], "mood": "lively"}, {"name": "바람개비 장터", "bpm": 108, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[53, 57, 60, 64], [50, 53, 57, 60], [58, 62, 65, 69], [48, 52, 55, 58]], "melody": [77, 81, 84, 81, null, 79, 77, 76, 74, 77, 81, null, 79, 77, 74, 72, 74, 77, 82, 86, 84, 82, 81, 77, 76, 79, 84, 82, 79, 76, 77, null], "mood": "lively"}, {"name": "통통 도토리 버스", "bpm": 118, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[55, 59, 62, 66], [48, 52, 55, 59], [52, 55, 59, 62], [50, 54, 57, 60]], "melody": [79, 83, null, 86, 83, 81, 79, 74, 76, 79, 84, 83, 81, 79, 76, null, 76, 79, 83, 86, 83, null, 81, 79, 78, 81, 86, 84, 81, 78, 79, null], "mood": "lively"}, {"name": "노을의 작은 축제", "bpm": 100, "tone": "keys", "pattern": [1, 3, 2, 3], "chords": [[48, 52, 55, 59], [45, 48, 52, 55], [53, 57, 60, 64], [55, 59, 62, 65]], "melody": [76, 79, 84, null, 83, 79, 76, 72, 72, 76, 81, 79, 76, 72, 69, null, 77, 81, 84, 81, 79, 77, 76, 72, 74, 77, 79, 83, 81, 77, 76, null], "mood": "lively"}],[{"name": "달빛 탐험 지도", "bpm": 88, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[45, 48, 52, 55], [53, 57, 60, 64], [50, 53, 57, 60], [52, 56, 59, 62]], "melody": [69, null, 72, 76, 71, null, 72, 69, 77, null, 76, 72, 69, 72, null, 76, 74, 77, null, 81, 77, 74, 72, null, 71, 68, 71, null, 76, 74, 71, null], "mood": "mystery"}, {"name": "안개 속 반딧불", "bpm": 82, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[50, 53, 57, 60], [58, 62, 65, 69], [55, 58, 62, 65], [57, 61, 64, 67]], "melody": [74, null, 77, null, 81, 77, 76, null, 77, 81, 82, null, 81, 77, 74, null, 79, null, 82, 86, 82, null, 79, 77, 76, 73, null, 76, 81, 79, 76, null], "mood": "mystery"}, {"name": "별을 찾는 발걸음", "bpm": 96, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[52, 55, 59, 62], [48, 52, 55, 59], [45, 48, 52, 55], [47, 51, 54, 57]], "melody": [76, 79, null, 83, 81, 79, 78, null, 79, 76, 72, null, 76, 79, 83, null, 81, 76, null, 72, 69, 72, 76, null, 78, 75, 78, 81, null, 78, 76, null], "mood": "mystery"}, {"name": "보랏빛 숲의 비밀", "bpm": 90, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[48, 51, 55, 58], [56, 60, 63, 67], [53, 56, 60, 63], [55, 59, 62, 65]], "melody": [72, null, 75, 79, 77, null, 75, 72, 80, 79, null, 75, 72, 75, 79, null, 77, 80, 84, null, 80, 77, 75, null, 74, 71, 74, 77, 79, null, 74, null], "mood": "mystery"}, {"name": "새벽의 보물상자", "bpm": 94, "tone": "bell", "pattern": [0, 2, 1, 2], "chords": [[57, 60, 64, 67], [53, 57, 60, 64], [50, 53, 57, 60], [52, 56, 59, 62]], "melody": [81, 84, null, 88, 86, 84, 83, null, 84, 81, 77, 81, null, 84, 88, null, 86, 81, 77, null, 74, 77, 81, null, 80, 83, 88, null, 86, 83, 81, null], "mood": "mystery"}]];
+    let crisis=false;
+    const CRISIS_TRACK={name:'파리떼 주의! · 위기 BGM',bpm:136,tone:'keys',pattern:[0,2,1,2],chords:[[45,48,52],[44,47,52]],melody:[69,72,76,72,68,71,76,71,69,72,77,76,71,68,64,68],mood:'mystery'};
     let TRACKS=MUSIC_BANKS[0];
     const voices=new Set();let trackIndex=-1,bag=[];
     function chooseTrack(){
       if(!bag.length){bag=shuffle(TRACKS.map((_,i)=>i));if(bag[0]===trackIndex)[bag[0],bag[1]]=[bag[1],bag[0]];}
       trackIndex=bag.shift();beat=0;
-      $('currentTrack').textContent=TRACKS[trackIndex].name;
+      $('currentTrack').textContent=crisis?CRISIS_TRACK.name:TRACKS[trackIndex].name;
     }
     function status(text){$('musicStatus').textContent=text;}
     function persist(){try{localStorage.setItem(STORE,JSON.stringify(settings));}catch{status('소리 설정은 현재 화면에서만 유지돼요.');}}
@@ -590,7 +601,7 @@
       if(nextTime<ctx.currentTime-.3)nextTime=ctx.currentTime+.05;
       while(nextTime<ctx.currentTime+.3){
         if(trackIndex<0)chooseTrack();
-        const track=TRACKS[trackIndex],tempo=60/track.bpm;
+        const track=crisis?CRISIS_TRACK:TRACKS[trackIndex],tempo=60/track.bpm;
         const chord=track.chords[Math.floor(beat/4)%track.chords.length],pulse=beat%4;
         if(pulse===0)note(chord[0]-12,nextTime,tempo*3.5,.065,'music','bass');
         note(chord[track.pattern[pulse]],nextTime,tempo*1.7,.05);
@@ -603,11 +614,22 @@
         }
         const melody=track.melody[beat%track.melody.length];if(melody!==null)note(melody,nextTime+.035,tempo*1.55,.048,'music',track.tone);
         beat++;nextTime+=tempo;
-        if(beat>=track.melody.length*2){chooseTrack();nextTime+=1.2;}
+        if(beat>=track.melody.length*2){if(crisis)beat=0;else{chooseTrack();nextTime+=1.2;}}
       }
     }
+    function setCrisis(value){
+      if(crisis===value)return;crisis=value;stopMusic();beat=0;
+      if(trackIndex<0)chooseTrack();$('currentTrack').textContent=crisis?CRISIS_TRACK.name:TRACKS[trackIndex].name;startMusic();
+    }
+    function insectSound(spray=false){
+      const t=ctx.currentTime,source=spray?ctx.createBufferSource():ctx.createOscillator(),amp=ctx.createGain(),out=ctx.createGain();
+      if(spray){const buffer=ctx.createBuffer(1,Math.floor(ctx.sampleRate*.65),ctx.sampleRate);const samples=buffer.getChannelData(0);for(let i=0;i<samples.length;i++)samples[i]=(Math.random()*2-1)*.35;source.buffer=buffer;}
+      else{source.type='sawtooth';source.frequency.setValueAtTime(155,t);source.frequency.linearRampToValueAtTime(205,t+.2);source.frequency.linearRampToValueAtTime(145,t+.55);}
+      amp.gain.value=spray?.25:.025;out.gain.setValueAtTime(0,t);out.gain.linearRampToValueAtTime(1,t+.05);out.gain.linearRampToValueAtTime(0,t+.65);
+      source.connect(amp);amp.connect(out);out.connect(effectGain);const voice={oscillator:source,amp,out,bus:'effect'};voices.add(voice);source.onended=()=>{voices.delete(voice);source.disconnect();amp.disconnect();out.disconnect();};source.start(t);source.stop(t+.7);
+    }
     function setForest(index){stopMusic();TRACKS=MUSIC_BANKS[index];bag=[];trackIndex=-1;chooseTrack();startMusic();}
-    function startMusic(){if(!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status(`♪ ${FORESTS[activeForest].name} · 오리지널 5곡 무작위 재생`);}
+    function startMusic(){if(!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status(crisis?'파리떼가 나타났어요! 위기 BGM':`♪ ${FORESTS[activeForest].name} · 오리지널 5곡 무작위 재생`);}
     async function unlock(){
       active=true;
       try{
@@ -633,7 +655,7 @@
       oscillator.start(time);oscillator.stop(time+.09);
     }
     const phrases={evolve:[[60,0,.5,.07],[67,.18,.55,.06],[72,.38,.6,.08],[76,.62,.7,.07],[79,.86,.85,.07],[84,1.14,1.15,.075],[88,1.48,1,.045]],tap:[[76,0,.11,.075]],correct:[[76,0,.18,.12],[81,.11,.27,.09]],bonus:[[76,0,.16,.11],[79,.1,.18,.1],[84,.2,.3,.09]],wrong:[[64,0,.17,.055],[60,.12,.22,.04]],level:[[72,0,.18,.09],[76,.11,.2,.09],[79,.22,.23,.09],[84,.34,.48,.09]],finish:[[72,0,.2,.07],[76,.15,.22,.07],[79,.3,.4,.065]],dress:[[79,0,.14,.08],[84,.08,.2,.07]]};
-    function effect(name,delay=0){if(!settings.effects||document.hidden)return;if(!ctx||ctx.state!=='running')return;if(name==='land'){const t=ctx.currentTime+.015;note(38,t,.18,.17,'effect','bass');note(45,t+.04,.12,.08,'effect','bass');return;}if(name==='timer'){clockTick(ctx.currentTime+.015+delay);return;}for(const [pitch,offset,length,gain] of phrases[name]||phrases.tap)note(pitch,ctx.currentTime+.015+offset+delay,length,gain,'effect','bell');}
+    function effect(name,delay=0){if(!settings.effects||document.hidden)return;if(!ctx||ctx.state!=='running')return;if(name==='buzz'||name==='spray'){insectSound(name==='spray');return;}if(name==='land'){const t=ctx.currentTime+.015;note(38,t,.18,.17,'effect','bass');note(45,t+.04,.12,.08,'effect','bass');return;}if(name==='timer'){clockTick(ctx.currentTime+.015+delay);return;}for(const [pitch,offset,length,gain] of phrases[name]||phrases.tap)note(pitch,ctx.currentTime+.015+offset+delay,length,gain,'effect','bell');}
     function duck(value){ducked=value;mix();}
     function pause(){stopMusic();if(ctx){for(const v of [...voices]){try{v.oscillator.stop();}catch{}voices.delete(v);}ctx.suspend().catch(()=>{});}status(active?'다른 화면을 보는 동안 음악을 쉬고 있어요.':'게임 시작 또는 소리 듣기를 누르면 재생돼요.');}
     $('bgmEnabled').checked=settings.music;$('sfxEnabled').checked=settings.effects;
@@ -650,7 +672,7 @@
     window.addEventListener('pagehide',pause);window.addEventListener('pageshow',()=>{if(active&&!document.hidden)unlock();});
     document.addEventListener('pointerdown',()=>{if(active&&ctx&&ctx.state!=='running'&&!document.hidden)unlock();},{passive:true});
     status('게임 시작 또는 소리 듣기를 누르면 재생돼요.');
-    return {unlock,effect,duck,setForest};
+    return {unlock,effect,duck,setForest,setCrisis};
   })();
   $('welcomeFriends').innerHTML=['mushroom','petal','succulent'].map(p=>'<span>'+creatureSVG(p,null,3)+'</span>').join('');
   $('enterLobby').onclick=()=>{
@@ -719,7 +741,7 @@
       activeAudio.play().catch(()=>{if(token===soundToken)forestAudio.duck(false);fallback();});
     } else fallback();
   }
-  function screen(name) {$('forestTabs').querySelectorAll('button').forEach(b=>b.disabled=name==='game');['setup','game','result'].forEach(id=>$(id).hidden=id!==name);$('openCloset').disabled=name==='game';document.body.classList.toggle('playing',name==='game');renderCare();}
+  function screen(name) {document.body.dataset.screen=name;if(name==='game')$('adventureDialog').close();$('forestTabs').querySelectorAll('button').forEach(b=>b.disabled=name==='game');['setup','game','result'].forEach(id=>$(id).hidden=id!==name);$('openCloset').disabled=name==='game';document.body.classList.toggle('playing',name==='game');renderCare();}
   function clearTimer(){if(timer!==null){clearInterval(timer);timer=null;}}
   function changeXP(delta) {
     if(state.mode==='practice') return 0;
@@ -750,6 +772,12 @@
     return String(value||'').replace(/[（(][^()（）]*[A-Za-z\u00c0-\u024f\u1e00-\u1eff][^()（）]*[)）]/g,'')
       .replace(/[A-Za-z\u00c0-\u024f\u1e00-\u1eff]+/g,'').replace(/\s+/g,' ').trim();
   }
+  function pinyinToggle(hanzi,pinyin,id){
+    const wrap=document.createElement('span');wrap.className='quiz-reading';
+    const button=document.createElement('button');button.type='button';button.className='hanzi-reveal';button.textContent=hanzi;button.lang='zh-CN';button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',id);
+    const py=document.createElement('span');py.id=id;py.className='quiz-pinyin';py.textContent=pinyin||'병음 준비 중';py.hidden=true;
+    button.onclick=()=>{py.hidden=!py.hidden;button.setAttribute('aria-expanded',String(!py.hidden));};wrap.append(button,py);return wrap;
+  }
   function showQuestion(bonus) {
     clearTimer();stopSound();
     state.phase=bonus?'bonus':'basic';
@@ -776,11 +804,17 @@
     const fertilizerBoost=state.mode==='main'&&profile.garden.active?FERTILIZERS[profile.garden.active.kind].boost:0;
     $('questionKind').textContent=bonus?'✦ 짝꿍어휘 보너스 · +3 XP':'기본 단어 · '+(state.mode==='main'?`+5 XP${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}`:'천천히 풀어요');
     $('questionInstruction').textContent=bonus?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
-    $('questionText').textContent=state.directionNow==='zh-ko'?e.hanzi:e.meaning;
+    $('questionText').replaceChildren();
+    if(state.directionNow==='zh-ko')$('questionText').append(pinyinToggle(e.hanzi,e.pinyin,'promptPinyin'));else $('questionText').textContent=e.meaning;
+    $('quizHint').textContent=state.directionNow==='ko-zh'?'한자를 누르면 병음 · 선택 버튼 또는 키보드 1–4로 답하기':'문제의 한자를 누르면 병음 · 보기 선택 또는 키보드 1–4';
     $('questionText').classList.toggle('korean',state.directionNow==='ko-zh');
     $('questionText').lang=state.directionNow==='zh-ko'?'zh-CN':'ko';
     $('answers').replaceChildren();
     state.options.forEach((option,i)=>{
+      if(state.directionNow==='ko-zh'){
+        const card=document.createElement('div');card.className='answer answer-reading';card.append(pinyinToggle(label(option),option.pinyin,'choicePinyin'+i));
+        const choose=document.createElement('button');choose.type='button';choose.className='answer-select';choose.textContent=`${i+1} · 선택`;choose.setAttribute('aria-label',`${i+1}번 ${label(option)} 선택`);choose.onclick=()=>answer(option.id);card.append(choose);$('answers').append(card);return;
+      }
       const button=document.createElement('button');button.type='button';button.className='answer';
       const num=document.createElement('span');num.className='number';num.textContent=i+1;num.setAttribute('aria-hidden','true');
       const text=document.createElement('span');text.textContent=label(option);text.lang=state.directionNow==='ko-zh'?'zh-CN':'ko';
@@ -792,7 +826,7 @@
       state.deadline=performance.now()+RULES.seconds*1000;state.lastChime=RULES.seconds;
       tick();timer=setInterval(tick,50);
     }
-    $('answers').firstElementChild?.focus({preventScroll:true});
+    $('answers').querySelector('button')?.focus({preventScroll:true});
   }
   function tick(){
     if(!state||!['basic','bonus'].includes(state.phase))return;
@@ -887,7 +921,7 @@
   $('feedback').addEventListener('cancel',e=>e.preventDefault());
   $('replayBtn').onclick=()=>{if(state)speak(state.entry);};
   $('quitBtn').onclick=finish;
-  $('homeBtn').onclick=()=>{stopSound();state=null;screen('setup');refreshGarden();$('startBtn').focus();};
+  $('homeBtn').onclick=()=>{stopSound();state=null;screen('setup');refreshGarden();(mobileLayout.matches?$('openAdventure'):$('startBtn')).focus();};
   $('reviewBtn').onclick=()=>start([...new Set([...state.mistakes.values()].map(x=>x.parent))]);
   document.querySelectorAll('input[name="mode"]').forEach(r=>r.addEventListener('change',modeChanged));
   document.addEventListener('keydown',e=>{
@@ -914,10 +948,12 @@
     const headY=rect.top+(197*(1-g.scale)+g.head[1]*g.scale)*rect.height/210;
     const width=bubble.offsetWidth||220;
     bubble.style.left=Math.max(8,Math.min(window.innerWidth-width-8,rect.left+rect.width/2-width/2))+'px';
-    bubble.style.top=Math.max(8,headY-(bubble.offsetHeight||78)-15)+'px';
+    const top=bubble.classList.contains('bubble-below')?rect.bottom+8:headY-(bubble.offsetHeight||78)-15;
+    bubble.style.top=Math.max(8,Math.min(window.innerHeight-bubble.offsetHeight-8,top))+'px';
   }
   function hideBubble(){clearTimeout(bubbleTimer);clearTimeout(bubbleEnd);bubble.classList.remove('bubble-visible');bubbleEnd=setTimeout(()=>{bubble.hidden=true;},reducedMotion()?0:260);}
-  function showFriendPhrase([zh,ko]){
+  function showFriendPhrase([zh,ko],placement='above'){
+    bubble.classList.toggle('bubble-below',placement==='below');
     $('friendChinese').textContent=zh;$('friendKorean').textContent=ko;
     clearTimeout(bubbleTimer);clearTimeout(bubbleEnd);bubble.hidden=false;positionBubble();
     requestAnimationFrame(()=>bubble.classList.add('bubble-visible'));
@@ -1074,25 +1110,44 @@
     const title=document.createElement('strong');title.textContent=f.name+' · '+f.grades;
     const note=document.createElement('small');button.append(title,note);button.onclick=()=>switchForest(i);$('forestTabs').append(button);
   });
-  // Move real nodes so visual order and keyboard/screen-reader order agree.
-  const mobileLayout=window.matchMedia?.('(max-width: 620px)');
-  const forestSelector=document.querySelector('.forest-selector');
-  const layout=document.querySelector('.layout');
-  const closetButton=$('openCloset');
-  const forestAnchor=document.createComment('desktop forest selector');
-  const closetAnchor=document.createComment('desktop closet button');
-  forestSelector.before(forestAnchor);closetButton.before(closetAnchor);
-  function arrangeLobby(){
-    if(mobileLayout?.matches){
-      document.querySelector('.workspace').before(forestSelector);
-      $('homeHabitat').after(closetButton);
-    }else{
-      forestAnchor.after(forestSelector);closetAnchor.after(closetButton);
-    }
-    resetFriend();
+  // Move the existing controls, retaining their listeners and desktop positions.
+  const mobileLayout=window.matchMedia('(max-width: 620px)');
+  const movable=[document.querySelector('.forest-selector'),$('setup'),...document.querySelectorAll('.audio-settings'),document.querySelector('.care-rules')];
+  const anchors=movable.map(node=>{const anchor=document.createComment('desktop control');node.before(anchor);return anchor;});
+  const closetAnchor=document.createComment('desktop closet');$('openCloset').before(closetAnchor);
+  document.body.dataset.screen='setup';
+  function settingsTab(index){
+    movable.slice(2).forEach((node,i)=>node.hidden=mobileLayout.matches&&i!==index);
+    document.querySelectorAll('[data-settings-tab]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.settingsTab)===index)));
   }
-  mobileLayout?.addEventListener('change',arrangeLobby);
-  arrangeLobby();
+  function fitCompanion(){
+    const height=$('homeHabitat').clientHeight;
+    $('mascot').style.setProperty('--mobile-avatar-scale',String(Math.min(1.15,Math.max(.48,(height-12)/210))));
+  }
+  function arrangeLobby(){
+    if(mobileLayout.matches){
+      $('adventureBody').append(...movable.slice(0,2));
+      $('settingsBody').append(...movable.slice(2));
+      movable.slice(2).forEach(n=>n.open=true);settingsTab(0);
+      $('carePanel').before($('openCloset'));
+    }else{
+      ['adventureDialog','settingsDialog'].forEach(id=>$(id).close());
+      movable.forEach((node,i)=>{anchors[i].after(node);if(i>=2){node.hidden=false;node.open=false;}});
+      closetAnchor.after($('openCloset'));
+    }
+    resetFriend();requestAnimationFrame(fitCompanion);
+  }
+  $('openAdventure').onclick=()=>{resetFriend();$('adventureDialog').showModal();};
+  $('openSettings').onclick=()=>{resetFriend();$('settingsDialog').showModal();};
+  document.querySelectorAll('[data-close-sheet]').forEach(b=>b.onclick=()=>$(b.dataset.closeSheet).close());
+  document.querySelectorAll('[data-settings-tab]').forEach(b=>b.onclick=()=>settingsTab(Number(b.dataset.settingsTab)));
+  function selectShopTab(index){
+    document.querySelectorAll('.shop-item').forEach((n,i)=>n.classList.toggle('shop-selected',i===index));
+    document.querySelectorAll('[data-shop-tab]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.shopTab)===index)));
+  }
+  document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>selectShopTab(Number(b.dataset.shopTab)));
+  selectShopTab(0);mobileLayout.addEventListener('change',arrangeLobby);arrangeLobby();
+  new ResizeObserver(fitCompanion).observe($('homeHabitat'));
   const GROWTH_PRAISE=[
     '你学得真认真！','你每天都在进步！','你的努力让我长大了！','我们一起变得更强吧！','继续加油，我陪着你！'
   ];
@@ -1101,7 +1156,7 @@
     clearTimeout(evolutionTimer);clearTimeout(evolutionMorphTimer);evolutionZoom?.cancel();evolutionZoom=null;
     const dialog=$('evolutionDialog');
     if(dialog.open)dialog.close();
-    dialog.classList.remove('evolution-revealed');$('evolutionBefore').replaceChildren();$('evolutionAfter').replaceChildren();
+    dialog.classList.remove('evolution-revealed','evolution-choosing');$('evolutionChoices').replaceChildren();$('evolutionChoices').hidden=true;$('evolutionChoiceHelp').hidden=true;$('evolutionBefore').replaceChildren();$('evolutionAfter').replaceChildren();
     if(restoreFocus&&!$('result').hidden)$('homeBtn').focus({preventScroll:true});
   }
   function showEvolution(){
@@ -1125,9 +1180,47 @@
         {transform:'translate(0,0) scale(1)',opacity:1}
       ],{duration:650,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'});
     }
+    presentEvolutionChoice();
+  }
+  function playEvolutionReveal(){
+    const dialog=$('evolutionDialog');dialog.classList.remove('evolution-choosing','evolution-revealed');
+    $('evolutionChoices').hidden=true;$('evolutionChoiceHelp').hidden=true;$('skipEvolution').textContent='건너뛰기';
+    const copy=$('mascot').cloneNode(true);copy.removeAttribute('id');copy.removeAttribute('role');copy.removeAttribute('tabindex');
+    copy.className='mascot forest-avatar evolution-avatar';copy.style.cssText='background:transparent';
+    copy.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));copy.setAttribute('aria-hidden','true');
+    $('evolutionAfter').replaceChildren(copy);
+    // Restart particles after a leisurely choice, rather than while reading the cards.
+    dialog.querySelectorAll('.evolution-halo,.evolution-rays,.evolution-stars i').forEach(n=>{n.style.animation='none';void n.offsetWidth;n.style.animation='';});
     forestAudio.effect('evolve');
-    evolutionMorphTimer=setTimeout(()=>dialog.classList.add('evolution-revealed'),reducedMotion()?0:1000);
-    evolutionTimer=setTimeout(closeEvolution,3000);
+    evolutionMorphTimer=setTimeout(()=>dialog.classList.add('evolution-revealed'),reducedMotion()?0:850);
+    evolutionTimer=setTimeout(()=>closeEvolution(),3000);
+  }
+  function presentEvolutionChoice(){
+    const familyChoice=profile.level>=3&&!profile.family;
+    const routeChoice=!familyChoice&&profile.level>=10&&!routeFor(profile.look.pet,profile.routes);
+    if(!familyChoice&&!routeChoice){playEvolutionReveal();return;}
+    const dialog=$('evolutionDialog'),choices=$('evolutionChoices');
+    dialog.classList.add('evolution-choosing');choices.hidden=false;choices.replaceChildren();$('evolutionChoiceHelp').hidden=false;
+    $('skipEvolution').textContent='나중에 고르기';
+    $('evolutionTitle').textContent=familyChoice?'어떤 친구로 자라볼까요?':'마지막 성장길을 골라 주세요';
+    const options=familyChoice?Object.entries(GROWTH).map(([id,g])=>({id,name:g.name,locked:!petAllowed(id)})):GROWTH[profile.look.pet].routes.map(r=>({id:r.id,name:r.final}));
+    for(const option of options){
+      const button=document.createElement('button');button.type='button';button.disabled=Boolean(option.locked);
+      const art=document.createElement('span');art.innerHTML=creatureSVG(familyChoice?option.id:profile.look.pet,familyChoice?null:option.id,familyChoice?3:10,'#aac875',!familyChoice);
+      const label=document.createElement('strong');label.textContent=option.name;
+      const note=document.createElement('small');note.textContent=option.locked?'잠김 · 수강생 전용':familyChoice?'이 친구로 성장':'선택하면 모습이 나타나요';
+      button.append(art,label,note);choices.append(button);
+      button.onclick=()=>{
+        if(option.locked)return;
+        if(familyChoice){profile.family=option.id;profile.look.pet=option.id;}
+        else profile.routes[profile.look.pet]=option.id;
+        save();renderProfile();
+        $('evolutionTitle').textContent=growthName(profile.look.pet,profile.routes,profile.level)+'로 자랐어요!';
+        // A multi-level round can cross both milestones: choose the final route too.
+        if(familyChoice&&profile.level>=10&&!routeFor(profile.look.pet,profile.routes))presentEvolutionChoice();
+        else playEvolutionReveal();
+      };
+    }
   }
   $('skipEvolution').onclick=()=>closeEvolution();
   $('evolutionDialog').addEventListener('cancel',e=>{e.preventDefault();closeEvolution();});
@@ -1136,7 +1229,7 @@
   const RAIN_HELP=[['下雨了，帮我撑把伞吧！','비가 와, 우산을 씌워 줘!'],['我被雨淋湿了！','비에 젖었어!'],['雨好大，我需要一把伞！','비가 많이 와, 우산이 필요해!'],['快帮我挡挡雨吧！','어서 비를 막아 줘!'],['我想躲雨，帮帮我！','비를 피하고 싶어, 도와줘!']];
   const UMBRELLA_ART='<svg viewBox="0 0 120 85" aria-hidden="true"><path d="M60 35v37q0 14-10 6" fill="none" stroke="#8d7359" stroke-width="4" stroke-linecap="round"/><path d="M8 40Q60-20 112 40q-13-10-26 0-13-10-26 0-13-10-26 0-13-10-26 0" fill="#e9ba68" stroke="#997140" stroke-width="2"/><path d="M60 4Q39 11 34 40M60 4q21 7 26 36M60 4v36" stroke="#b18242" stroke-width="2" fill="none"/><path d="M60 1v5" stroke="#8d7359" stroke-width="4" stroke-linecap="round"/></svg>';
   const SPRAY_ART='<svg viewBox="0 0 80 100" aria-hidden="true"><path d="M28 28h28v8l7 14v43H22V50l6-14z" fill="#c4dbbd" stroke="#547d61" stroke-width="3"/><path d="M27 13h33v14H27zM60 13h10v8H60M31 27l-8 10" fill="#72917f" stroke="#436954" stroke-width="3"/><rect x="28" y="54" width="29" height="26" rx="5" fill="#fffbea"/><path d="M34 68l6 6 12-14" fill="none" stroke="#739966" stroke-width="4"/></svg>';
-  let bugBag=[],rainBag=[],worldLast=performance.now(),helpElapsed=0;
+  let bugBag=[],rainBag=[],worldLast=performance.now(),helpElapsed=0,buzzElapsed=0;
   function showWorldHelp(){
     const w=profile.garden.world;
     if(w.kind==='bug'){if(!bugBag.length)bugBag=shuffle(BUG_HELP);showFriendPhrase(bugBag.pop());}
@@ -1154,12 +1247,14 @@
     if(layer.dataset.kind!==(w.kind||'clear')){
       layer.dataset.kind=w.kind||'clear';layer.replaceChildren();
       if(w.kind==='rain')layer.innerHTML=Array.from({length:18},(_,i)=>`<i class="world-raindrop" style="left:${3+i*5.3}%;animation-delay:-${i*.13}s"></i>`).join('');
-      if(w.kind==='bug')layer.innerHTML='<div class="world-bug"><svg viewBox="0 0 60 50"><path d="M20 15L11 7M36 15l10-8M18 23H6m13 9L8 40m32-16h12M40 33l11 9" stroke="#685849" stroke-width="3" stroke-linecap="round"/><ellipse cx="29" cy="29" rx="15" ry="17" fill="#bc8d66" stroke="#685849" stroke-width="2"/><path d="M29 15v30" stroke="#685849" stroke-width="2"/><circle cx="28" cy="12" r="10" fill="#77634f"/><circle cx="24" cy="11" r="2" fill="#fff"/><circle cx="32" cy="11" r="2" fill="#fff"/></svg></div>';
+      if(w.kind==='bug')layer.innerHTML=Array.from({length:8},(_,i)=>`<div class="world-fly" style="left:${13+i%4*21}%;top:${28+Math.floor(i/4)*31}%;animation-delay:-${i*.27}s"><svg viewBox="0 0 44 40"><ellipse class="fly-wing" cx="12" cy="16" rx="10" ry="6" fill="#e0edf1" stroke="#8a9ca4"/><ellipse class="fly-wing" cx="32" cy="16" rx="10" ry="6" fill="#e0edf1" stroke="#8a9ca4"/><ellipse cx="22" cy="25" rx="6" ry="10" fill="#616568"/><circle cx="22" cy="13" r="7" fill="#45494c"/><circle cx="19" cy="12" r="2" fill="#c88365"/><circle cx="25" cy="12" r="2" fill="#c88365"/></svg></div>`).join('');
     }
     let umbrella=friend.querySelector('.world-umbrella');
     if(w.umbrellaOn){if(!umbrella){umbrella=document.createElement('div');umbrella.className='world-umbrella';umbrella.innerHTML=UMBRELLA_ART;umbrella.setAttribute('aria-hidden','true');friend.append(umbrella);}positionWorldUmbrella();}else umbrella?.remove();
     const distressed=w.kind==='bug'||w.kind==='rain'&&!w.umbrellaOn;
     friend.classList.toggle('world-distressed',distressed);
+    friend.classList.toggle('world-threat',w.kind==='bug'&&!gardenBusy());
+    forestAudio.setCrisis(w.kind==='bug'&&!gardenBusy()&&!document.hidden);
     stage.classList.toggle('world-raining',w.kind==='rain');
     $('worldStatus').textContent=w.kind==='bug'?`벌레가 나타났어요! ${Math.ceil(w.remainingMs/1000)}초 안에 퇴치해 주세요.`:w.kind==='rain'?(w.umbrellaOn?'비가 와도 우산 아래는 포근해요.':'비를 맞고 있어요. 우산을 씌워 주세요.'): '맑은 숲 · 친구가 쉬고 있어요.';
     $('worldAction').hidden=!w.kind||w.kind==='rain'&&w.umbrellaOn;
@@ -1173,6 +1268,7 @@
   }
   function worldTick(now=performance.now()){
     const dt=Math.max(0,Math.min(1500,now-worldLast));worldLast=now;
+    forestAudio.setCrisis(profile.garden.world.kind==='bug'&&!gardenBusy()&&!document.hidden);
     if(!worldVisible())return;
     const w=profile.garden.world;
     if(!w.kind){
@@ -1189,6 +1285,7 @@
         }else{$('careMessage').textContent='비가 그쳤어요. 경험치 차감은 없어요.';hideBubble();}
       }else if(helpElapsed>=20000){helpElapsed=0;showWorldHelp();}
     }
+    if(w.kind==='bug'){buzzElapsed+=dt;if(buzzElapsed>=1100){buzzElapsed=0;forestAudio.effect('buzz');}if(Math.random()<.2)$('mascot').classList.toggle('escape-jump');}
     save();renderWorld();
   }
   function buySupply(kind){
@@ -1201,6 +1298,7 @@
   function useSupply(kind){
     if(gardenBusy())return false;
     const g=profile.garden,w=g.world;
+    const fleeing=kind==='spray'?$('homeHabitat').querySelector('.world-layer')?.cloneNode(true):null;
     if(kind==='spray'){
       if(w.kind!=='bug'||!g.inventory.spray)return false;
       g.inventory.spray--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();
@@ -1212,12 +1310,14 @@
     $('openShop').focus({preventScroll:true});
     if(kind==='spray'){
       const tool=document.createElement('div');tool.className='care-tool world-spray-tool';tool.setAttribute('aria-hidden','true');tool.innerHTML=SPRAY_ART+'<span class="world-mist"></span>';$('homeHabitat').append(tool);
+      if(fleeing){fleeing.className='care-tool swarm-dispersal';$('homeHabitat').append(fleeing);}
+      forestAudio.effect('spray');forestAudio.effect('correct',.5);
       careEndTimer=setTimeout(stopCareAnimation,1800);
-      showFriendPhrase(['谢谢你，虫子飞走了！','고마워, 벌레가 날아갔어!']);$('careMessage').textContent='벌레를 퇴치했어요! 경험치를 지켰어요.';
+      showFriendPhrase(['谢谢你，虫子飞走了！','고마워, 벌레가 날아갔어!'],'below');$('careMessage').textContent='벌레를 퇴치했어요! 경험치를 지켰어요.';
     }else{
-      showFriendPhrase(w.umbrellaOn?['谢谢你，这下淋不到雨了！','고마워, 이제 비를 맞지 않아!']:['伞收好啦！','우산을 잘 접었어!']);$('careMessage').textContent=w.umbrellaOn?'우산을 씌웠어요. 다음 비에도 계속 사용할 수 있어요.':'우산을 접었어요.';
+      showFriendPhrase(w.umbrellaOn?['谢谢你，这下淋不到雨了！','고마워, 이제 비를 맞지 않아!']:['伞收好啦！','우산을 잘 접었어!'],'below');$('careMessage').textContent=w.umbrellaOn?'우산을 씌웠어요. 다음 비에도 계속 사용할 수 있어요.':'우산을 접었어요.';
     }
-    forestAudio.effect('dress');return true;
+    if(kind!=='spray')forestAudio.effect('dress');return true;
   }
   $('buySpray').onclick=()=>buySupply('spray');$('buyUmbrella').onclick=()=>buySupply('umbrella');
   $('useSpray').onclick=()=>useSupply('spray');$('useUmbrella').onclick=()=>useSupply('umbrella');
@@ -1226,11 +1326,11 @@
     if(w.kind==='bug'&&profile.garden.inventory.spray)useSupply('spray');
     else if(w.kind==='rain'&&w.umbrellaOwned)useSupply('umbrella');else $('openShop').click();
   };
-  setInterval(()=>worldTick(),1000);
+  setInterval(()=>{renderWaterCountdown();worldTick();},1000);
   $('waterPlant').onclick=waterPlant;
   $('openShop').onclick=()=>{
     if(gardenBusy())return;
-    resetFriend();refreshGarden();$('shopMessage').textContent='';renderShop();$('gardenShop').showModal();$('closeShop').focus();
+    resetFriend();refreshGarden();$('shopMessage').textContent='';renderShop();selectShopTab(profile.garden.world.kind==='bug'?2:profile.garden.world.kind==='rain'?3:0);$('gardenShop').showModal();$('closeShop').focus();
   };
   function closeShop(){$('gardenShop').close();$('openShop').focus();}
   $('closeShop').onclick=closeShop;

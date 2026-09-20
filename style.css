@@ -388,3 +388,64 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
 @keyframes forest-spray{0%{opacity:0;translate:-10px 0}20%,80%{opacity:1;translate:0 0}100%{opacity:0;translate:-10px 0}}
 @keyframes forest-mist{from{opacity:.2;scale:.3}50%{opacity:1}to{opacity:0;scale:1.3}}
 @media(prefers-reduced-motion:reduce){.world-raindrop{animation:none;top:25%}.world-raindrop:nth-child(even){top:65%}.world-bug,.world-distressed .creature-art,.world-spray-tool,.world-mist{animation:none}}
+
+.quiz-reading{display:flex;flex-direction:column;align-items:center;min-width:0;gap:5px}.hanzi-reveal{border:0;border-bottom:1px dashed var(--green);background:transparent;color:inherit;font:inherit;line-height:1.4;padding:5px;min-height:44px;overflow-wrap:anywhere;max-width:100%}.quiz-pinyin{font-size:15px;line-height:1.5;color:var(--green);font-weight:400;overflow-wrap:anywhere}.answer-reading{display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:8px}.answer-reading .quiz-reading{flex:1}.answer-select{border:1px solid var(--line);border-radius:9px;background:var(--light);color:var(--green);font-size:12px;min-height:44px;padding:7px}.answer-reading .hanzi-reveal{font-size:21px}.answer-reading .quiz-pinyin{font-size:13px}
+.world-fly{position:absolute;width:31px;height:29px;animation:swarm-flight 1.6s ease-in-out infinite}.world-fly svg{width:100%;height:100%}.fly-wing{transform-box:fill-box;transform-origin:center;animation:wing-buzz .09s linear infinite alternate}
+#mascot.world-threat:not(.friend-held):not(.friend-falling){animation:escape-side 2.3s ease-in-out infinite}#mascot.world-threat.escape-jump:not(.friend-held):not(.friend-falling){animation:escape-hop 1.4s ease-in-out infinite}
+#mascot.world-threat .creature-art{animation:none}.swarm-dispersal.care-tool{inset:0;width:100%;height:100%;overflow:hidden;z-index:9}.swarm-dispersal .world-fly{animation:fly-away 1.4s ease-out both;animation-delay:0s!important}
+.world-mist{width:155px;height:85px;background:radial-gradient(ellipse,#b8dfd2ee,transparent 70%)}
+@keyframes swarm-flight{0%,100%{translate:-8px 0;rotate:-12deg}35%{translate:14px -16px;rotate:18deg}70%{translate:-10px 10px;rotate:-4deg}}
+@keyframes wing-buzz{from{scale:1 .65}to{scale:1 1.2}}
+@keyframes escape-side{0%,100%{transform:translateX(-17px) rotate(-3deg)}50%{transform:translateX(17px) rotate(3deg)}}
+@keyframes escape-hop{0%,100%{transform:translateY(0)}25%{transform:translate(-8px,-15px)}50%{transform:translateY(0)}75%{transform:translate(9px,-11px)}}
+@keyframes fly-away{from{opacity:1;translate:0 0}to{opacity:0;translate:85px -130px;rotate:80deg}}
+@media(prefers-reduced-motion:reduce){.world-fly,.fly-wing,#mascot.world-threat{animation:none!important}.swarm-dispersal .world-fly{opacity:.3}}
+
+.water-countdown{font-size:12px;color:var(--green);margin:4px 0 7px;font-variant-numeric:tabular-nums;line-height:1.7}
+
+/* Compact mobile home: character first, secondary tasks in focused sheets. */
+.mobile-tools,.shop-tabs{display:none}.sheet-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.sheet-heading h2{font-size:20px;margin:0}.mobile-sheet{padding:16px}.sheet-tabs{display:flex;gap:6px;margin:12px 0}.sheet-tabs button{flex:1;min-height:44px;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--light);color:var(--ink);font-size:12px}.sheet-tabs button[aria-pressed=true]{background:var(--green);color:white}.evolution-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(540px,100%);z-index:2}.evolution-choices button{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;border:1px solid #fff8;border-radius:16px;background:#fffbed;color:var(--ink);padding:8px;font-size:13px}.evolution-choices button:disabled{background:#dbdfd5;opacity:.6}.evolution-choices svg{width:65px;height:75px;display:block}.evolution-choices small{font-size:10px}.evolution-choice-help{margin:0;font-size:12px}.evolution-choosing .evolution-stage{width:120px;height:140px;margin:0}.evolution-choosing .evolution-form .evolution-avatar{width:120px;height:140px;flex-basis:120px}.evolution-choosing .evolution-phrase{display:none}.evolution-choosing .evolution-content{padding-top:38px}.evolution-choosing .evolution-kicker{display:none}
+@media(max-width:620px){
+ body:has(#gameApp:not([hidden])){height:100dvh;overflow:hidden;overscroll-behavior:none}
+ #gameApp{height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 10px env(safe-area-inset-bottom);overflow:hidden}
+ #gameApp .topbar{height:62px;min-height:62px;gap:8px}.brand{gap:6px}.brand-icon{width:30px;height:32px;font-size:19px}.brand-wordmark strong{font-size:14px}.brand-promise{font-size:8px}.topbar .edition{display:none}
+ .mobile-tools{display:flex;gap:6px;align-items:center}.mobile-tools button{min-height:44px;padding:8px 10px;font-size:12px;white-space:nowrap}.mobile-tools #openSettings{width:44px;display:grid;place-items:center}.mobile-tools #openAdventure{width:auto}
+ #gameApp>main{flex:1;min-height:0;display:flex;flex-direction:column;padding:8px 0}.intro,.brand-footer{display:none!important}
+ #gameApp .layout{display:flex;flex-direction:column;flex:1;min-height:0;gap:0}
+ body[data-screen=setup] .workspace{display:none}
+ body:not([data-screen=setup]) #gameApp .companion{display:none}
+ body:not([data-screen=setup]) #openAdventure{display:none}
+ #gameApp .companion{display:flex;flex-direction:column;position:relative;flex:1;width:100%;min-height:0;padding:12px;text-align:center;overflow:hidden}
+ #gameApp .companion>.row:first-child{position:static;flex-shrink:0;min-height:25px}#gameApp .companion>.row:first-child .eyebrow{display:block;font-size:9px}
+ #gameApp .companion #homeHabitat{position:relative;inset:auto;flex:1;min-height:80px;width:calc(100% + 24px);height:auto;max-height:none;margin:0 -12px;display:grid;place-items:center}
+ #gameApp .companion .mascot.forest-avatar{width:180px;height:210px;flex-basis:180px;margin:0;scale:var(--mobile-avatar-scale,1);position:relative}
+ #gameApp .companion h2{font-size:17px;margin:0;padding:0;line-height:1.5;flex-shrink:0}
+ #gameApp .companion .friend-chat-hint,#characterMessage,#totalXp,#unlockHint,#storageNotice,#gameApp .growth-path{display:none}
+ #gameApp .companion .xp-label{margin:3px 0 0;font-size:11px;flex-shrink:0}#xpBar{margin:5px 0;height:7px;flex-shrink:0}
+ #gameApp .closet-open{width:100%;max-width:none;min-height:44px;margin:4px 0 7px;padding:8px;font-size:13px;flex-shrink:0}
+ #carePanel{margin:0;padding:9px 10px;flex-shrink:0;border-radius:15px;text-align:left}#carePanel .care-heading{margin:0}#carePanel h3{font-size:12px;margin:0}.coin-pill{font-size:11px;padding:3px 8px}
+ #carePanel .care-water-label{margin-top:3px;font-size:11px}#waterCountdown{font-size:11px;margin:0;line-height:1.5}#waterBar{height:5px;margin:4px 0 6px}
+ #carePanel .care-actions{gap:7px;margin:0}#carePanel .care-actions button{min-height:44px;padding:6px;font-size:12px}#carePanel .care-actions svg{width:23px;height:23px}
+ #waterHelp{display:none}#fertilizerState{font-size:10px;margin:3px 0 0;line-height:1.4}#careMessage{font-size:11px;margin:3px 0 0;min-height:0;line-height:1.4}#careMessage:empty{display:none}
+ #carePanel .world-notice{margin:4px 0 0;padding:4px 6px;gap:6px}#worldStatus{font-size:11px;line-height:1.4;margin:0}#worldAction{min-height:44px;padding:6px;font-size:11px}
+ #gameApp .workspace{flex:1;width:100%;min-height:0;padding:15px;overflow:auto;overscroll-behavior:contain}
+ #gameApp .question-progress{margin-top:12px}#gameApp .timer-row{margin-top:10px}#gameApp .question-area{min-height:110px;padding:12px 0}#gameApp .question-area h2{font-size:32px}#gameApp .question-area h2.korean{font-size:23px}.answers{gap:8px}.answer{min-height:65px}.answer-reading{padding:8px}
+ .mobile-sheet{width:calc(100% - 16px);max-height:calc(100dvh - 16px);border-radius:20px;overscroll-behavior:contain}
+ #adventureBody .forest-selector{margin:10px 0;padding:0}#adventureBody .forest-tabs{gap:5px}#adventureBody .forest-tab{padding:8px 4px;min-height:52px}#adventureBody .forest-tab strong{font-size:11px}#adventureBody .forest-tab small{font-size:9px}#forestDescription{margin:4px 0;font-size:10px}
+ #adventureBody #setup>.row,#adventureBody #setup>h2,#adventureBody #setup>.subtle{display:none}#adventureBody .mode-selector{margin:8px 0;gap:7px}#adventureBody .mode{padding:9px}#adventureBody .mode-icon,#adventureBody .mode-pill{display:none}#adventureBody .mode strong{font-size:13px;padding-right:15px}#adventureBody .mode small{margin:4px 0;font-size:10px}#adventureBody .mode input{right:7px;top:9px}
+ #adventureBody .settings-grid{gap:7px}#adventureBody .settings-grid label{gap:3px}#adventureBody .settings-grid select{min-height:40px;padding:6px}#adventureBody .rule-box{margin:8px 0;padding:7px 10px;font-size:10px}#adventureBody .center{margin:4px 0;font-size:10px}
+ #settingsBody .audio-settings,#settingsBody .care-rules{margin:0;padding:8px;border:0}#settingsBody summary{display:none}#settingsBody .sound-grid{gap:10px}#settingsBody .sound-channel{padding:10px}#settingsBody .tiny{font-size:10px}#settingsBody .care-rules{font-size:12px}#settingsBody .care-rules p{margin:7px 0}
+ #gardenShop{width:calc(100% - 16px);max-height:calc(100dvh - 16px);padding:14px;border-radius:20px}#gardenShop .shop-header h2{font-size:18px}#gardenShop .shop-header .eyebrow{font-size:9px;margin:0}#gardenShop .shop-wallet{margin:8px 0;padding:8px 12px}#gardenShop .shop-intro,#gardenShop .shop-footnote{display:none}#gardenShop .shop-tabs{display:flex;margin:8px 0}#gardenShop .shop-tabs button{font-size:11px;padding:5px}
+ #gardenShop .shop-active{margin:6px 0;font-size:11px;padding:6px}#gardenShop .shop-items{display:contents}#gardenShop .shop-item{display:none}#gardenShop .shop-item.shop-selected{display:grid;grid-template-columns:84px 1fr;gap:5px 8px;padding:12px;text-align:left;margin:0}
+ #gardenShop .shop-item>svg{grid-column:1;grid-row:1/5;width:80px;height:108px;margin:0;align-self:center}#gardenShop .shop-item h3,#gardenShop .shop-item p{margin:0}#gardenShop .shop-item h3{font-size:16px}#gardenShop .fertilizer-benefit{font-size:12px}#gardenShop .shop-duration,#gardenShop .stock{font-size:11px}#gardenShop .shop-item button{grid-column:1/-1;min-height:44px;margin:0;padding:8px;font-size:12px}#gardenShop .shop-hint{grid-column:1/-1;font-size:11px;line-height:1.5}#gardenShop .shop-message{margin:6px 0 0;min-height:0;font-size:11px;line-height:1.5}#gardenShop .shop-message:empty{display:none}
+ .evolution-choices{gap:6px}.evolution-choices button{font-size:12px;padding:5px}.evolution-choices small{font-size:9px}
+}
+@media(max-width:620px) and (max-height:600px){#gameApp .topbar{height:54px;min-height:54px}#gameApp .companion{padding:8px 10px}#gameApp .companion #homeHabitat{width:calc(100% + 20px);margin:0 -10px}#carePanel{padding:6px 8px}.evolution-choosing .evolution-stage{height:85px}.evolution-choosing .evolution-form .evolution-avatar{width:73px;height:85px;flex-basis:73px}.evolution-choices svg{width:46px;height:52px}.evolution-choice-help{font-size:10px}}
+/* Very short landscape and enlarged text retain access instead of clipping controls. */
+@media(max-width:620px) and (max-height:460px){#gameApp .companion{overflow:auto}#gameApp .companion #homeHabitat{flex:0 0 110px}.evolution-choosing{overflow:auto!important}.evolution-choosing .evolution-content{height:auto}}
+
+.friend-bubble.bubble-below{transform-origin:50% 0;transform:translateY(-8px) scale(.96)}.friend-bubble.bubble-below.bubble-visible{transform:translateY(0) scale(1)}.friend-bubble.bubble-below::before{top:-7px;bottom:auto;border:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+
+@media(max-width:620px) and (max-height:600px){#adventureBody #forestDescription,#adventureBody #startBtn + .center{display:none}#adventureBody .forest-tab{min-height:44px;padding:5px 3px}#adventureBody .mode small{line-height:1.4}#adventureBody .rule-box{line-height:1.5}#adventureDialog{padding:12px}}
+
+@media(max-width:620px){#gameApp .companion #homeHabitat{grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr)}#carePanel .world-notice{display:flex;align-items:center}#worldStatus{flex:1}#carePanel #worldAction{width:auto;flex:0 0 90px;margin:0}#carePanel .care-actions span{font-size:12px}#carePanel .care-actions small{font-size:10px}}
