@@ -11,6 +11,7 @@
     rich:{name:'든든 비료',price:35,boost:2,uses:10}
   });
   const WORLD_RULES=Object.freeze({sprayPrice:10,umbrellaPrice:30,bugMs:90000,rainMs:120000,minGapMs:120000,maxGapMs:240000});
+  const isRain=kind=>kind==='rain'||kind==='heavyRain';
   const worldGap=()=>WORLD_RULES.minGapMs+Math.floor(Math.random()*(WORLD_RULES.maxGapMs-WORLD_RULES.minGapMs));
   const HOUR=60*60*1000;
   const KEY = 'word-forest-v1';
@@ -254,10 +255,10 @@
     const lastWatered=Number.isSafeInteger(raw?.lastWatered)&&raw.lastWatered>0?Math.min(raw.lastWatered,now):now;
     const active=raw?.active;
     const w=raw?.world;
-    const kind=['bug','rain'].includes(w?.kind)?w.kind:null;
+    const kind=['bug','rain','heavyRain','heat','wind'].includes(w?.kind)?w.kind:null;
     const milliseconds=(v,fallback,max)=>Number.isFinite(v)&&v>=0?Math.min(v,max):fallback;
     const world={kind,remainingMs:kind?milliseconds(w?.remainingMs,kind==='bug'?WORLD_RULES.bugMs:WORLD_RULES.rainMs,120000):0,
-      nextMs:milliseconds(w?.nextMs,worldGap(),240000),umbrellaOwned:w?.umbrellaOwned===true,umbrellaOn:w?.umbrellaOwned===true&&w?.umbrellaOn===true};
+      nextMs:milliseconds(w?.nextMs,worldGap(),240000),thunderMs:milliseconds(w?.thunderMs,12000+Math.random()*16000,28000),umbrellaOwned:w?.umbrellaOwned===true,umbrellaOn:w?.umbrellaOwned===true&&w?.umbrellaOn===true};
     return {coins:integer(raw?.coins,9999999),inventory:{gentle:integer(raw?.inventory?.gentle,999),rich:integer(raw?.inventory?.rich,999),spray:raw?.world?integer(raw?.inventory?.spray,999):1},world,
       lastWatered,penaltySteps:integer(raw?.penaltySteps,GARDEN_RULES.maxPenaltySteps),
       neglectLoss:integer(raw?.neglectLoss,integer(raw?.penaltySteps,GARDEN_RULES.maxPenaltySteps)*GARDEN_RULES.penaltyXP),
@@ -286,7 +287,7 @@
         const baseXP=saved.schema>=5?saved.xp:migrated;
         const xp=saved.schema>=6?saved.xp:Math.min(Number.MAX_SAFE_INTEGER,Math.floor(baseXP*XP_MULTIPLIERS[index]));
         const level=levelFromXP(xp,index);
-        loaded={...loaded,xp,level,garden:normalizeGarden(saved.garden),voice:typeof saved.voice==='string'?saved.voice:'',rate:[.75,.9,1].includes(saved.rate)?saved.rate:.9,
+        loaded={...loaded,xp,level,garden:normalizeGarden(saved.garden),voice:typeof saved.voice==='string'?saved.voice:'',rate:[.5,.75].includes(saved.rate)?.5:.9,
           look:safeLook(saved.look,level,index),routes:safeRoutes(saved.routes,level),family:level>=3&&petAllowed(saved.family)&&GROWTH[saved.family]?saved.family:null};
         if(loaded.family)loaded.look.pet=loaded.family;
       }
@@ -315,7 +316,8 @@
     $('waterBar').value=moisture;$('waterBar').setAttribute('aria-valuetext',`수분 ${moisture}%`);
     if(!seconds)$('waterState').textContent='목이 말라요';
     const hours=Math.floor(seconds/3600),minutes=Math.floor(seconds%3600/60),rest=seconds%60;
-    $('waterCountdown').textContent=seconds?`수분 0%까지 ${hours}시간 ${String(minutes).padStart(2,'0')}분 ${String(rest).padStart(2,'0')}초`:'수분 0% · 물이 필요해요';
+    $('waterCountdown').textContent=seconds?`0%까지 ${hours}:${String(minutes).padStart(2,'0')}:${String(rest).padStart(2,'0')}`:'0% · 물이 필요해요';
+    $('waterCountdown').setAttribute('aria-label',seconds?`수분 0%까지 ${hours}시간 ${minutes}분 ${rest}초`:'수분 0퍼센트, 물이 필요해요');
   }
   function renderCare(){
     renderWaterCountdown();
@@ -428,6 +430,7 @@
     }
   }
   function renderLook(avatar,habitat,look,routes=profile.routes){
+    requestAnimationFrame(()=>positionGround(avatar,habitat));
     const route=routeFor(look.pet,routes),g=plantGeometry(look.pet,route?.id,profile.level);
     avatar.dataset.pet=g.family;avatar.dataset.route=route?.id||'';avatar.dataset.stage=String(growthStage(profile.level,route));avatar.dataset.level=profile.level;
     avatar.classList.add('forest-avatar');avatar.style.background='transparent';
@@ -960,7 +963,7 @@
     bubbleTimer=setTimeout(hideBubble,4200);
   }
   function chatWithFriend(){
-    if(profile.garden.world.kind==='bug'||profile.garden.world.kind==='rain'&&!profile.garden.world.umbrellaOn){showWorldHelp();return;}
+    if(profile.garden.world.kind){showWorldHelp();return;}
     if(!phraseBag.length)phraseBag=shuffle(FRIEND_PHRASES);
     showFriendPhrase(phraseBag.pop());
   }
@@ -1019,7 +1022,17 @@
   friend.setAttribute('role','button');friend.tabIndex=0;
   friend.setAttribute('aria-label','친구와 이야기하기. 길게 누르면 끌어 올릴 수 있어요');
   let grip=null,holdTimer,fallFrame,landTimer,offsetX=0,offsetY=0,suppressClick=false;
-  const setOffset=()=>{friend.style.translate=`${offsetX}px ${offsetY}px`;positionBubble();};
+  function positionGround(avatar=$('mascot'),habitat=$('homeHabitat')){
+    const ground=habitat.querySelector('.ground');if(!ground||!habitat.clientHeight)return;
+    const box=avatar.getBoundingClientRect(),stage=habitat.getBoundingClientRect();
+    const lifted=avatar.id==='mascot'?offsetY:0;
+    ground.style.left=(box.left-stage.left+box.width/2)+'px';
+    ground.style.top=(box.top-stage.top+box.height*193/210-lifted)+'px';
+    ground.style.width=(box.width*(avatar.dataset.pet==='seed'?.32:.64))+'px';
+    ground.style.height=Math.max(6,box.height*.04)+'px';
+    ground.style.opacity=String(Math.max(.2,1+lifted/300));
+  }
+  const setOffset=()=>{friend.style.translate=`${offsetX}px ${offsetY}px`;positionBubble();positionGround();};
   function stopFall(){cancelAnimationFrame(fallFrame);clearTimeout(landTimer);friend.classList.remove('friend-falling','friend-landed');}
   function land(){
     offsetY=0;setOffset();friend.classList.remove('friend-held','friend-falling');friend.classList.add('friend-landed');
@@ -1107,8 +1120,15 @@
   }
   FORESTS.forEach((f,i)=>{
     const button=document.createElement('button');button.type='button';button.className='forest-tab';
-    const title=document.createElement('strong');title.textContent=f.name+' · '+f.grades;
-    const note=document.createElement('small');button.append(title,note);button.onclick=()=>switchForest(i);$('forestTabs').append(button);
+    button.dataset.forest=String(i);
+    const title=document.createElement('strong');title.textContent=f.name;
+    const grades=document.createElement('span');grades.className='forest-grades';grades.textContent=f.grades;
+    const story=document.createElement('span');story.className='forest-story';story.textContent=[
+      '첫 단어가 작은 싹이 되는 숲. 반딧불을 따라 짝꿍어휘를 만나고, 마음씨와 첫 모험을 시작해요.',
+      '노을빛 나뭇가지에 덩어리 열매가 열리는 숲. 한 표현씩 익힐 때마다 숲속 친구들의 이야기가 들려와요.',
+      '달빛 아래 비밀 편지가 숨어 있는 숲. 길고 깊은 표현을 풀어내며, 나만의 중국어 이야기를 완성해요.'
+    ][i];
+    const note=document.createElement('small');button.append(title,grades,story,note);button.onclick=()=>{switchForest(i);if($('forestDialog').open)$('forestDialog').close();};$('forestTabs').append(button);
   });
   // Move the existing controls, retaining their listeners and desktop positions.
   const mobileLayout=window.matchMedia('(max-width: 620px)');
@@ -1123,21 +1143,23 @@
   function fitCompanion(){
     const height=$('homeHabitat').clientHeight;
     $('mascot').style.setProperty('--mobile-avatar-scale',String(Math.min(1.15,Math.max(.48,(height-12)/210))));
+    positionGround();
   }
   function arrangeLobby(){
     if(mobileLayout.matches){
-      $('adventureBody').append(...movable.slice(0,2));
+      $('forestBody').append(movable[0]);$('adventureBody').append(movable[1]);
       $('settingsBody').append(...movable.slice(2));
       movable.slice(2).forEach(n=>n.open=true);settingsTab(0);
       $('carePanel').before($('openCloset'));
     }else{
-      ['adventureDialog','settingsDialog'].forEach(id=>$(id).close());
+      ['adventureDialog','settingsDialog','forestDialog'].forEach(id=>$(id).close());
       movable.forEach((node,i)=>{anchors[i].after(node);if(i>=2){node.hidden=false;node.open=false;}});
       closetAnchor.after($('openCloset'));
     }
     resetFriend();requestAnimationFrame(fitCompanion);
   }
   $('openAdventure').onclick=()=>{resetFriend();$('adventureDialog').showModal();};
+  $('openForest').onclick=()=>{resetFriend();$('forestDialog').showModal();};
   $('openSettings').onclick=()=>{resetFriend();$('settingsDialog').showModal();};
   document.querySelectorAll('[data-close-sheet]').forEach(b=>b.onclick=()=>$(b.dataset.closeSheet).close());
   document.querySelectorAll('[data-settings-tab]').forEach(b=>b.onclick=()=>settingsTab(Number(b.dataset.settingsTab)));
@@ -1230,10 +1252,31 @@
   const UMBRELLA_ART='<svg viewBox="0 0 120 85" aria-hidden="true"><path d="M60 35v37q0 14-10 6" fill="none" stroke="#8d7359" stroke-width="4" stroke-linecap="round"/><path d="M8 40Q60-20 112 40q-13-10-26 0-13-10-26 0-13-10-26 0-13-10-26 0" fill="#e9ba68" stroke="#997140" stroke-width="2"/><path d="M60 4Q39 11 34 40M60 4q21 7 26 36M60 4v36" stroke="#b18242" stroke-width="2" fill="none"/><path d="M60 1v5" stroke="#8d7359" stroke-width="4" stroke-linecap="round"/></svg>';
   const SPRAY_ART='<svg viewBox="0 0 80 100" aria-hidden="true"><path d="M28 28h28v8l7 14v43H22V50l6-14z" fill="#c4dbbd" stroke="#547d61" stroke-width="3"/><path d="M27 13h33v14H27zM60 13h10v8H60M31 27l-8 10" fill="#72917f" stroke="#436954" stroke-width="3"/><rect x="28" y="54" width="29" height="26" rx="5" fill="#fffbea"/><path d="M34 68l6 6 12-14" fill="none" stroke="#739966" stroke-width="4"/></svg>';
   let bugBag=[],rainBag=[],worldLast=performance.now(),helpElapsed=0,buzzElapsed=0;
+  const WEATHER_PHRASES={
+    rain:[['下小雨了！','보슬보슬 비가 와!'],['雨轻轻地落下来了。','빗방울이 살며시 내려.'],['小雨滴真可爱！','작은 빗방울이 귀여워!'],['帮我撑把伞，好吗？','우산을 씌워 줄래?'],['听，雨在滴答滴答！','들어 봐, 비가 똑똑 떨어져!']],
+    heavyRain:[['雨太大了，快帮我撑伞！','비가 너무 많이 와, 어서 우산을 씌워 줘!'],['我快淋透啦，伞在哪里？','흠뻑 젖겠어, 우산은 어디 있어?'],['救救我的小叶子，帮我挡挡雨！','내 작은 잎 좀 살려 줘, 비를 막아 줘!'],['能给我一把伞吗？我好冷！','우산 하나 줄래? 너무 추워!'],['雨点太大啦，我需要一把伞！','빗방울이 너무 커, 우산이 필요해!']],
+    heavySheltered:[['打着伞，怎么还是湿湿的？','우산을 썼는데 왜 아직 축축하지?'],['雨滴偷偷钻进来了！','빗방울이 몰래 들어왔어!'],['这雨也太调皮了吧！','이 비, 너무 장난꾸러기잖아!'],['我的小脚还是淋湿啦！','내 작은 발은 그래도 젖었네!'],['谢谢你的伞，可雨还在往里飘！','우산은 고마워, 그런데 비가 안으로 날아들어!']],
+    sheltered:[['伞下面真舒服！','우산 아래가 정말 편해!'],['有伞就不怕下雨啦！','우산이 있으니 비가 와도 괜찮아!'],['谢谢你帮我挡雨！','비를 막아 줘서 고마워!'],['我们一起听雨声吧！','우리 함께 빗소리를 듣자!'],['雨再大，我也淋不到！','비가 많이 와도 젖지 않아!']],
+    thunder:[['打雷了，我有点害怕！','천둥이 쳐, 조금 무서워!'],['哎呀，闪电！','앗, 번개야!'],['你能陪着我吗？','내 곁에 있어 줄래?'],['雷声好响啊！','천둥소리가 정말 커!'],['别走，陪我等雨停吧！','가지 말고 비가 그칠 때까지 함께 있어 줘!']],
+    heat:[['今天好热啊！','오늘 정말 더워!'],['我都出汗了！','땀이 다 나네!'],['要是凉快一点就好了！','조금 시원해지면 좋겠어!'],['太阳晒得我好热！','햇볕 때문에 너무 더워!'],['让我歇一会儿吧！','잠깐 쉬게 해 줘!']],
+    wind:[['风好大，好冷啊！','바람이 세게 불어, 너무 추워!'],['我冷得发抖了！','추워서 몸이 떨려!'],['冷风呼呼地吹！','찬바람이 쌩쌩 불어!'],['好想暖和一点！','조금 따뜻해지면 좋겠어!'],['陪我等风停吧！','바람이 멎을 때까지 함께 있어 줘!']]
+  };
+  const weatherBags={};let thunderTimer;
+  function weatherPhrase(kind){
+    if(!weatherBags[kind]?.length)weatherBags[kind]=shuffle(WEATHER_PHRASES[kind]);
+    showFriendPhrase(weatherBags[kind].pop());
+  }
+  function clearThunder(){clearTimeout(thunderTimer);$('homeHabitat').classList.remove('weather-lightning');$('mascot').classList.remove('weather-scared');}
+  function flashThunder(){
+    if(profile.garden.world.kind!=='heavyRain'||!worldVisible())return;
+    clearThunder();$('homeHabitat').classList.add('weather-lightning');$('mascot').classList.add('weather-scared');
+    weatherPhrase('thunder');helpElapsed=0;thunderTimer=setTimeout(clearThunder,2200);
+  }
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)clearThunder();});
   function showWorldHelp(){
     const w=profile.garden.world;
     if(w.kind==='bug'){if(!bugBag.length)bugBag=shuffle(BUG_HELP);showFriendPhrase(bugBag.pop());}
-    else if(w.kind==='rain'&&!w.umbrellaOn){if(!rainBag.length)rainBag=shuffle(RAIN_HELP);showFriendPhrase(rainBag.pop());}
+    else if(WEATHER_PHRASES[w.kind])weatherPhrase(isRain(w.kind)&&w.umbrellaOn?(w.kind==='heavyRain'?'heavySheltered':'sheltered'):w.kind);
   }
   function positionWorldUmbrella(){
     const umbrella=$('mascot').querySelector('.world-umbrella');if(!umbrella)return;
@@ -1246,18 +1289,30 @@
     if(!layer){layer=document.createElement('div');layer.className='world-layer';layer.setAttribute('aria-hidden','true');stage.append(layer);}
     if(layer.dataset.kind!==(w.kind||'clear')){
       layer.dataset.kind=w.kind||'clear';layer.replaceChildren();
-      if(w.kind==='rain')layer.innerHTML=Array.from({length:18},(_,i)=>`<i class="world-raindrop" style="left:${3+i*5.3}%;animation-delay:-${i*.13}s"></i>`).join('');
+      if(isRain(w.kind))layer.innerHTML=Array.from({length:w.kind==='heavyRain'?32:10},(_,i)=>`<i class="world-raindrop" style="left:${2+i*(w.kind==='heavyRain'?3:10)}%;animation-delay:-${i*.13}s"></i>`).join('');
+      if(w.kind==='heat')layer.innerHTML='<span class="weather-sun"></span><i class="weather-warm-air"></i>';
+      if(w.kind==='wind')layer.innerHTML=Array.from({length:6},(_,i)=>`<i class="weather-wind-line" style="top:${15+i*14}%;animation-delay:-${i*.4}s"></i>`).join('');
       if(w.kind==='bug')layer.innerHTML=Array.from({length:8},(_,i)=>`<div class="world-fly" style="left:${13+i%4*21}%;top:${28+Math.floor(i/4)*31}%;animation-delay:-${i*.27}s"><svg viewBox="0 0 44 40"><ellipse class="fly-wing" cx="12" cy="16" rx="10" ry="6" fill="#e0edf1" stroke="#8a9ca4"/><ellipse class="fly-wing" cx="32" cy="16" rx="10" ry="6" fill="#e0edf1" stroke="#8a9ca4"/><ellipse cx="22" cy="25" rx="6" ry="10" fill="#616568"/><circle cx="22" cy="13" r="7" fill="#45494c"/><circle cx="19" cy="12" r="2" fill="#c88365"/><circle cx="25" cy="12" r="2" fill="#c88365"/></svg></div>`).join('');
     }
     let umbrella=friend.querySelector('.world-umbrella');
     if(w.umbrellaOn){if(!umbrella){umbrella=document.createElement('div');umbrella.className='world-umbrella';umbrella.innerHTML=UMBRELLA_ART;umbrella.setAttribute('aria-hidden','true');friend.append(umbrella);}positionWorldUmbrella();}else umbrella?.remove();
-    const distressed=w.kind==='bug'||w.kind==='rain'&&!w.umbrellaOn;
+    if(w.kind!=='heavyRain'||gardenBusy())clearThunder();
+    stage.dataset.weather=w.kind||'clear';
+    friend.classList.toggle('weather-hot',w.kind==='heat');friend.classList.toggle('weather-cold',w.kind==='wind');
+    let sweat=friend.querySelector('.weather-sweat');
+    if(w.kind==='heat'){
+      if(!sweat){sweat=document.createElement('span');sweat.className='weather-sweat';sweat.setAttribute('aria-hidden','true');sweat.innerHTML='<svg viewBox="0 0 18 26"><path d="M9 1Q-5 18 9 25Q23 18 9 1" fill="#8bc8dc"/><path d="M6 15q-3 6 2 7" stroke="white" fill="none"/></svg>';friend.append(sweat);}
+      const geometry=plantGeometry(profile.look.pet,routeFor(profile.look.pet,profile.routes)?.id,profile.level);
+      sweat.style.top=((197*(1-geometry.scale)+geometry.face[1]*geometry.scale)/210*100)+'%';
+    }else sweat?.remove();
+    friend.classList.toggle('weather-splashed',w.kind==='heavyRain');
+    const distressed=w.kind==='bug'||w.kind==='heavyRain'||isRain(w.kind)&&!w.umbrellaOn;
     friend.classList.toggle('world-distressed',distressed);
     friend.classList.toggle('world-threat',w.kind==='bug'&&!gardenBusy());
     forestAudio.setCrisis(w.kind==='bug'&&!gardenBusy()&&!document.hidden);
-    stage.classList.toggle('world-raining',w.kind==='rain');
-    $('worldStatus').textContent=w.kind==='bug'?`벌레가 나타났어요! ${Math.ceil(w.remainingMs/1000)}초 안에 퇴치해 주세요.`:w.kind==='rain'?(w.umbrellaOn?'비가 와도 우산 아래는 포근해요.':'비를 맞고 있어요. 우산을 씌워 주세요.'): '맑은 숲 · 친구가 쉬고 있어요.';
-    $('worldAction').hidden=!w.kind||w.kind==='rain'&&w.umbrellaOn;
+    stage.classList.toggle('world-raining',isRain(w.kind));
+    $('worldStatus').textContent=w.kind==='bug'?`벌레가 나타났어요! ${Math.ceil(w.remainingMs/1000)}초 안에 퇴치해 주세요.`:isRain(w.kind)?`${w.kind==='heavyRain'?'폭우':'가랑비'} · ${w.umbrellaOn?(w.kind==='heavyRain'?'우산 안으로도 빗방울이 튀어요.':'우산으로 비를 막고 있어요.'):'우산을 씌워 주세요.'}`:w.kind==='heat'?'무더위 · 친구가 땀을 흘리고 있어요.':w.kind==='wind'?'찬바람 · 친구가 추워서 떨고 있어요.':'맑은 숲 · 친구가 쉬고 있어요.';
+    $('worldAction').hidden=!(w.kind==='bug'||isRain(w.kind)&&!w.umbrellaOn);
     $('worldAction').disabled=gardenBusy();
     $('worldAction').textContent=w.kind==='bug'?(g.inventory.spray?`살충제 뿌리기 · ${g.inventory.spray}개`:'살충제 사러 가기'):(w.umbrellaOwned?'우산 씌우기':'우산 사러 가기');
   }
@@ -1273,16 +1328,17 @@
     const w=profile.garden.world;
     if(!w.kind){
       w.nextMs=Math.max(0,w.nextMs-dt);
-      if(!w.nextMs){w.kind=Math.random()<.5?'bug':'rain';w.remainingMs=w.kind==='bug'?WORLD_RULES.bugMs:WORLD_RULES.rainMs;helpElapsed=0;renderWorld();showWorldHelp();forestAudio.effect('tap');}
+      if(!w.nextMs){w.kind=['bug','rain','heavyRain','heat','wind'][Math.floor(Math.random()*5)];w.thunderMs=12000+Math.random()*16000;w.remainingMs=w.kind==='bug'?WORLD_RULES.bugMs:WORLD_RULES.rainMs;helpElapsed=0;renderWorld();showWorldHelp();forestAudio.effect('tap');}
     }else{
       w.remainingMs=Math.max(0,w.remainingMs-dt);helpElapsed+=dt;
+      if(w.kind==='heavyRain'&&w.remainingMs>0){w.thunderMs=(w.thunderMs??12000)-dt;if(w.thunderMs<=0){flashThunder();w.thunderMs=12000+Math.random()*16000;}}
       if(!w.remainingMs){
         const was=w.kind;w.kind=null;w.nextMs=worldGap();helpElapsed=0;
         if(was==='bug'){
           const loss=Math.min(10,Math.max(0,profile.xp-xpStart(profile.level)));profile.xp-=loss;
           $('careMessage').textContent=loss?`벌레를 놓쳐 ${loss} XP가 줄었어요. 다음에는 살충제를 뿌려 주세요.`:'벌레를 놓쳤지만 레벨 보호로 경험치는 줄지 않았어요.';
           hideBubble();renderProfile();
-        }else{$('careMessage').textContent='비가 그쳤어요. 경험치 차감은 없어요.';hideBubble();}
+        }else{$('careMessage').textContent='날씨가 다시 맑아졌어요. 경험치 차감은 없어요.';hideBubble();clearThunder();}
       }else if(helpElapsed>=20000){helpElapsed=0;showWorldHelp();}
     }
     if(w.kind==='bug'){buzzElapsed+=dt;if(buzzElapsed>=1100){buzzElapsed=0;forestAudio.effect('buzz');}if(Math.random()<.2)$('mascot').classList.toggle('escape-jump');}
@@ -1315,7 +1371,7 @@
       careEndTimer=setTimeout(stopCareAnimation,1800);
       showFriendPhrase(['谢谢你，虫子飞走了！','고마워, 벌레가 날아갔어!'],'below');$('careMessage').textContent='벌레를 퇴치했어요! 경험치를 지켰어요.';
     }else{
-      showFriendPhrase(w.umbrellaOn?['谢谢你，这下淋不到雨了！','고마워, 이제 비를 맞지 않아!']:['伞收好啦！','우산을 잘 접었어!'],'below');$('careMessage').textContent=w.umbrellaOn?'우산을 씌웠어요. 다음 비에도 계속 사용할 수 있어요.':'우산을 접었어요.';
+      showFriendPhrase(w.umbrellaOn?(w.kind==='heavyRain'?WEATHER_PHRASES.heavySheltered[Math.floor(Math.random()*5)]:['谢谢你，这下淋不到雨了！','고마워, 이제 비를 맞지 않아!']):['伞收好啦！','우산을 잘 접었어!'],'below');$('careMessage').textContent=w.umbrellaOn?'우산을 씌웠어요. 다음 비에도 계속 사용할 수 있어요.':'우산을 접었어요.';
     }
     if(kind!=='spray')forestAudio.effect('dress');return true;
   }
@@ -1324,13 +1380,13 @@
   $('worldAction').onclick=()=>{
     const w=profile.garden.world;
     if(w.kind==='bug'&&profile.garden.inventory.spray)useSupply('spray');
-    else if(w.kind==='rain'&&w.umbrellaOwned)useSupply('umbrella');else $('openShop').click();
+    else if(isRain(w.kind)&&w.umbrellaOwned)useSupply('umbrella');else $('openShop').click();
   };
   setInterval(()=>{renderWaterCountdown();worldTick();},1000);
   $('waterPlant').onclick=waterPlant;
   $('openShop').onclick=()=>{
     if(gardenBusy())return;
-    resetFriend();refreshGarden();$('shopMessage').textContent='';renderShop();selectShopTab(profile.garden.world.kind==='bug'?2:profile.garden.world.kind==='rain'?3:0);$('gardenShop').showModal();$('closeShop').focus();
+    resetFriend();refreshGarden();$('shopMessage').textContent='';renderShop();selectShopTab(profile.garden.world.kind==='bug'?2:isRain(profile.garden.world.kind)?3:0);$('gardenShop').showModal();$('closeShop').focus();
   };
   function closeShop(){$('gardenShop').close();$('openShop').focus();}
   $('closeShop').onclick=closeShop;

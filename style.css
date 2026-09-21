@@ -403,6 +403,36 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
 
 .water-countdown{font-size:12px;color:var(--green);margin:4px 0 7px;font-variant-numeric:tabular-nums;line-height:1.7}
 
+/* Geometry follows the plant's feet, rather than the flexible habitat bottom. */
+.habitat>.ground{bottom:auto;transform:none;translate:-50% -20%;pointer-events:none;background:color-mix(in srgb,var(--green) 20%,transparent)}
+.care-water-label{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.care-water-label #waterCountdown{margin:0 0 0 auto;font-variant-numeric:tabular-nums;white-space:nowrap}
+#adventureBody .forest-tab{text-align:center}
+.route-section{background:var(--light);border-color:var(--line)}
+.route-card[aria-pressed="true"]{background:var(--light)}
+.route-timeline{background:var(--paper);color:var(--green)}
+@media(max-width:620px){#carePanel .care-water-label{font-size:10px;gap:4px}#carePanel #waterCountdown{font-size:10px;margin:0 0 0 auto}#carePanel #waterState{white-space:nowrap}}
+
+.world-layer[data-kind="rain"] .world-raindrop{opacity:.45;animation-duration:1.6s}
+.world-layer[data-kind="heavyRain"]{background:#384b6720}.world-layer[data-kind="heavyRain"] .world-raindrop{height:29px;animation-duration:.65s}
+.weather-splashed::after{content:"";position:absolute;left:32%;top:84%;width:5px;height:10px;border-radius:50%;background:#8ec4df;box-shadow:42px 4px #9bd1e5,18px 18px #8ec4df;animation:sweat-drop 1.7s ease-in infinite;pointer-events:none}
+.weather-sun{position:absolute;right:12%;top:8%;width:48px;height:48px;border-radius:50%;background:#f7c86b;box-shadow:0 0 35px 16px #f3bb5945}
+.weather-warm-air{position:absolute;inset:0;background:linear-gradient(transparent,#edbc4926);animation:warm-air 3s ease-in-out infinite}
+.weather-wind-line{position:absolute;left:-45%;width:42%;height:16px;border-top:2px solid #8baabe88;border-radius:50%;animation:wind-pass 2.6s linear infinite}
+.weather-sweat{position:absolute;left:65%;width:12px;height:20px;pointer-events:none;animation:sweat-drop 1.6s ease-in infinite}.weather-sweat svg{width:100%;height:100%}
+.weather-hot .creature-art{animation:heat-droop 3s ease-in-out infinite;transform-origin:50% 90%}.weather-cold .creature-art{animation:cold-shiver .32s ease-in-out infinite;transform-origin:50% 90%}
+.weather-hot .expression-normal,.weather-cold .expression-normal,.weather-scared .expression-normal{display:none}.weather-hot .expression-land,.weather-cold .expression-lift,.weather-scared .expression-lift{display:inline}
+.weather-scared .creature-art{animation:thunder-cower .4s ease-in-out 5!important;transform-origin:50% 94%}
+.weather-lightning::after{content:"";position:absolute;top:8%;left:24%;width:28px;height:90px;clip-path:polygon(50% 0,100% 0,60% 40%,95% 40%,0 100%,30% 53%,0 53%);background:#fff0ab;filter:drop-shadow(0 0 9px #f8de89);animation:lightning-glow 1.2s ease-out both;pointer-events:none;z-index:4}
+@keyframes lightning-glow{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+@keyframes warm-air{50%{opacity:.4;translate:0 -5px}}@keyframes wind-pass{to{translate:350% 12px}}@keyframes sweat-drop{0%{opacity:0;translate:0 -5px}30%{opacity:1}100%{opacity:0;translate:0 25px}}@keyframes heat-droop{50%{rotate:4deg;scale:1 .97}}@keyframes cold-shiver{25%{translate:-2px 0}75%{translate:2px 0}}@keyframes thunder-cower{50%{scale:1.05 .88;rotate:-3deg}}
+@media(prefers-reduced-motion:reduce){.weather-warm-air,.weather-wind-line,.weather-sweat,.weather-hot .creature-art,.weather-cold .creature-art,.weather-scared .creature-art,.weather-lightning::after{animation:none!important}.weather-wind-line{left:20%}.weather-lightning::after{opacity:.7}}
+
+.forest-tab{text-align:center}.forest-grades{display:block;font-size:12px;margin-top:3px}
+.forest-story{display:none}#forestBody .forest-story{display:block;max-width:30em;margin:7px auto;font-size:12px;line-height:1.6;font-weight:400;word-break:keep-all}
+#forestBody .forest-tab[data-forest="0"]{background:#edf3e7;color:#315e48}#forestBody .forest-tab[data-forest="1"]{background:#fff0e4;color:#855134}#forestBody .forest-tab[data-forest="2"]{background:#f1ebf8;color:#645181}
+@media(max-height:650px){#forestBody .forest-tab{padding:9px!important}#forestBody .forest-story{font-size:11px;line-height:1.4;margin:4px auto}#forestBody .forest-tabs{gap:6px}#forestBody #forestDescription{font-size:10px}}
+#forestBody .forest-selector{margin:16px 0 0}#forestBody .forest-tabs{grid-template-columns:1fr;gap:10px}#forestBody .forest-tab{padding:14px;text-align:center}#forestBody .forest-tab strong{font-size:17px}#forestBody #forestDescription{font-size:11px;line-height:1.7;margin:12px 0 0}
 /* Compact mobile home: character first, secondary tasks in focused sheets. */
 .mobile-tools,.shop-tabs{display:none}.sheet-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.sheet-heading h2{font-size:20px;margin:0}.mobile-sheet{padding:16px}.sheet-tabs{display:flex;gap:6px;margin:12px 0}.sheet-tabs button{flex:1;min-height:44px;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--light);color:var(--ink);font-size:12px}.sheet-tabs button[aria-pressed=true]{background:var(--green);color:white}.evolution-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(540px,100%);z-index:2}.evolution-choices button{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;border:1px solid #fff8;border-radius:16px;background:#fffbed;color:var(--ink);padding:8px;font-size:13px}.evolution-choices button:disabled{background:#dbdfd5;opacity:.6}.evolution-choices svg{width:65px;height:75px;display:block}.evolution-choices small{font-size:10px}.evolution-choice-help{margin:0;font-size:12px}.evolution-choosing .evolution-stage{width:120px;height:140px;margin:0}.evolution-choosing .evolution-form .evolution-avatar{width:120px;height:140px;flex-basis:120px}.evolution-choosing .evolution-phrase{display:none}.evolution-choosing .evolution-content{padding-top:38px}.evolution-choosing .evolution-kicker{display:none}
 @media(max-width:620px){
@@ -441,6 +471,8 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
  .evolution-choices{gap:6px}.evolution-choices button{font-size:12px;padding:5px}.evolution-choices small{font-size:9px}
 }
 @media(max-width:620px) and (max-height:600px){#gameApp .topbar{height:54px;min-height:54px}#gameApp .companion{padding:8px 10px}#gameApp .companion #homeHabitat{width:calc(100% + 20px);margin:0 -10px}#carePanel{padding:6px 8px}.evolution-choosing .evolution-stage{height:85px}.evolution-choosing .evolution-form .evolution-avatar{width:73px;height:85px;flex-basis:73px}.evolution-choices svg{width:46px;height:52px}.evolution-choice-help{font-size:10px}}
+@media(max-width:620px){.mobile-tools{gap:4px}.mobile-tools #openForest,.mobile-tools #openAdventure{padding:8px 7px;font-size:11px}.topbar .brand-icon{display:none}body:not([data-screen=setup]) #openForest{display:none}}
+@media(max-width:360px){.topbar .brand-promise{display:none}.topbar .brand-wordmark strong{font-size:12px}.mobile-tools #openSettings{width:40px;padding:8px}}
 /* Very short landscape and enlarged text retain access instead of clipping controls. */
 @media(max-width:620px) and (max-height:460px){#gameApp .companion{overflow:auto}#gameApp .companion #homeHabitat{flex:0 0 110px}.evolution-choosing{overflow:auto!important}.evolution-choosing .evolution-content{height:auto}}
 
