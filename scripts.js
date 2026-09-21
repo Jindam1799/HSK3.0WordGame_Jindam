@@ -31,6 +31,29 @@
   }
   const $ = id => document.getElementById(id);
   const data = Array.isArray(window.HSK_DATA) ? window.HSK_DATA : [];
+  const studyKey=KEY+'-study-v1';
+  let studied=new Set(),studyStorageOK=true;
+  try{const saved=JSON.parse(localStorage.getItem(studyKey)||'[]');if(Array.isArray(saved))studied=new Set(saved.filter(x=>typeof x==='string'));}catch{studyStorageOK=false;}
+  const studyId=w=>`${w.level}:${w.id}`;
+  function recordStudy(word){
+    studied.add(studyId(word));
+    try{localStorage.setItem(studyKey,JSON.stringify([...studied]));studyStorageOK=true;}catch{studyStorageOK=false;}
+  }
+  function renderStudy(forest=activeForest){
+    $('studyHeading').textContent=FORESTS[forest].name+' 학습 진행률';
+    $('studyRows').replaceChildren();
+    for(let level=FORESTS[forest].start;level<FORESTS[forest].start+3;level++){
+      const words=[...new Map(data.filter(w=>w.level===level).map(w=>[studyId(w),w])).values()];
+      const count=words.filter(w=>studied.has(studyId(w))).length,total=words.length,percent=total?Math.floor(count/total*100):0;
+      const row=document.createElement('section');row.className='study-row';
+      const heading=document.createElement('h3');heading.textContent=`HSK ${level}급`;
+      const bar=document.createElement('progress');bar.max=total||1;bar.value=count;bar.setAttribute('aria-label',`HSK ${level}급 학습 진행률`);
+      const detail=document.createElement('div');detail.className='row';
+      const amount=document.createElement('span');amount.textContent=total?`${count.toLocaleString()} / ${total.toLocaleString()} 단어`:'어휘 준비 중';
+      const ratio=document.createElement('strong');ratio.textContent=total?`${percent}%`:'—';detail.append(amount,ratio);row.append(heading,bar,detail);$('studyRows').append(row);
+    }
+    $('studyNote').textContent=studyStorageOK?'이 기능을 추가한 뒤 답을 확인한 기본 단어를 기록해요. 정답·오답·준비 운동 모두 포함하며, 같은 단어는 한 번만 세어요. 짝꿍어휘는 제외해요. 전체 수는 현재 등록된 어휘 기준이에요. 기록은 이 브라우저에 저장돼요.':'현재 브라우저에 기록을 저장할 수 없어요. 이번 접속 중의 기록만 표시되며, 새로고침하면 사라질 수 있어요.';
+  }
   const allPhrases = data.flatMap(w => w.collocations.map(p => ({...p, parent:w.id, level:w.level})));
   const shuffle = items => {
     const a = [...items];
@@ -678,9 +701,11 @@
     return {unlock,effect,duck,setForest,setCrisis};
   })();
   $('welcomeFriends').innerHTML=['mushroom','petal','succulent'].map(p=>'<span>'+creatureSVG(p,null,3)+'</span>').join('');
+  let choosingEntryForest=false;
   $('enterLobby').onclick=()=>{
-    $('welcomeScreen').hidden=true;$('gameApp').hidden=false;
-    $('startBtn').focus({preventScroll:true});
+    choosingEntryForest=true;arrangeLobby();
+    $('forestDialog').showModal();
+    $('forestTabs').querySelector('[aria-pressed="true"]')?.focus({preventScroll:true});
     forestAudio.unlock();
   };
   // Prevent semantically overlapping entries from acting as wrong answers.
@@ -847,7 +872,7 @@
     state.phase='feedback';clearTimer();
     $('answers').querySelectorAll('button').forEach(b=>b.disabled=true);
     if(bonus){state.bonusAnswered++;if(correct)state.bonusCorrect++;}
-    else{state.answered++;if(correct)state.correct++;}
+    else{state.answered++;if(correct)state.correct++;recordStudy(state.word);}
     if(!correct) state.mistakes.set(state.entry.id,{...state.entry,parent:state.word.id,bonus});
     const previousLevel=profile.level;
     const reward=gardenReward(correct,bonus);
@@ -1128,7 +1153,12 @@
       '노을빛 나뭇가지에 덩어리 열매가 열리는 숲. 한 표현씩 익힐 때마다 숲속 친구들의 이야기가 들려와요.',
       '달빛 아래 비밀 편지가 숨어 있는 숲. 길고 깊은 표현을 풀어내며, 나만의 중국어 이야기를 완성해요.'
     ][i];
-    const note=document.createElement('small');button.append(title,grades,story,note);button.onclick=()=>{switchForest(i);if($('forestDialog').open)$('forestDialog').close();};$('forestTabs').append(button);
+    const note=document.createElement('small');button.append(title,grades,story,note);button.onclick=()=>{
+      const entering=choosingEntryForest;
+      if(entering){choosingEntryForest=false;$('welcomeScreen').hidden=true;$('gameApp').hidden=false;}
+      switchForest(i);if($('forestDialog').open)$('forestDialog').close();
+      if(entering){arrangeLobby();(mobileLayout.matches?$('openAdventure'):$('startBtn')).focus({preventScroll:true});}
+    };$('forestTabs').append(button);
   });
   // Move the existing controls, retaining their listeners and desktop positions.
   const mobileLayout=window.matchMedia('(max-width: 620px)');
@@ -1152,14 +1182,20 @@
       movable.slice(2).forEach(n=>n.open=true);settingsTab(0);
       $('carePanel').before($('openCloset'));
     }else{
-      ['adventureDialog','settingsDialog','forestDialog'].forEach(id=>$(id).close());
+      ['adventureDialog','settingsDialog'].forEach(id=>$(id).close());
+      if(!choosingEntryForest)$('forestDialog').close();
       movable.forEach((node,i)=>{anchors[i].after(node);if(i>=2){node.hidden=false;node.open=false;}});
       closetAnchor.after($('openCloset'));
     }
+    if(choosingEntryForest)$('forestBody').append(movable[0]);
     resetFriend();requestAnimationFrame(fitCompanion);
   }
   $('openAdventure').onclick=()=>{resetFriend();$('adventureDialog').showModal();};
+  $('openStudy').onclick=()=>{resetFriend();renderStudy();$('studyDialog').showModal();};
   $('openForest').onclick=()=>{resetFriend();$('forestDialog').showModal();};
+  $('forestDialog').addEventListener('close',()=>{
+    if(choosingEntryForest){choosingEntryForest=false;arrangeLobby();$('enterLobby').focus({preventScroll:true});}
+  });
   $('openSettings').onclick=()=>{resetFriend();$('settingsDialog').showModal();};
   document.querySelectorAll('[data-close-sheet]').forEach(b=>b.onclick=()=>$(b.dataset.closeSheet).close());
   document.querySelectorAll('[data-settings-tab]').forEach(b=>b.onclick=()=>settingsTab(Number(b.dataset.settingsTab)));
