@@ -544,3 +544,29 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
 @media(max-width:620px){#settingsBody #guideCopy{max-height:calc(100dvh - 275px);font-size:12px}.game-guide h3{font-size:16px;margin:8px 0}}
 
 #umbrellaStock:empty{display:none}
+
+.care-actions{grid-template-columns:repeat(3,minmax(0,1fr))}.care-actions .basket-open{display:flex;align-items:center;justify-content:center;padding:8px;min-width:0}
+#basketDialog{width:min(740px,calc(100% - 24px))}#basketItems{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.basket-item{padding:12px;border:1px solid var(--line);border-radius:14px;text-align:center;background:var(--light)}.basket-item svg{width:65px;height:60px}.basket-item h3{margin:3px 0}.basket-stock{font-size:12px;margin:5px 0}.basket-item button{width:100%;padding:6px;font-size:12px}
+.care-angry .expression-normal,.care-puzzled .expression-normal,.care-angry .expression-lift,.care-puzzled .expression-land{display:none!important}.care-angry .expression-land,.care-puzzled .expression-lift{display:inline!important}
+.care-angry .creature-art{animation:angry-stomp .25s ease-in-out 8!important}.care-puzzled .creature-art{animation:puzzled-tilt .8s ease-in-out 3!important}
+.care-angry::before{content:'〰';position:absolute;left:60%;top:35%;font-size:30px;color:#d66b59;z-index:5}.care-puzzled::before{content:'?';position:absolute;left:68%;top:35%;font-size:28px;color:var(--green);z-index:5}
+@keyframes angry-stomp{25%{translate:-3px -5px;rotate:-3deg}75%{translate:3px 0;rotate:3deg}}@keyframes puzzled-tilt{50%{rotate:9deg;translate:0 -3px}}
+#perfectDialog{text-align:center;padding:24px;background:var(--paper)}#perfectArt{height:200px;animation:care-sway .6s ease-in-out infinite}#perfectArt svg{width:180px;height:210px}#perfectArt .expression-normal{display:none}#perfectArt .expression-happy{display:inline}#perfectChinese{display:block;font-size:20px}#perfectReward{font-weight:bold;color:var(--orange)}
+@media(max-width:620px){#basketItems{grid-template-columns:repeat(2,minmax(0,1fr))}.care-actions button{padding:6px!important;font-size:12px!important}.care-actions small{font-size:9px}.care-actions svg{width:24px!important}}
+@media(prefers-reduced-motion:reduce){.care-angry .creature-art,.care-puzzled .creature-art,#perfectArt{animation:none!important}}
+
+.promotion{position:relative;text-align:center;padding:28px;background:var(--paper)}#promotionClose{position:absolute;right:10px;top:10px}.promotion .eyebrow{padding-right:16px}.promotion-mark{display:grid;place-items:center;width:62px;height:62px;margin:15px auto;border-radius:22px 22px 22px 6px;background:var(--green);color:white;font-size:32px;font-weight:bold}.promotion h2{font-size:24px;line-height:1.4;word-break:keep-all}.promotion p{font-size:14px;line-height:1.8;word-break:keep-all}#promotionNote{color:var(--muted);font-size:12px;margin:18px 0}#promotionContinue{margin-top:8px}
+@media(max-width:360px){.promotion{padding:20px}.promotion h2{font-size:21px}.promotion p{font-size:12px}}
+
+/* Aligned care controls, catalog rows and mandatory promotion countdown. */
+#carePanel .care-actions button{flex-direction:column;gap:3px;padding:8px 3px!important;min-width:0}#carePanel .care-actions span{text-align:center;white-space:nowrap;font-size:12px}#carePanel .care-actions small{font-size:9px;white-space:nowrap}
+.promotion-timer{--remaining:1;position:absolute;right:16px;top:14px;width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--green) calc(var(--remaining)*1turn),var(--line) 0);display:grid;place-items:center}.promotion-timer span{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--paper);font-weight:700;font-size:15px}
+#promotionClose{top:62px;right:17px}#promotionClose:disabled{visibility:hidden}.promotion .eyebrow{padding-right:50px}#promotionWait{font-size:12px;color:var(--muted)}
+@media(min-width:621px){
+ #gardenShop .shop-item{display:grid;grid-template-rows:64px 28px 22px 34px 28px 40px minmax(60px,auto);gap:5px;align-content:start}
+ #gardenShop .shop-item>svg{grid-row:1;align-self:center;margin:auto}#gardenShop .shop-item h3{grid-row:2;margin:0;align-self:center}
+ #gardenShop .fertilizer-benefit{grid-row:3;margin:0;font-size:12px}
+ #gardenShop .shop-duration{grid-row:4;margin:0;align-self:center}#gardenShop .shop-item .stock{grid-row:5;margin:0;justify-self:center;align-self:center}
+ #gardenShop .shop-item .primary{grid-row:6;margin:0;align-self:stretch}#gardenShop .shop-item .shop-hint{grid-row:7;margin:0;align-self:start;font-size:11px;line-height:1.5}
+}
