@@ -589,3 +589,21 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
 .accessory-handle[hidden]{display:none}.gesture-hint{line-height:1.7}
 .refresh-settings{border-top:1px solid var(--line);padding:14px 8px 4px;margin-top:14px;display:grid;gap:8px;text-align:center}.refresh-settings small{font-size:11px;color:var(--muted)}
 @media(max-width:620px){.mobile-tools{gap:6px}.mobile-tools button,.mobile-tools #openForest,.mobile-tools #openAdventure{height:40px;min-height:40px;padding:7px 6px;font-size:11px}.mobile-tools #openSettings{height:40px;min-height:40px;width:40px;min-width:40px;flex-basis:40px;padding:0}}
+
+/* A read-only evolution tree for the current forest. */
+#growthMapDialog{width:min(1180px,96vw);max-width:1180px;max-height:90dvh;overflow:auto;padding:24px;border:1px solid var(--line);border-radius:24px;background:var(--paper);color:var(--ink)}
+#growthMapDialog .sheet-heading{position:sticky;top:-24px;z-index:3;background:var(--paper);padding:12px 0}
+.growth-origin{display:flex;flex-direction:column;align-items:center}.growth-origin .growth-node{width:150px}.growth-origin .growth-node+*::before{content:"";position:absolute;width:3px;height:18px;top:-18px;background:var(--green)}
+.growth-node{position:relative;display:flex;align-items:center;flex-direction:column;text-align:center;border:1px solid var(--line);border-radius:14px;background:white;padding:7px;margin:9px 0;min-width:0;gap:3px}
+.growth-node-art{height:76px;width:76px;display:block}.growth-node-art svg{width:100%;height:100%}.growth-node strong{font-size:12px}.growth-node small{font-size:10px;color:var(--muted)}
+.growth-node.unrevealed .growth-node-art{filter:brightness(0);opacity:.23}.growth-node.current{border:2px solid var(--green);box-shadow:0 0 0 3px var(--light)}.growth-node.current small{color:var(--green);font-weight:800}
+.growth-fork-label{text-align:center;font-size:15px;margin:16px 0 28px}.growth-branches{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;border-top:2px solid var(--line)}
+.growth-branch{position:relative;min-width:0;padding-top:18px}.growth-branch::before{content:"";position:absolute;top:0;bottom:140px;width:2px;background:var(--line);left:50%;z-index:0}.growth-branch.followed::before{width:3px}.growth-branch>p{text-align:center}.growth-branch h4{position:relative;background:var(--paper);font-size:11px;text-align:center;padding:8px 0;margin:0}
+.growth-steps{position:relative}.growth-steps .growth-node-art{height:56px;width:56px}.growth-steps .growth-node{margin:16px 0}.growth-branch.followed .reached{border-color:var(--green)}
+.growth-finals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;border-top:2px solid var(--line)}.growth-finals .growth-node{padding:5px 1px}.growth-finals .growth-node-art{width:100%;height:53px}.growth-finals small{font-size:9px}.growth-finals strong{font-size:10px;overflow-wrap:anywhere}
+@media(max-width:900px){.growth-branches{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.mobile-tools{gap:5px}.mobile-tools button{padding:9px 7px}}
+@media(max-width:620px){.mobile-tools{display:grid;grid-template-columns:36px repeat(4,minmax(0,1fr));gap:4px}.mobile-tools #openSettings{width:36px;min-width:36px}.mobile-tools button,.mobile-tools #openForest,.mobile-tools #openAdventure,.mobile-tools #openStudy{font-size:10px;padding:6px 2px;white-space:normal;word-break:keep-all}.mobile-tools::before{left:18px;right:18px}#growthMapDialog{padding:16px;width:96vw}.growth-branches{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px}.growth-branch{border-top:2px solid var(--line)}#growthMapDialog .sheet-heading{top:-16px}.growth-node-art{height:70px;width:70px}}
+
+.growth-steps .reached::before{content:"";position:absolute;height:17px;width:3px;background:var(--green);top:-17px;left:calc(50% - 1px)}
+#settingsDialog .sheet-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}#settingsDialog .sheet-tabs button{font-size:11px;padding:8px 4px;word-break:keep-all}
+#updateNotes{padding:8px;max-height:52dvh;overflow:auto;line-height:1.75}#updateNotes h3{font-size:17px}#updateNotes article{border-bottom:1px solid var(--line);padding:10px 0}#updateNotes time{font-size:13px;color:var(--green);font-weight:700}#updateNotes ul{padding-left:20px;font-size:13px}#updateNotes li{margin:9px 0}

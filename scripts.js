@@ -483,21 +483,44 @@
     $('unlockHint').textContent='최종 진화 완료! 성장 보석을 달아 보세요.';
   }
   let draftLook=null,draftRoutes=null,drag=null,selectedSlot='head';
-  function renderRouteChoices(){
-    const pet=draftLook.pet,info=GROWTH[pet],committed=profile.routes[pet];$('routeCards').replaceChildren();
-    $('routeStatus').textContent=!info?'Lv.3부터 아래에서 열린 성장 계열 중 하나를 골라 주세요.':committed?'선택한 길을 따라 자라요. Lv.10에 진화한 모습이 공개돼요.':'실루엣을 보고 성장길을 골라 주세요. 저장하면 친구와 성장길이 확정돼요.';
-    for(const route of info?.routes||[]){
-      const revealed=profile.level>=10&&committed===route.id;
-      const card=document.createElement('button');card.type='button';card.className='route-card';card.dataset.route=route.id;card.setAttribute('aria-pressed',String(draftRoutes[pet]===route.id));card.disabled=profile.level<3||Boolean(committed&&committed!==route.id);
-      const art=document.createElement('span');art.className='route-art'+(revealed?'':' silhouette');art.innerHTML=creatureSVG(pet,route.id,10,'#aac875',!revealed);
-      const name=document.createElement('strong');name.textContent=route.name;
-      const final=document.createElement('span');final.textContent=route.final;
-      const note=document.createElement('small');note.textContent=revealed?'진화 완료!':'? · Lv.10에 모습 공개';
-      card.append(art,name,final,note);card.addEventListener('click',()=>{draftRoutes[pet]=route.id;updatePreview();$('routeCards').querySelector(`[data-route="${route.id}"]`)?.focus();});$('routeCards').append(card);
+  function renderGrowthMap(){
+    const tree=$('growthMapTree');tree.replaceChildren();
+    const family=profile.family||profile.look.pet,chosen=routeFor(family,profile.routes),color=WARDROBE.color.items.find(c=>c[0]===profile.look.color)?.[2]||'#aac875';
+    $('growthMapForest').textContent=FORESTS[activeForest].name+' · '+FORESTS[activeForest].grades;
+    $('growthMapStatus').textContent=`${profile.look.name||growthName(family,profile.routes,profile.level)} · 현재 Lv.${profile.level}`;
+    const node=(pet,route,level,name,reached,current=false)=>{
+      const el=document.createElement('div');el.className='growth-node'+(reached?' reached':' unrevealed')+(current?' current':'');
+      if(current)el.setAttribute('aria-current','step');
+      const art=document.createElement('span');art.className='growth-node-art';art.setAttribute('aria-hidden','true');art.innerHTML=creatureSVG(pet,route,level,color,!reached);
+      const title=document.createElement('strong');title.textContent=name;
+      const label=document.createElement('small');label.textContent=`Lv.${level}`+(current?' · 지금 여기':reached?' · 지나온 길':' · 아직 만나지 않은 모습');el.append(art,title,label);return el;
+    };
+    const origin=document.createElement('div');origin.className='growth-origin';origin.append(node('seed',null,1,'마음씨',true,profile.level===1),node('sprout',null,2,'마음싹',profile.level>=2,profile.level===2));tree.append(origin);
+    const forkLabel=document.createElement('h3');forkLabel.className='growth-fork-label';forkLabel.textContent='Lv.3 · 여섯 갈래의 시작';tree.append(forkLabel);
+    const branches=document.createElement('div');branches.className='growth-branches';
+    for(const [pet,info] of Object.entries(GROWTH)){
+      const selected=family===pet&&profile.level>=3,branch=document.createElement('section');branch.className='growth-branch'+(selected?' followed':'');branch.dataset.family=pet;
+      branch.setAttribute('aria-label',info.name+(selected?' · 내가 걸어온 길':''));
+      branch.append(node(pet,null,3,info.name,selected,selected&&profile.level===3));
+      if(!petAllowed(pet)){const lock=document.createElement('p');lock.className='tiny';lock.textContent='잠김 · 수강생 전용';branch.append(lock);}
+      const steps=document.createElement('div');steps.className='growth-steps';
+      for(let lv=4;lv<=9;lv++)steps.append(node(pet,null,lv,selected&&profile.level>=lv?'자라는 '+info.name:'?',selected&&profile.level>=lv,selected&&profile.level===lv));
+      branch.append(steps);
+      const label=document.createElement('h4');label.textContent='Lv.10 · 마지막 세 갈래';branch.append(label);
+      const finals=document.createElement('div');finals.className='growth-finals';
+      for(const route of info.routes){const reached=selected&&profile.level>=10&&chosen?.id===route.id;finals.append(node(pet,route.id,10,reached?route.final:'?',reached,reached));}
+      branch.append(finals);branches.append(branch);
     }
-    $('previewStage').textContent=growthName(pet,draftRoutes,profile.level);
-    $('routeTimeline').textContent='Lv.1 씨앗 → Lv.2 새싹 → Lv.3 계열 선택 → Lv.4~9 점진적 성장 → Lv.10 최종 진화';
+    tree.append(branches);
+    $('resumeGrowth').hidden=!(profile.level>=3&&!profile.family||profile.level>=10&&!chosen);
   }
+  $('openGrowth').onclick=()=>{resetFriend();renderGrowthMap();$('growthMapDialog').showModal();};
+  $('resumeGrowth').onclick=()=>{
+    $('growthMapDialog').close();resetFriend();closeEvolution(false);
+    $('evolutionLevels').textContent=`Lv.${profile.level} · 기다리는 진화`;$('evolutionPhrase').textContent='一起长大吧！';
+    const copy=$('mascot').cloneNode(true);copy.removeAttribute('id');copy.querySelectorAll('[id]').forEach(n=>n.removeAttribute('id'));copy.className='mascot forest-avatar evolution-avatar';$('evolutionBefore').append(copy);
+    $('evolutionDialog').showModal();presentEvolutionChoice();
+  };
   function refreshPositionControls(){
     const equipped=SLOTS.filter(s=>draftLook[s]!=='none'&&!$('previewAvatar').querySelector('.wear-'+s).hidden);
     if(!equipped.includes(selectedSlot))selectedSlot=equipped[0]||'head';
@@ -509,7 +532,7 @@
   function updatePreview(){
     if(draftLook.charm==='routegift'&&!routeFor(draftLook.pet,draftRoutes))draftLook.charm='none';
     renderLook($('previewAvatar'),$('previewHabitat'),draftLook,draftRoutes);
-    $('previewName').textContent=draftLook.name||growthName(draftLook.pet,draftRoutes,profile.level);renderRouteChoices();
+    $('previewName').textContent=draftLook.name||growthName(draftLook.pet,draftRoutes,profile.level);$('previewStage').textContent=growthName(draftLook.pet,draftRoutes,profile.level);
     $('closetOptions').querySelectorAll('button[data-group]').forEach(button=>{
       const key=button.dataset.group,id=button.dataset.item;
       button.setAttribute('aria-pressed',String(draftLook[key]===id));
@@ -574,6 +597,7 @@
     const avatar=$('mascot').cloneNode(true);avatar.id='previewAvatar';avatar.classList.remove('friend-held','friend-falling','friend-landed');avatar.style.translate='';avatar.removeAttribute('role');avatar.removeAttribute('tabindex');avatar.removeAttribute('aria-label');const ground=document.createElement('div');ground.className='ground';$('previewHabitat').replaceChildren(avatar,ground);setupDragging(avatar);
     $('petName').value=draftLook.name;$('closetLevel').textContent=`LV. ${profile.level}`;$('closetOptions').replaceChildren();
     for(const [key,group] of Object.entries(WARDROBE)){
+      if(key==='pet')continue;
       const field=document.createElement('fieldset');field.className='wardrobe-group';const legend=document.createElement('legend');legend.textContent=group.label;field.append(legend);const grid=document.createElement('div');grid.className='item-grid';
       for(const [id,label,icon,level] of group.items){
         if(!accessoryAllowed(id))continue;
@@ -1312,6 +1336,7 @@
   const closetAnchor=document.createComment('desktop closet');$('openCloset').before(closetAnchor);
   document.body.dataset.screen='setup';
   function settingsTab(index){
+    $('updateNotes').hidden=index!==3;
     movable.slice(2).forEach((node,i)=>node.hidden=i!==index);
     document.querySelectorAll('[data-settings-tab]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.settingsTab)===index)));
   }
