@@ -570,3 +570,9 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
  #gardenShop .shop-duration{grid-row:4;margin:0;align-self:center}#gardenShop .shop-item .stock{grid-row:5;margin:0;justify-self:center;align-self:center}
  #gardenShop .shop-item .primary{grid-row:6;margin:0;align-self:stretch}#gardenShop .shop-item .shop-hint{grid-row:7;margin:0;align-self:start;font-size:11px;line-height:1.5}
 }
+
+.habitat[data-scene]{background-position:center;background-repeat:no-repeat}.habitat>.cloud,.habitat>.spark{display:none}
+
+.mobile-tools{display:flex;gap:7px;align-items:center}.mobile-tools button{min-height:42px;white-space:nowrap;border:1px solid var(--line);border-radius:12px;font-size:12px;padding:9px 12px}.mobile-tools #openSettings{display:grid;place-items:center;width:42px;padding:9px}.mobile-tools #openAdventure{width:auto}.companion-heading{padding:0 0 8px;gap:10px}.companion-heading #characterName{font-size:18px;margin:0;text-align:left;overflow-wrap:anywhere;padding:0}.companion-heading #levelTag{flex-shrink:0}
+@media(max-width:620px){.topbar{flex-wrap:wrap;height:auto;min-height:102px;padding:8px 0;gap:5px}.topbar .brand{width:100%}.topbar .brand-promise{display:none}.mobile-tools{width:100%;justify-content:space-between;gap:4px}.mobile-tools button,.mobile-tools #openForest,.mobile-tools #openAdventure{font-size:11px;padding:7px 8px}.mobile-tools #openStudy{font-size:11px}.mobile-tools #openSettings{width:36px;min-width:36px}.companion-heading #characterName{font-size:16px}body:not([data-screen=setup]) #openStudy{display:none}}
+#previewAvatar{overflow:visible}#settingsBody .care-rules summary,#settingsBody .audio-settings summary{display:none}
