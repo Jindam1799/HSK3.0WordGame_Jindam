@@ -501,13 +501,10 @@
   function refreshPositionControls(){
     const equipped=SLOTS.filter(s=>draftLook[s]!=='none'&&!$('previewAvatar').querySelector('.wear-'+s).hidden);
     if(!equipped.includes(selectedSlot))selectedSlot=equipped[0]||'head';
-    $('moveSlot').replaceChildren(...equipped.map(s=>new Option(SLOT_NAMES[s],s)));
-    if(!equipped.length)$('moveSlot').add(new Option('먼저 장식을 골라 주세요',''));
-    $('moveSlot').value=equipped.length?selectedSlot:'';
-    $('positionControls').querySelectorAll('input,button,select').forEach(el=>el.disabled=!equipped.length);
-    const pose=draftLook.poses[poseKey(draftLook,draftRoutes,selectedSlot)]||defaultPose();
-    $('itemScale').value=pose.scale;$('itemRotation').value=pose.rotation;$('scaleValue').textContent=`${Math.round(pose.scale*100)}%`;$('rotationValue').textContent=`${Math.round(pose.rotation)}°`;
     $('previewAvatar').querySelectorAll('.editable-accessory').forEach(el=>el.classList.toggle('selected-accessory',el.dataset.slot===selectedSlot&&!el.hidden));
+    const handle=$('previewHabitat').querySelector('.accessory-handle');
+    if(handle){handle.hidden=!equipped.length;if(equipped.length){const r=$('previewAvatar').querySelector('.wear-'+selectedSlot).getBoundingClientRect(),h=$('previewHabitat').getBoundingClientRect();handle.style.left=clamp(r.right-h.left,20,h.width-20)+'px';handle.style.top=clamp(r.bottom-h.top,20,h.height-20)+'px';}}
+
   }
   function updatePreview(){
     if(draftLook.charm==='routegift'&&!routeFor(draftLook.pet,draftRoutes))draftLook.charm='none';
@@ -525,6 +522,7 @@
       }
       if(id==='routegift'){button.disabled=profile.level<10||!routeFor(draftLook.pet,draftRoutes);button.querySelector('small').textContent=profile.level<10?'잠김 · Lv.10':routeFor(draftLook.pet,draftRoutes)?.gift||'성장길 선택 필요';}
     });refreshPositionControls();
+    requestAnimationFrame(()=>{if(draftLook)refreshPositionControls();});
   }
   function mutatePose(mutator){
     if(!draftLook||draftLook[selectedSlot]==='none')return;
@@ -538,28 +536,36 @@
     placeAccessories($('previewAvatar'),draftLook,draftRoutes);refreshPositionControls();
   }
   function setupDragging(avatar){
-    avatar.addEventListener('pointerdown',e=>{
-      const target=e.target.closest('.editable-accessory');if(!target||target.hidden||e.button>0)return;
-      e.preventDefault();selectedSlot=target.dataset.slot;refreshPositionControls();
-      const pose={...(draftLook.poses[poseKey(draftLook,draftRoutes,selectedSlot)]||defaultPose())},rect=avatar.getBoundingClientRect();
-      const garden=avatar.closest('.habitat').getBoundingClientRect(),item=target.getBoundingClientRect();
-      drag={pointer:e.pointerId,slot:selectedSlot,x:e.clientX,y:e.clientY,rect,pose,garden,gx:(item.left+item.width/2-garden.left)/garden.width,gy:(item.top+item.height/2-garden.top)/garden.height};
-      try{avatar.setPointerCapture(e.pointerId);}catch{}
-      avatar.classList.add('is-dragging');
-    });
-    avatar.addEventListener('pointermove',e=>{
-      if(!drag||drag.pointer!==e.pointerId)return;e.preventDefault();
-      const g=plantGeometry(draftLook.pet,routeFor(draftLook.pet,draftRoutes)?.id,profile.level);
-      mutatePose(p=>{p.gx=drag.gx+(e.clientX-drag.x)/drag.garden.width;p.gy=drag.gy+(e.clientY-drag.y)/drag.garden.height;});
-    });
-    const end=e=>{if(!drag||e.pointerId!==drag.pointer)return;if(e.type==='pointercancel')mutatePose(p=>Object.assign(p,drag.pose));try{avatar.releasePointerCapture(e.pointerId);}catch{}drag=null;avatar.classList.remove('is-dragging');};
-    avatar.addEventListener('pointerup',end);avatar.addEventListener('pointercancel',end);avatar.addEventListener('lostpointercapture',()=>{drag=null;avatar.classList.remove('is-dragging');});
-    avatar.addEventListener('keydown',e=>{
-      const el=e.target.closest('.editable-accessory');if(!el)return;selectedSlot=el.dataset.slot;
+    const habitat=avatar.closest('.habitat'),points=new Map();
+    const handle=document.createElement('button');handle.type='button';handle.className='accessory-handle';handle.textContent='↗';handle.setAttribute('aria-label','선택 장식 크기와 회전 조절');habitat.append(handle);
+    let baseline=null;
+    const pose=()=>({...draftLook.poses[poseKey(draftLook,draftRoutes,selectedSlot)]||defaultPose()});
+    const center=()=>{const r=avatar.querySelector('.wear-'+selectedSlot).getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};};
+    const angle=(a,b)=>Math.atan2(b.y-a.y,b.x-a.x),distance=(a,b)=>Math.max(12,Math.hypot(b.x-a.x,b.y-a.y));
+    const rebase=(mode='move')=>{const ps=[...points.values()],c=center();baseline={pose:pose(),c,ps:ps.map(p=>({...p})),mode};};
+    habitat.onpointerdown=e=>{
+      const target=e.target.closest('.editable-accessory'),isHandle=e.target===handle;
+      if(e.button>0||(!points.size&&!target&&!isHandle)||points.size>=2)return;
+      if(!points.size){if(target){if(target.hidden)return;selectedSlot=target.dataset.slot;}refreshPositionControls();}
+      e.preventDefault();points.set(e.pointerId,{x:e.clientX,y:e.clientY});rebase(isHandle?'handle':'move');
+      habitat.setPointerCapture(e.pointerId);avatar.classList.add('is-dragging');
+    };
+    habitat.onpointermove=e=>{
+      if(!points.has(e.pointerId)||!draftLook)return;e.preventDefault();points.set(e.pointerId,{x:e.clientX,y:e.clientY});
+      const ps=[...points.values()],old=baseline.ps,h=habitat.getBoundingClientRect();let dx=ps[0].x-old[0].x,dy=ps[0].y-old[0].y,scale=baseline.pose.scale,rotation=baseline.pose.rotation;
+      if(ps.length===2){dx=(ps[0].x+ps[1].x-old[0].x-old[1].x)/2;dy=(ps[0].y+ps[1].y-old[0].y-old[1].y)/2;scale*=distance(ps[0],ps[1])/distance(old[0],old[1]);rotation+=(angle(ps[0],ps[1])-angle(old[0],old[1]))*180/Math.PI;}
+      else if(baseline.mode==='handle'){dx=dy=0;scale*=distance(baseline.c,ps[0])/distance(baseline.c,old[0]);rotation+=(angle(baseline.c,ps[0])-angle(baseline.c,old[0]))*180/Math.PI;}
+      mutatePose(p=>{p.gx=(baseline.c.x+dx-h.left)/h.width;p.gy=(baseline.c.y+dy-h.top)/h.height;p.scale=scale;p.rotation=((rotation+180)%360+360)%360-180;});
+    };
+    const end=e=>{if(!points.delete(e.pointerId))return;if(points.size)rebase();else{baseline=null;avatar.classList.remove('is-dragging');}};
+    habitat.onpointerup=end;habitat.onpointercancel=end;habitat.onlostpointercapture=end;
+    habitat.onkeydown=e=>{
+      const el=e.target.closest('.editable-accessory');if(!el&&e.target!==handle)return;if(el)selectedSlot=el.dataset.slot;
       const step=e.shiftKey?10:2,moves={ArrowLeft:[-step,0],ArrowRight:[step,0],ArrowUp:[0,-step],ArrowDown:[0,step]};
-      if(moves[e.key]){e.preventDefault();mutatePose(p=>{p.x+=moves[e.key][0]/180;p.y+=moves[e.key][1]/210;});}
+      if(moves[e.key]){e.preventDefault();mutatePose(p=>{if(e.target===handle){p.scale+=moves[e.key][1]*-.01;p.rotation+=moves[e.key][0];}else{p.x+=moves[e.key][0]/180;p.y+=moves[e.key][1]/210;}});}
       else if(e.key==='Enter'||e.key===' '){e.preventDefault();refreshPositionControls();}
-    });
+    };
+    handle.title='끌어서 크기·회전 조절 · 방향키: 위아래 크기, 좌우 회전';
   }
   function openCloset(){
     if(state&&!['result'].includes(state.phase))return;
@@ -590,10 +596,7 @@
     if(profile.family)profile.look.pet=profile.family;
     save();renderProfile();forestAudio.effect('dress');closeCloset();
   };
-  $('moveSlot').onchange=()=>{selectedSlot=$('moveSlot').value;refreshPositionControls();};
-  $('itemScale').oninput=()=>mutatePose(p=>{p.scale=Number($('itemScale').value);});$('itemRotation').oninput=()=>mutatePose(p=>{p.rotation=Number($('itemRotation').value);});
-  $('resetPosition').onclick=()=>{delete draftLook.poses[poseKey(draftLook,draftRoutes,selectedSlot)];placeAccessories($('previewAvatar'),draftLook,draftRoutes);refreshPositionControls();};
-  document.querySelectorAll('[data-nudge]').forEach(b=>b.onclick=()=>{const [x,y]=b.dataset.nudge.split(',').map(Number);mutatePose(p=>{p.x+=x/180;p.y+=y/210;});});
+  $('refreshApp').onclick=()=>{save();const url=new URL(location.href);url.searchParams.set('_refresh',Date.now());location.replace(url.href);};
   // Original procedural score: no audio downloads, samples, or API credentials.
   const forestAudio=(()=>{
     const STORE='word-forest-audio-v1';
@@ -1350,7 +1353,7 @@
   document.querySelectorAll('[data-shop-tab]').forEach(b=>b.onclick=()=>selectShopTab(Number(b.dataset.shopTab)));
   selectShopTab(0);mobileLayout.addEventListener('change',arrangeLobby);arrangeLobby();
   new ResizeObserver(fitCompanion).observe($('homeHabitat'));
-  new ResizeObserver(()=>{if(draftLook&&$('previewAvatar'))placeAccessories($('previewAvatar'),draftLook,draftRoutes);}).observe($('previewHabitat'));
+  new ResizeObserver(()=>{if(draftLook&&$('previewAvatar')){placeAccessories($('previewAvatar'),draftLook,draftRoutes);refreshPositionControls();}}).observe($('previewHabitat'));
   const GROWTH_PRAISE=[
     '你学得真认真！','你每天都在进步！','你的努力让我长大了！','我们一起变得更强吧！','继续加油，我陪着你！'
   ];

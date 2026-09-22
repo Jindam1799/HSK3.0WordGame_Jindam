@@ -576,3 +576,16 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
 .mobile-tools{display:flex;gap:7px;align-items:center}.mobile-tools button{min-height:42px;white-space:nowrap;border:1px solid var(--line);border-radius:12px;font-size:12px;padding:9px 12px}.mobile-tools #openSettings{display:grid;place-items:center;width:42px;padding:9px}.mobile-tools #openAdventure{width:auto}.companion-heading{padding:0 0 8px;gap:10px}.companion-heading #characterName{font-size:18px;margin:0;text-align:left;overflow-wrap:anywhere;padding:0}.companion-heading #levelTag{flex-shrink:0}
 @media(max-width:620px){.topbar{flex-wrap:wrap;height:auto;min-height:102px;padding:8px 0;gap:5px}.topbar .brand{width:100%}.topbar .brand-promise{display:none}.mobile-tools{width:100%;justify-content:space-between;gap:4px}.mobile-tools button,.mobile-tools #openForest,.mobile-tools #openAdventure{font-size:11px;padding:7px 8px}.mobile-tools #openStudy{font-size:11px}.mobile-tools #openSettings{width:36px;min-width:36px}.companion-heading #characterName{font-size:16px}body:not([data-screen=setup]) #openStudy{display:none}}
 #previewAvatar{overflow:visible}#settingsBody .care-rules summary,#settingsBody .audio-settings summary{display:none}
+
+/* Aligned menu rail and direct accessory gestures. */
+.mobile-tools{position:relative;isolation:isolate;gap:12px;align-items:center}
+.mobile-tools::before{content:"";position:absolute;left:20px;right:20px;top:50%;height:2px;background:var(--line);z-index:-1}
+.mobile-tools button,.mobile-tools #openSettings{height:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;margin:0;box-sizing:border-box;line-height:1.2;flex-shrink:0}
+.mobile-tools .secondary{background:var(--light)}
+.mobile-tools #openSettings{width:44px;padding:0;flex:0 0 44px}
+.mobile-tools #openSettings svg{display:block;flex:0 0 22px;width:22px;height:22px;margin:0}
+#previewHabitat{touch-action:none}
+.accessory-handle{position:absolute;z-index:20;width:36px;height:36px;min-height:36px;padding:0;border:2px solid white;border-radius:50%;background:var(--green);color:white;display:grid;place-items:center;transform:translate(-50%,-50%);cursor:nwse-resize;touch-action:none;box-shadow:0 2px 7px #0003;font-size:22px}
+.accessory-handle[hidden]{display:none}.gesture-hint{line-height:1.7}
+.refresh-settings{border-top:1px solid var(--line);padding:14px 8px 4px;margin-top:14px;display:grid;gap:8px;text-align:center}.refresh-settings small{font-size:11px;color:var(--muted)}
+@media(max-width:620px){.mobile-tools{gap:6px}.mobile-tools button,.mobile-tools #openForest,.mobile-tools #openAdventure{height:40px;min-height:40px;padding:7px 6px;font-size:11px}.mobile-tools #openSettings{height:40px;min-height:40px;width:40px;min-width:40px;flex-basis:40px;padding:0}}
