@@ -10,7 +10,7 @@
   const LEVEL_SECONDS = Object.freeze({1:7,2:7,3:8,4:10,5:12,6:12,7:14,8:14,9:14});
   // 단어 파일이 있는 급수. data/hsk6.js 같은 새 파일을 추가하면 여기에 숫자를 더해 주세요.
   const DATA_LEVELS = [1,2,3,4,5];
-  const DATA_VERSION = '20260928';
+  const DATA_VERSION = '20260929';
   // 홍보 팝업(무료판 전용): 결과 화면 뒤에만 한 번, PROMO_MS 뒤에 닫을 수 있어요.
   const PROMO_MS = 5000;
   const GARDEN_RULES=Object.freeze({baseCoins:2,bonusCoins:1,graceHours:48,penaltyHours:24,penaltyXP:5,maxPenaltySteps:4});
@@ -597,11 +597,8 @@
       const title=document.createElement('strong');title.textContent=name;
       const label=document.createElement('small');label.textContent=`Lv.${level}`+(current?' · 지금 여기':reached?' · 지나온 길':' · 아직 만나지 않은 모습');el.append(art,title,label);return el;
     };
-    const origin=document.createElement('div');origin.className='growth-origin';origin.append(node('seed',null,1,'마음씨',true,profile.level===1),node('sprout',null,2,'마음싹',profile.level>=2,profile.level===2));tree.append(origin);
-    const forkLabel=document.createElement('h3');forkLabel.className='growth-fork-label';forkLabel.textContent='Lv.3 · 여섯 갈래의 시작';tree.append(forkLabel);
-    const branches=document.createElement('div');branches.className='growth-branches';
-    for(const [pet,info] of Object.entries(GROWTH)){
-      const selected=family===pet&&profile.level>=3,branch=document.createElement('section');branch.className='growth-branch'+(selected?' followed':'');branch.dataset.family=pet;
+    const buildBranch=(pet,info,selected)=>{
+      const branch=document.createElement('section');branch.className='growth-branch'+(selected?' followed':'');branch.dataset.family=pet;
       branch.setAttribute('aria-label',info.name+(selected?' · 내가 걸어온 길':''));
       branch.append(node(pet,null,3,info.name,selected,selected&&profile.level===3));
       if(!petAllowed(pet)){const lock=document.createElement('p');lock.className='tiny';lock.textContent='잠김 · 수강생 전용';branch.append(lock);}
@@ -611,12 +608,38 @@
       const label=document.createElement('h4');label.textContent='Lv.10 · 마지막 세 갈래';branch.append(label);
       const finals=document.createElement('div');finals.className='growth-finals';
       for(const route of info.routes){const reached=selected&&profile.level>=10&&chosen?.id===route.id;finals.append(node(pet,route.id,10,reached?route.final:'?',reached,reached));}
-      branch.append(finals);branches.append(branch);
+      branch.append(finals);return branch;
+    };
+    const link=on=>{const i=document.createElement('i');i.className='growth-link'+(on?' on':'');i.setAttribute('aria-hidden','true');return i;};
+    const heading=(text,tag='h3')=>{const h=document.createElement(tag);h.className='growth-journey-label';h.textContent=text;return h;};
+    const picked=profile.level>=3&&profile.family&&GROWTH[profile.family]?profile.family:null;
+    if(picked){
+      // 고른 계열이 있으면 마음씨 → 마음싹 → 그 계열로 한 줄로 바로 이어서 보여 줘요.
+      const info=GROWTH[picked],journey=document.createElement('div');journey.className='growth-journey';
+      journey.append(node('seed',null,1,'마음씨',true,false),link(true),node('sprout',null,2,'마음싹',true,false),link(true),
+        heading(`Lv.3 · 내가 고른 갈래 · ${info.name}`),node(picked,null,3,info.name,true,profile.level===3),link(profile.level>=4),
+        heading('Lv.4 ~ 9 · 쑥쑥 자라는 길','h4'));
+      const steps=document.createElement('div');steps.className='growth-journey-grid';
+      for(let lv=4;lv<=9;lv++)steps.append(node(picked,null,lv,profile.level>=lv?'자라는 '+info.name:'?',profile.level>=lv,profile.level===lv));
+      journey.append(steps,link(profile.level>=10),heading(chosen?`Lv.10 · ${chosen.name}`:'Lv.10 · 마지막 세 갈래 중 하나','h4'));
+      const finals=document.createElement('div');finals.className='growth-journey-grid';
+      for(const route of info.routes){const reached=profile.level>=10&&chosen?.id===route.id;const el=node(picked,route.id,10,reached?route.final:route.name,reached,reached);if(!reached&&chosen)el.classList.add('not-taken');finals.append(el);}
+      journey.append(finals);tree.append(journey);
+      const others=document.createElement('details');others.className='growth-others';
+      const sum=document.createElement('summary');sum.textContent='다른 다섯 갈래도 구경하기';others.append(sum);
+      const branches=document.createElement('div');branches.className='growth-branches';
+      for(const [pet,inf] of Object.entries(GROWTH))if(pet!==picked)branches.append(buildBranch(pet,inf,false));
+      others.append(branches);tree.append(others);
+    }else{
+      const origin=document.createElement('div');origin.className='growth-origin';origin.append(node('seed',null,1,'마음씨',true,profile.level===1),node('sprout',null,2,'마음싹',profile.level>=2,profile.level===2));tree.append(origin);
+      tree.append(heading(profile.level>=3?'Lv.3 · 여섯 갈래 중 하나를 골라 주세요':'Lv.3 · 여섯 갈래의 시작'));
+      const branches=document.createElement('div');branches.className='growth-branches';
+      for(const [pet,info] of Object.entries(GROWTH))branches.append(buildBranch(pet,info,false));
+      tree.append(branches);
     }
-    tree.append(branches);
     $('resumeGrowth').hidden=!(profile.level>=3&&!profile.family||profile.level>=10&&!chosen);
   }
-  $('openGrowth').onclick=()=>{resetFriend();renderGrowthMap();$('growthMapDialog').showModal();};
+  $('openGrowth').onclick=()=>{resetFriend();renderGrowthMap();$('growthMapDialog').showModal();requestAnimationFrame(()=>$('growthMapTree').querySelector('.growth-journey .current, .growth-origin .current')?.scrollIntoView({block:'center'}));};
   $('resumeGrowth').onclick=()=>{
     $('growthMapDialog').close();resetFriend();closeEvolution(false);
     $('evolutionLevels').textContent=`Lv.${profile.level} · 기다리는 진화`;$('evolutionPhrase').textContent='一起长大吧！';
@@ -882,7 +905,8 @@
     ['好看','漂亮','好玩儿'],['饭店','店','商店'],['家','房间'],['家人','大家'],
     ['早','早上','上午'],['晚上','下午'],['病','生病'],['看病','医生']
   ];
-  const meaningParts = text => text.split(/[;；]/).map(s=>s.trim());
+  // 뜻은 ; 또는 , 로 나뉘어요(괄호 안의 쉼표는 제외). 같은 뜻이 하나라도 겹치면 오답 보기로 쓰지 않아요.
+  const meaningParts = text => text.split(/[;；,，](?![^()（）]*[)）])/).map(s=>s.replace(/[~～]/g,'').trim()).filter(Boolean);
   function compatible(a,b) {
     if(a.id===b.id || a.hanzi===b.hanzi) return false;
     if(groups.some(g=>g.includes(a.hanzi)&&g.includes(b.hanzi))) return false;
@@ -903,12 +927,17 @@
       return;
     }
     voices=window.speechSynthesis.getVoices().filter(v=>/^zh(?:-|_)/i.test(v.lang));
-    const preferred=voices.find(v=>/xiaoxiao|xiaoyi|xiaohan|xiaomeng|tingting|ting-ting|lili|huihui|female|여성/i.test(v.name)&&/CN/i.test(v.lang)) || voices.find(v=>/CN/i.test(v.lang)) || voices[0];
-    const selected=voices.find(v=>v.voiceURI===profile.voice)||preferred;
-    $('voiceSelect').replaceChildren(new Option('기본 중국어 음성',''));
-    voices.forEach(v=>$('voiceSelect').add(new Option(`${v.name} (${v.lang})`,v.voiceURI)));
-    $('voiceSelect').value=selected?.voiceURI||'';
-    $('audioStatus').textContent=voices.length?'음성을 미리 들어 보고 원하는 발음을 선택해 주세요.':'중국어 음성이 아직 없어요. 기기 음성 설정에서 중국어를 추가한 뒤 다시 열어 주세요.';
+    // 중국어 음성은 Tingting으로 고정해요. 없는 기기(안드로이드 등)에서는 기본 중국어(zh-CN) 음성을 써요.
+    const fixed=tingtingVoice();
+    $('voiceSelect').replaceChildren(new Option(fixed?`Tingting (${fixed.lang})`:'기본 중국어 음성',fixed?.voiceURI||''));
+    $('voiceSelect').value=fixed?.voiceURI||'';$('voiceSelect').disabled=true;
+    $('audioStatus').textContent=fixed?'중국어 음성은 Tingting으로 고정되어 있어요.':voices.length?'이 기기에는 Tingting 음성이 없어서 기본 중국어 음성으로 읽어요.':'중국어 음성이 아직 없어요. 기기 음성 설정에서 중국어를 추가한 뒤 다시 열어 주세요.';
+  }
+  function tingtingVoice(){
+    return voices.find(v=>/ting-?ting|婷婷/i.test(v.name))||null;
+  }
+  function chineseVoice(){
+    return tingtingVoice()||voices.find(v=>/zh[-_]CN/i.test(v.lang))||voices[0]||null;
   }
   function speak(entry) {
     stopSound();
@@ -919,7 +948,7 @@
       if(!voices.length) populateVoices();
       const u=new SpeechSynthesisUtterance(entry.hanzi);
       u.lang='zh-CN';u.rate=Number($('speechRate').value);u.pitch=1;
-      u.voice=voices.find(v=>v.voiceURI===$('voiceSelect').value)||null;
+      u.voice=chineseVoice();
       u.onstart=()=>{if(token===soundToken)forestAudio.duck(true);};
       u.onend=()=>{if(token===soundToken)forestAudio.duck(false);};
       u.onerror=e=>{if(token===soundToken)forestAudio.duck(false);if(!['interrupted','canceled'].includes(e.error)) $('audioStatus').textContent='발음 재생이 차단되었거나 음성을 사용할 수 없어요. 음성을 선택한 뒤 다시 듣기를 눌러 주세요.';};

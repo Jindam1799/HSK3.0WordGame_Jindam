@@ -668,3 +668,24 @@ body[data-forest="1"] .mode:has(input:checked),body[data-forest="2"] .mode:has(i
  body[data-screen=game] .answer{min-height:74px;font-size:17px}
  body[data-screen=game] #quizHint{margin:10px 0 0;font-size:11px}
 }
+
+/* ===== 2026.09.29 · 성장길이 고른 갈래로 바로 이어져요 ===== */
+.growth-journey{display:flex;flex-direction:column;align-items:center;gap:0;margin:6px auto 10px;max-width:520px}
+.growth-journey>.growth-node{width:150px;margin:0}
+.growth-link{display:block;width:3px;height:22px;background:var(--line);border-radius:2px}
+.growth-link.on{background:var(--green)}
+.growth-journey-label{margin:10px 0 8px;font-size:14px;text-align:center;color:var(--green)}
+h4.growth-journey-label{font-size:13px;color:var(--muted)}
+.growth-journey-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.growth-journey-grid .growth-node{margin:0}
+.growth-journey-grid .growth-node-art{width:64px;height:64px}
+.growth-node.not-taken{opacity:.45}
+.growth-others{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.growth-others summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--green);padding:8px 0;list-style-position:inside}
+.growth-others .growth-branches{margin-top:12px}
+/* 시작 버튼 옆 급수·방향 버튼 */
+@media(max-width:620px){
+ .start-card{grid-template-columns:minmax(0,1fr) 76px;gap:8px;align-items:stretch}
+ #quickSettings{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:62px;padding:6px 4px;border-radius:18px;background:var(--light);border:1.5px solid var(--green);color:var(--green);font-size:11px;font-weight:700;line-height:1.2;justify-self:stretch}
+ #quickSettings svg{width:24px;height:24px}
+}
