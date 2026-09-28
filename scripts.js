@@ -65,6 +65,7 @@
         data.push(...clean);
         allPhrases.push(...clean.flatMap(w=>w.collocations.map(p=>({...p,parent:w.id,level}))));
         levelState[level]=clean.length?'ready':'failed';
+        if(clean.length)migrateMemory(level,clean);
         resolve(clean.length>0);
       };
       script.onload=()=>done(true);script.onerror=()=>done(false);
@@ -101,8 +102,27 @@
   const memoryOf = word => memory[`${word.level}:${word.id}`];
   const isDue = (rec,now=Date.now()) => Boolean(rec)&&rec.due<=now;
   // Count due reviews from saved records alone, without loading word files.
+  // 지금 단어 자료에 있는 단어만 세요. (자료가 바뀌어 없어진 단어의 옛 기록은 세지 않아요)
   function dueCount(levels,now=Date.now()){
-    let n=0;for(const [key,rec] of Object.entries(memory)){if(levels.includes(Number(key.split(':')[0]))&&isDue(rec,now))n++;}return n;
+    let n=0;for(const L of levels){if(!levelReady(L))continue;for(const w of levelWords(L))if(isDue(memoryOf(w),now))n++;}return n;
+  }
+  // 단어 자료가 바뀌며 id가 달라진 기록을 새 단어로 옮기고, 없어진 단어의 기록은 정리해요.
+  function migrateMemory(level,list){
+    const ids=new Set(list.map(w=>w.id)),bySrc=new Map(list.map(w=>[Number(w.sourceNumber),w]));
+    const target=id=>{const m=/^hsk\d-n(\d{4})$/.exec(id);return m?bySrc.get(Number(m[1])):null;};
+    let changed=false;
+    for(const key of Object.keys(memory)){
+      const L=Number(key.split(':')[0]),id=key.slice(key.indexOf(':')+1);
+      if(L!==level||ids.has(id))continue;
+      const w=target(id);if(w&&!memory[`${level}:${w.id}`])memory[`${level}:${w.id}`]=memory[key];
+      delete memory[key];changed=true;
+    }
+    for(const key of [...studied]){
+      const L=Number(key.split(':')[0]),id=key.slice(key.indexOf(':')+1);
+      if(L!==level||ids.has(id))continue;
+      const w=target(id);if(w)studied.add(`${level}:${w.id}`);studied.delete(key);changed=true;
+    }
+    if(changed){saveMemory();try{localStorage.setItem(studyKey,JSON.stringify([...studied]));}catch{}}
   }
   function dueWords(levels,now=Date.now()){
     return data.filter(w=>levels.includes(w.level)&&isDue(memoryOf(w),now))
@@ -456,7 +476,8 @@
     $('waterPlant').setAttribute('aria-label',due?`복습할 단어 ${due}개를 풀고 물주기`:'물주기, 무료');
     renderStartCard();
     const active=g.active,remaining=active?.remaining||0;
-    $('fertilizerState').textContent=active?`${FERTILIZERS[active.kind].name} · 기본 정답 +${FERTILIZERS[active.kind].boost} XP · ${remaining}회 남음`:'비료를 주면 기본 정답 경험치가 늘어나요.';
+    // 비료 안내는 캐릭터가 말로 알려 줘요. 비료를 쓰는 중일 때만 남은 횟수를 짧게 보여 줘요.
+    $('fertilizerState').textContent=active?`${FERTILIZERS[active.kind].name} 사용 중 · 기본 정답 +${FERTILIZERS[active.kind].boost} XP · ${remaining}회 남음`:'';
     $('waterHelp').textContent=hours>=48
       ?`이번 물 부족 차감 ${g.neglectLoss} / 20 XP · 물을 주면 다시 촉촉해져요.`
       :`물 부족 차감까지 약 ${Math.max(1,Math.ceil(48-hours))}시간 · 물주기는 무료예요.`;
@@ -469,7 +490,7 @@
     const result=settleCare(profile,activeForest);
     if(result.changed){
       save();renderProfile();
-      $('careMessage').textContent=result.loss?`물이 부족해 ${result.loss} XP가 줄었어요. 레벨은 그대로예요.`:'물이 부족하지만 레벨 보호로 경험치는 줄지 않았어요.';
+      result.loss?friendSay(`我好渴……经验少了${result.loss}点。`,`목말라… 경험치가 ${result.loss} 줄었어. 레벨은 그대로야.`):friendSay('我好渴，快给我浇水吧！','목말라, 얼른 물 줘! 레벨 보호로 경험치는 그대로야.');
     }else renderCare();
   }
   let careReactionTimer,careSpeechTimer,careEndTimer;
@@ -478,7 +499,7 @@
     refreshGarden();
     const g=profile.garden;g.lastWatered=Date.now();g.penaltySteps=0;g.neglectLoss=0;
     save();renderCare();
-    $('careMessage').textContent='고마워요! 물을 충분히 마셨어요. 谢谢你！';
+    
     playCareAnimation('water');
     forestAudio.effect('dress');
   }
@@ -526,7 +547,7 @@
     g.inventory[kind]--;g.active={kind,remaining:item.uses};
     save();renderCare();renderShop();forestAudio.effect('dress');
     $('shopMessage').textContent=`${item.name}를 주었어요! 다음 기본 정답 ${item.uses}회에 +${item.boost} XP`;
-    $('careMessage').textContent=`${item.name}를 먹고 힘이 났어요! 기본 정답 ${item.uses}회 동안 +${item.boost} XP`;
+    setTimeout(()=>friendSay(`好有力气！接下来答对${item.uses}次，每次多${item.boost}点经验。`,`힘이 난다! 다음 기본 정답 ${item.uses}번 동안 +${item.boost} XP야.`),1800);
     if($('basketDialog').open)$('basketDialog').close();
     if($('gardenShop').open)$('gardenShop').close();
     $('openShop').focus({preventScroll:true});
@@ -974,7 +995,7 @@
       activeAudio.play().catch(()=>{if(token===soundToken)forestAudio.duck(false);fallback();});
     } else fallback();
   }
-  function screen(name) {document.body.dataset.screen=name;if(name==='game')$('adventureDialog').close();$('forestTabs').querySelectorAll('button').forEach(b=>b.disabled=name==='game');['setup','game','result'].forEach(id=>$(id).hidden=id!==name);$('openCloset').disabled=name==='game';document.body.classList.toggle('playing',name==='game');renderCare();}
+  function screen(name) {document.body.dataset.screen=name;if(name==='setup')setTimeout(flushSay,400);if(name==='game')$('adventureDialog').close();$('forestTabs').querySelectorAll('button').forEach(b=>b.disabled=name==='game');['setup','game','result'].forEach(id=>$(id).hidden=id!==name);$('openCloset').disabled=name==='game';document.body.classList.toggle('playing',name==='game');renderCare();}
   function clearTimer(){if(timer!==null){clearInterval(timer);timer=null;}}
   function changeXP(delta) {
     if(state.mode==='practice') return 0;
@@ -1043,7 +1064,7 @@
       queue=shuffle(dueWords(forestLevels()).slice(0,size));reviews=queue.length;
     }
     queue=queue.filter(w=>levelWords(w.level).length>=4);
-    if(!queue.length){if(kind==='due'){$('careMessage').textContent='오늘 복습할 단어를 모두 끝냈어요!';renderCare();}return;}
+    if(!queue.length){if(kind==='due'){friendSay('今天的复习都完成啦！','오늘 복습을 다 끝냈어!');renderCare();}return;}
     state={mode:kind==='mistakes'?'practice':document.querySelector('input[name="mode"]:checked').value,kind,
       direction:$('direction').value,queue,reviews,relaxed:$('timeSetting')?.value==='relaxed',
       roundChoice:kind==='normal'?roundChoice:'review',index:0,phase:'basic',answered:0,correct:0,bonusAnswered:0,bonusCorrect:0,netXP:0,earnedCoins:0,fertilizerXP:0,
@@ -1286,15 +1307,37 @@
     bubble.style.top=Math.max(8,Math.min(window.innerHeight-bubble.offsetHeight-8,top))+'px';
   }
   function hideBubble(){clearTimeout(bubbleTimer);clearTimeout(bubbleEnd);bubble.classList.remove('bubble-visible');bubbleEnd=setTimeout(()=>{bubble.hidden=true;},reducedMotion()?0:260);}
+  // 로비에서 캐릭터가 중국어로 말하고 아래에 번역을 보여 줘요. 문제 중이거나 창이 열려 있으면 로비로 돌아왔을 때 말해요.
+  let pendingSay=null;
+  function friendSay(zh,ko){
+    const ready=!$('gameApp').hidden&&document.body.dataset.screen==='setup'&&!document.querySelector('dialog[open]');
+    if(ready)setTimeout(()=>showFriendPhrase([zh,ko]),300);else pendingSay=[zh,ko];
+  }
+  function flushSay(){if(!pendingSay)return;const p=pendingSay;pendingSay=null;friendSay(...p);}
+  document.querySelectorAll('dialog').forEach(d=>d.addEventListener('close',()=>setTimeout(flushSay,200)));
   function showFriendPhrase([zh,ko],placement='above'){
     bubble.classList.toggle('bubble-below',placement==='below');
     $('friendChinese').textContent=zh;$('friendKorean').textContent=ko;
     clearTimeout(bubbleTimer);clearTimeout(bubbleEnd);bubble.hidden=false;positionBubble();
     requestAnimationFrame(()=>bubble.classList.add('bubble-visible'));
-    bubbleTimer=setTimeout(hideBubble,4200);
+    bubbleTimer=setTimeout(hideBubble,Math.min(8000,3600+String(ko).length*70));
   }
+  // 톡 누르면 인사말과 게임 도움말(중국어 + 번역)을 번갈아 들려줘요.
+  const FRIEND_TIPS=[
+    ['给我施肥，答对的时候能多得经验哦！','비료를 주면 기본 정답 경험치가 늘어나!'],
+    ['先复习，再浇水吧！','복습할 단어가 있으면 복습하고 물을 주자!'],
+    ['连续答对五个，还有奖励哦！','5개 연속으로 맞히면 보너스 경험치가 있어!'],
+    ['错了也没关系，下次还会见到它。','틀려도 괜찮아. 다음 판에 또 만나게 될 거야.'],
+    ['做完一轮，我就能喝饱水！','한 판을 끝내면 나도 물을 듬뿍 마셔!'],
+    ['用金币可以买肥料和工具。','코인으로 비료와 돌봄 도구를 살 수 있어.']
+  ];
+  let tipBag=[],chatCount=0;
   function chatWithFriend(){
     if(profile.garden.world.kind){showWorldHelp();return;}
+    chatCount++;
+    const due=dueCount(forestLevels());
+    if(due&&chatCount%2===1){showFriendPhrase([`有${due}个词在等你复习！`,`복습을 기다리는 단어가 ${due}개 있어!`]);return;}
+    if(chatCount%2===0){if(!tipBag.length)tipBag=shuffle(FRIEND_TIPS);showFriendPhrase(tipBag.pop());return;}
     if(!phraseBag.length)phraseBag=shuffle(FRIEND_PHRASES);
     showFriendPhrase(phraseBag.pop());
   }
@@ -1466,7 +1509,7 @@
   function switchForest(index){
     if(index===activeForest||!FORESTS[index]||state&&['basic','bonus','feedback'].includes(state.phase))return;
     closeEvolution(false);save();stopSound();clearTimer();resetFriend();state=null;activeForest=index;profile=forestProfiles[index];$('careMessage').textContent='';
-    forestAudio.setForest(index);screen('setup');populateGrades();renderProfile();$('speechRate').value=profile.rate;populateVoices();modeChanged();refreshGarden();save();
+    forestAudio.setForest(index);screen('setup');populateGrades();loadLevels(forestLevels()).then(()=>renderCare());renderProfile();$('speechRate').value=profile.rate;populateVoices();modeChanged();refreshGarden();save();
   }
   FORESTS.forEach((f,i)=>{
     const button=document.createElement('button');button.type='button';button.className='forest-tab';
@@ -1767,9 +1810,9 @@
         const was=w.kind;w.kind=null;w.nextMs=worldGap();helpElapsed=0;
         if(was==='bug'){
           const loss=Math.min(10,Math.max(0,profile.xp-xpStart(profile.level)));profile.xp-=loss;
-          $('careMessage').textContent=loss?`벌레를 놓쳐 ${loss} XP가 줄었어요. 다음에는 살충제를 뿌려 주세요.`:'벌레를 놓쳤지만 레벨 보호로 경험치는 줄지 않았어요.';
+          loss?friendSay(`虫子咬了我……经验少了${loss}点。`,`벌레한테 물렸어… 경험치가 ${loss} 줄었어. 다음엔 살충제를 뿌려 줘.`):friendSay('虫子来过了，还好没事。','벌레가 다녀갔지만 괜찮아. 레벨은 보호됐어.');
           hideBubble();renderProfile();
-        }else{$('careMessage').textContent='날씨가 다시 맑아졌어요.';hideBubble();clearThunder();}
+        }else{friendSay('天晴了！','날씨가 다시 맑아졌어!');hideBubble();clearThunder();}
       }else if(helpElapsed>=20000){helpElapsed=0;showWorldHelp();}
     }
     if(w.kind==='bug'){buzzElapsed+=dt;if(buzzElapsed>=1100){buzzElapsed=0;forestAudio.effect('buzz');}if(Math.random()<.2)$('mascot').classList.toggle('escape-jump');}
@@ -1801,9 +1844,9 @@
       if(fleeing){fleeing.className='care-tool swarm-dispersal';$('homeHabitat').append(fleeing);}
       forestAudio.effect('spray');forestAudio.effect('correct',.5);
       careEndTimer=setTimeout(stopCareAnimation,1800);
-      showFriendPhrase(['谢谢你，虫子飞走了！','고마워, 벌레가 날아갔어!'],'below');$('careMessage').textContent='벌레를 퇴치했어요! 경험치를 지켰어요.';
+      showFriendPhrase(['谢谢你，虫子飞走了！','고마워, 벌레가 날아갔어!'],'below');
     }else{
-      showFriendPhrase(w.umbrellaOn?(w.kind==='heavyRain'?WEATHER_PHRASES.heavySheltered[Math.floor(Math.random()*5)]:['谢谢你，这下淋不到雨了！','고마워, 이제 비를 맞지 않아!']):['伞收好啦！','우산을 잘 접었어!'],'below');$('careMessage').textContent=w.umbrellaOn?'우산을 씌웠어요. 다음 비에도 계속 사용할 수 있어요.':'우산을 접었어요.';
+      showFriendPhrase(w.umbrellaOn?(w.kind==='heavyRain'?WEATHER_PHRASES.heavySheltered[Math.floor(Math.random()*5)]:['谢谢你，这下淋不到雨了！','고마워, 이제 비를 맞지 않아!']):['伞收好啦！','우산을 잘 접었어!'],'below');
     }
     if(kind!=='spray')forestAudio.effect('dress');return true;
   }
@@ -1854,7 +1897,7 @@
   }
   function healthLoss(h){
     if(h.loss>=5)return;
-    const loss=Math.min(1,Math.max(0,profile.xp-xpStart(profile.level)));profile.xp-=loss;h.loss++;renderProfile();$('careMessage').textContent=loss?'돌봄이 필요해요 · −1 XP':'돌봄이 필요해요 · 현재 레벨은 보호돼요';
+    const loss=Math.min(1,Math.max(0,profile.xp-xpStart(profile.level)));profile.xp-=loss;h.loss++;renderProfile();loss?friendSay('我不舒服……经验少了1点。','몸이 안 좋아… 경험치가 1 줄었어.'):friendSay('我不舒服，照顾照顾我吧。','몸이 안 좋아, 나 좀 돌봐 줘.');
   }
   function tickHealth(dt){
     const g=profile.garden,h=g.health,w=g.world;
@@ -2019,4 +2062,5 @@
   $('levelSelect').onchange=updateCount;
   populateGrades();
   updateCount();renderProfile();refreshGarden();save();populateVoices();modeChanged();
+  loadLevels(forestLevels()).then(()=>renderCare());
 })();
