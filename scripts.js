@@ -45,6 +45,9 @@
     while(lo+1<hi){const mid=Math.floor((lo+hi)/2);if(xpStart(mid,forest)<=xp)lo=mid;else hi=mid;}
     return lo;
   }
+  // 체험판(무료판)은 Lv.10까지만 자라요.
+  const MAX_LEVEL=EDITION==='free'?10:Infinity;
+  const xpCap=(forest=activeForest)=>MAX_LEVEL===Infinity?Number.MAX_SAFE_INTEGER:xpStart(MAX_LEVEL+1,forest)-1;
   const $ = id => document.getElementById(id);
   { const tag=document.querySelector('.topbar .edition');if(tag)tag.textContent=(EDITION==='free'?'무료판':'수강생판')+' · 함께 자라는 숲'; }
   // 단어는 급수별 파일(data/hsk1.js …)에서 필요할 때만 불러와요.
@@ -203,7 +206,11 @@
     ]}
   };
   const STUDENT_PETS=['clover','berry','tree'];
-  const petAllowed=pet=>!STUDENT_PETS.includes(pet)||Boolean(STUDENT_BG);
+  // 체험판(무료판)은 마음꽃·마음송이 두 갈래만 고를 수 있어요. 이미 마음담이를 키우던 친구는 그대로 키워요.
+  const FREE_LOCKED=EDITION==='free'?['succulent',...STUDENT_PETS]:STUDENT_PETS;
+  const FREE_LEGACY=new Set();
+  if(EDITION==='free')try{for(let i=0;i<3;i++){const f=JSON.parse(localStorage.getItem(forestKey(i))||'null')?.family;if(f==='succulent')FREE_LEGACY.add(f);}}catch{}
+  const petAllowed=pet=>!FREE_LOCKED.includes(pet)||Boolean(STUDENT_BG)||FREE_LEGACY.has(pet);
   Object.assign(GROWTH,{
     clover:{name:'마음잎',icon:'🍀',routes:[
       {id:'lucky',name:'행운의 길',final:'행운의 네잎클로버',gift:'행운 보석'},
@@ -1088,8 +1095,8 @@
         const migrated=xpStart(oldLevel,0)+Math.floor((saved.xp%100)/100*xpNeeded(oldLevel,0));
         const baseXP=saved.schema>=5?saved.xp:migrated;
         const xp=saved.schema>=6?saved.xp:Math.min(Number.MAX_SAFE_INTEGER,Math.floor(baseXP*XP_MULTIPLIERS[index]));
-        const level=levelFromXP(xp,index);
-        loaded={...loaded,xp,level,garden:normalizeGarden(saved.garden),voice:typeof saved.voice==='string'?saved.voice:'',difficulty:saved.difficulty==='easy'?'easy':'hard',rate:[.5,.75].includes(saved.rate)?.5:.9,
+        const level=levelFromXP(Math.min(xp,xpCap(index)),index);
+        loaded={...loaded,xp:Math.min(xp,xpCap(index)),level,garden:normalizeGarden(saved.garden),voice:typeof saved.voice==='string'?saved.voice:'',difficulty:saved.difficulty==='easy'?'easy':'hard',rate:[.5,.75].includes(saved.rate)?.5:.9,
           look:safeLook(saved.look,level,index),routes:safeRoutes(saved.routes,level),branches:safeBranches(saved.branches,level,safeRoutes(saved.routes,level)),family:level>=3&&petAllowed(saved.family)&&GROWTH[saved.family]?saved.family:null};
         if(loaded.family)loaded.look.pet=loaded.family;
       }
@@ -1105,6 +1112,7 @@
   function renderProfile(){
     const progress=profile.xp-xpStart(profile.level), needed=xpNeeded(profile.level);
     $('levelTag').textContent=`LV. ${profile.level}`;$('xpLabel').textContent=`${progress.toLocaleString()} / ${needed.toLocaleString()} XP`;$('xpBar').max=needed;$('xpBar').value=progress;$('totalXp').textContent=`누적 ${profile.xp.toLocaleString()} XP`;
+    const capped=profile.level>=MAX_LEVEL;$('xpLabel').nextElementSibling.textContent=capped?'체험판 최고 레벨':'다음 레벨까지';if(capped){$('xpLabel').textContent='Lv.10 달성!';$('xpBar').value=$('xpBar').max;}
     const name=growthName(profile.look.pet,profile.routes,profile.level);
     $('characterName').textContent=profile.look.name||name;$('characterMessage').textContent=profile.look.name?name:profile.level<3?'작은 씨앗에서 시작하는 나의 이야기':'매일 배우며 조금씩 자라고 있어요.';
     const current=profile.level===1?0:profile.level===2?1:!profile.family?1:profile.level<4?2:profile.level<10?3:profile.level<15?4:profile.level<20?5:6;
@@ -1267,6 +1275,7 @@
   function renderUnlockHint(){
     if(profile.level<3){$('unlockHint').textContent='Lv.3에 내 친구 꾸미기에서 성장 계열을 고를 수 있어요.';return;}
     if(!profile.family||!routeFor(profile.look.pet,profile.routes)){$('unlockHint').textContent='내 친구 꾸미기에서 성장 방향을 선택해 주세요!';return;}
+    if(profile.level>=MAX_LEVEL){$('unlockHint').textContent='체험판은 Lv.10까지예요. 수강생판에서 Lv.15 신기한 식물 · Lv.20 전설의 식물로 계속 자라요!';return;}
     if(profile.level<10){$('unlockHint').textContent=`Lv.10까지 조금씩 성장해요. 다음 모습은 아직 비밀!`;return;}
     if(profile.level<15){$('unlockHint').textContent='Lv.15에 새로운 두 갈래가 열려요! 성장 보석도 달아 보세요.';return;}
     if(!branchFor(profile.look.pet,profile.routes,profile.branches)){$('unlockHint').textContent='나의 성장길에서 Lv.15 갈래를 골라 주세요!';return;}
@@ -1319,6 +1328,8 @@
       const finals=document.createElement('div');finals.className='growth-journey-grid';
       for(const route of info.routes){const reached=profile.level>=10&&chosen?.id===route.id;const el=node(picked,route.id,10,reached?route.final:route.name,reached,reached&&profile.level<11,null);if(!reached&&chosen)el.classList.add('not-taken');finals.append(el);}
       journey.append(finals);
+      if(MAX_LEVEL<=10){const lock=document.createElement('div');lock.className='growth-trial-lock';lock.innerHTML='<strong>🔒 Lv.11 ~ 20은 수강생판에서 열려요</strong><span>Lv.15 신기한 식물 · Lv.20 고대·전설의 식물로 변신하는 길이 기다리고 있어요.</span>';journey.append(link(false),lock);}
+      else{
       // Lv.11 ~ 20: 무르익는 길 → Lv.15 신기한 식물(두 갈래) → 신비한 길 → Lv.20 고대·전설의 식물
       const lv=profile.level,br=branchFor(picked,profile.routes,profile.branches);
       const grid=cls=>{const g=document.createElement('div');g.className='growth-journey-grid '+cls;return g;};
@@ -1335,6 +1346,7 @@
       g4.append(br?node(picked,chosen.id,20,lv>=20?br.final:'??? 전설의 식물',lv>=20,lv>=20,br.id):node(picked,chosen?.id||null,20,'??? 전설의 식물',false,false,null));
       if(lv<20){const hint=document.createElement('p');hint.className='growth-legend-hint';hint.textContent=br?`Lv.20이 되면 ${br.name}이(가) 고대·전설의 식물로 깨어나요. 어떤 모습일지는 그때 공개!`:'Lv.15에서 고른 식물이 Lv.20에 고대·전설의 식물로 깨어나요.';g4.append(hint);}
       journey.append(g2,link(lv>=16),heading(br?`Lv.16 ~ 19 · ${br.name}의 신비한 길`:'Lv.16 ~ 19 · 신비한 길','h4'),g3,link(lv>=20),heading('Lv.20 · 최종 진화 · 고대·전설의 식물','h4'),g4);
+      }
       tree.append(journey);
       const others=document.createElement('details');others.className='growth-others';
       const sum=document.createElement('summary');sum.textContent='다른 다섯 갈래도 구경하기';others.append(sum);
@@ -1691,7 +1703,8 @@
     if(state.mode==='practice') return 0;
     const before=profile.xp;
     // Keep the XP floor at the start of the level already earned.
-    profile.xp=Math.max(xpStart(profile.level),profile.xp+delta);
+    profile.xp=Math.min(xpCap(),Math.max(xpStart(profile.level),profile.xp+delta));
+    if(MAX_LEVEL!==Infinity&&profile.xp>=xpCap()&&before<xpCap())friendSay('体验版只能长到10级哦！','체험판은 Lv.10까지 자랄 수 있어요. 수강생판에서는 Lv.20 전설의 식물까지 키울 수 있어요!');
     profile.level=Math.max(profile.level,levelFromXP(profile.xp));
     save();renderProfile();
     return profile.xp-before;
@@ -2378,6 +2391,7 @@
       '반짝 비료는 50코인에 구매해요. 바구니에서 먹이면 본게임 기본 정답 10회에 각각 +3 XP를 더 받아요. 오답·보너스·틀린 단어 연습에는 횟수가 줄지 않고, 전체 정답 보너스에는 비료 효과를 더하지 않아요.']
   );
   if(!STUDENT_BG)GUIDE_PAGES.push(['무료판과 기록 안내',
+    '체험판(무료판)은 친구가 Lv.10까지 자라고, 성장 계열은 마음꽃·마음송이 두 가지 중에서 골라요. Lv.15 신기한 식물과 Lv.20 전설의 식물, 더 많은 성장 계열은 수강생판에서 만날 수 있어요.',
     '무료판은 한 판을 마친 뒤 결과 화면에서 진담중국어 소식이 한 번 나와요. 5초 뒤 닫고 결과를 볼 수 있어요.',
     '오른쪽 위 원형 타이머로 남은 시청 시간을 봐요. 다른 탭으로 이동하면 시청 시간이 멈추며, 홍보 중에는 문제 타이머도 흐르지 않아요. 결과 홍보를 닫으면 전체 정답 축하·진화가 있는 경우 순서대로 볼 수 있어요. 수강생판에는 홍보가 표시되지 않아요.',
     '캐릭터와 학습 기록은 이 브라우저에 저장해요. 다른 브라우저나 기기로 옮길 때는 설정 › 기록 옮기기에서 기록 코드를 만들어 붙여 넣어 주세요. 무료판과 수강생판 기록도 별개예요.']);

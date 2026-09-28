@@ -1,7 +1,7 @@
 {
  "id": "./?app=free",
- "name": "중국어덩어리의 숲",
- "short_name": "덩어리숲",
+ "name": "중국어덩어리의 숲 체험판",
+ "short_name": "덩어리숲 체험판",
  "description": "HSK 단어와 짝꿍어휘를 익히며 식물 친구를 키워요.",
  "lang": "ko",
  "start_url": "./index.html",
