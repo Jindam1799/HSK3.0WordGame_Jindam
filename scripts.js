@@ -23,11 +23,14 @@
   const isRain=kind=>kind==='rain'||kind==='heavyRain';
   const worldGap=()=>WORLD_RULES.minGapMs+Math.floor(Math.random()*(WORLD_RULES.maxGapMs-WORLD_RULES.minGapMs));
   const HOUR=60*60*1000;
-  const KEY = 'word-forest-v1';
+  // 수강생판·무료판 구분은 index.html 맨 위 <html data-edition="student|free"> 한 곳에서만 해요.
+  // scripts.js는 두 판이 똑같아서, 파일이 섞여도 광고·저장 공간이 바뀌지 않아요.
+  const EDITION = document.documentElement.dataset.edition==='free'?'free':'student';
+  const KEY = EDITION==='free'?'word-forest-v1':'word-forest-student-v1';
   let activeForest=0;
   const FORESTS=[{name:'초록빛 숲',grades:'1~3급',start:1},{name:'살구빛 숲',grades:'4~6급',start:4},{name:'보랏빛 숲',grades:'7~9급',start:7}];
   const forestKey=i=>i===0?KEY:KEY+'-forest-'+i;
-  const STUDENT_BG = '';
+  const STUDENT_BG = EDITION==='free'?'':'assets/garden.svg';
   // HSK grade and character level are independent. Costs continue beyond Lv.10.
   const XP_MULTIPLIERS=[1,1.5,2];
   const xpNeeded = (level,forest=activeForest) => (100 + 50*(level-1) + 10*(level-1)**2)*XP_MULTIPLIERS[forest];
@@ -39,6 +42,7 @@
     return lo;
   }
   const $ = id => document.getElementById(id);
+  { const tag=document.querySelector('.topbar .edition');if(tag)tag.textContent=(EDITION==='free'?'무료판':'수강생판')+' · 함께 자라는 숲'; }
   // 단어는 급수별 파일(data/hsk1.js …)에서 필요할 때만 불러와요.
   const data = [];
   const allPhrases = [];
