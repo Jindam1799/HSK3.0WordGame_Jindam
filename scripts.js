@@ -926,18 +926,29 @@
       $('audioStatus').textContent='이 브라우저는 TTS를 지원하지 않습니다. 연결된 녹음 파일은 재생할 수 있어요.';
       return;
     }
-    voices=window.speechSynthesis.getVoices().filter(v=>/^zh(?:-|_)/i.test(v.lang));
-    // 중국어 음성은 Tingting으로 고정해요. 없는 기기(안드로이드 등)에서는 기본 중국어(zh-CN) 음성을 써요.
-    const fixed=tingtingVoice();
-    $('voiceSelect').replaceChildren(new Option(fixed?`Tingting (${fixed.lang})`:'기본 중국어 음성',fixed?.voiceURI||''));
-    $('voiceSelect').value=fixed?.voiceURI||'';$('voiceSelect').disabled=true;
-    $('audioStatus').textContent=fixed?'중국어 음성은 Tingting으로 고정되어 있어요.':voices.length?'이 기기에는 Tingting 음성이 없어서 기본 중국어 음성으로 읽어요.':'중국어 음성이 아직 없어요. 기기 음성 설정에서 중국어를 추가한 뒤 다시 열어 주세요.';
+    // 중국어(보통화) 음성만 모아요. 안드로이드는 cmn-CN, zh_CN 처럼 표시하기도 해요. 홍콩·대만·광둥어는 빼요.
+    voices=window.speechSynthesis.getVoices().filter(v=>/^(zh|cmn)(\b|[-_])/i.test(v.lang)&&!/(HK|TW|MO|yue|Hant)/i.test(v.lang)&&!/(粤|粵|臺灣|台灣|香港|Cantonese|Taiwan|Hong ?Kong)/i.test(v.name));
+    const best=chineseVoice();
+    $('voiceSelect').replaceChildren(new Option(best?`${best.name} (${best.lang})`:'기본 중국어 음성',best?.voiceURI||''));
+    $('voiceSelect').value=best?.voiceURI||'';$('voiceSelect').disabled=true;
+    $('audioStatus').textContent=!voices.length?'이 기기에서 중국어 음성을 찾지 못했어요. 아래 안내대로 중국어 음성을 설치해 주세요.':
+      `지금 쓰는 음성 · ${best.name}. 기기마다 가장 좋은 여성 음성을 자동으로 골라요.`;
   }
-  function tingtingVoice(){
-    return voices.find(v=>/ting-?ting|婷婷/i.test(v.name))||null;
-  }
+  // 음성 우선순위: 아이폰·맥 Tingting → 엣지 Xiaoxiao(자연스러운 여성) → 구글 보통화(여성) → 그 밖의 여성 음성 → 아무 보통화 음성
+  const VOICE_RANK=[
+    /ting-?ting|婷婷/i,
+    /xiaoxiao/i,
+    /google.*(普通话|中国大陆|mandarin|chinese)|google.*zh/i,
+    /cmn-cn-x-(ccc|cce|ssa)/i,
+    /xiaoyi|xiaohan|xiaomeng|xiaomo|xiaoxuan|xiaorui|xiaoshuang/i,
+    /huihui|yaoyao/i,
+    /lili|yu-?shu|meijia|sinji/i,
+    /samsung|female|女/i
+  ];
+  const MALE_VOICE=/kangkang|yunxi|yunyang|yunjian|yunye|yunfeng|yunhao|li-?mu|male(?!.*female)|男/i;
   function chineseVoice(){
-    return tingtingVoice()||voices.find(v=>/zh[-_]CN/i.test(v.lang))||voices[0]||null;
+    for(const re of VOICE_RANK){const v=voices.find(x=>re.test(x.name)||re.test(x.voiceURI));if(v)return v;}
+    return voices.find(v=>/CN|Hans/i.test(v.lang)&&!MALE_VOICE.test(v.name))||voices.find(v=>!MALE_VOICE.test(v.name))||voices[0]||null;
   }
   function speak(entry) {
     stopSound();
@@ -947,8 +958,7 @@
       if(!('speechSynthesis' in window)){$('audioStatus').textContent='TTS 미지원 브라우저입니다.';return;}
       if(!voices.length) populateVoices();
       const u=new SpeechSynthesisUtterance(entry.hanzi);
-      u.lang='zh-CN';u.rate=Number($('speechRate').value);u.pitch=1;
-      u.voice=chineseVoice();
+      const v=chineseVoice();try{u.voice=v;}catch{}u.lang=v?.lang?.replace('_','-')||'zh-CN';u.rate=Number($('speechRate').value);u.pitch=1;
       u.onstart=()=>{if(token===soundToken)forestAudio.duck(true);};
       u.onend=()=>{if(token===soundToken)forestAudio.duck(false);};
       u.onerror=e=>{if(token===soundToken)forestAudio.duck(false);if(!['interrupted','canceled'].includes(e.error)) $('audioStatus').textContent='발음 재생이 차단되었거나 음성을 사용할 수 없어요. 음성을 선택한 뒤 다시 듣기를 눌러 주세요.';};
