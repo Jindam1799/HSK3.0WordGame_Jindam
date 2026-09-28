@@ -2891,6 +2891,11 @@
     setTimeout(()=>location.reload(),600);
   }
   $('makeBackup').onclick=makeBackup;$('loadBackup').onclick=loadBackup;
+  if(window.__homeAppFresh){
+    // 아이폰 홈 화면 앱은 기록 저장 공간이 따로라서, 처음 열면 기록 옮기기를 알려 줘요.
+    $('inAppNotice').hidden=false;$('openOutside').hidden=true;$('copyLink').hidden=true;
+    $('inAppText').textContent='홈 화면 앱으로 열었어요! 크롬에서 하던 기록이 안 보이면, 크롬에서 설정 › 기록 옮기기로 코드를 만들어 여기서 불러와 주세요.';
+  }
   if(window.__openOutside){
     const o=window.__openOutside;$('inAppNotice').hidden=false;
     $('openOutside').onclick=()=>o.go();

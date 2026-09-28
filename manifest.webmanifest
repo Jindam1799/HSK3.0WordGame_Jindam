@@ -1,0 +1,33 @@
+{
+ "id": "./?app=free",
+ "name": "중국어덩어리의 숲",
+ "short_name": "덩어리숲",
+ "description": "HSK 단어와 짝꿍어휘를 익히며 식물 친구를 키워요.",
+ "lang": "ko",
+ "start_url": "./index.html",
+ "scope": "./",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#f7f7ef",
+ "theme_color": "#315e48",
+ "icons": [
+  {
+   "src": "assets/app-icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "assets/app-icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "assets/app-icon-maskable.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
