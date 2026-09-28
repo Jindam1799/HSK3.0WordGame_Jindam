@@ -741,3 +741,15 @@ h4.growth-journey-label{font-size:13px;color:var(--muted)}
 .growth-node-intro{margin:4px 0 0;font-size:11px;line-height:1.5;color:#6a5a2e;word-break:keep-all}
 .growth-legend-hint{grid-column:1/-1;margin:6px 0 0;font-size:11.5px;color:#8a6d1e;text-align:center;word-break:keep-all}
 .growth-more{margin:6px 0 0;text-align:center}
+/* 수강생판 저작권 안내 · 무료판 워터마크 */
+.copyright-note{display:none;font-size:10.5px;line-height:1.6;color:var(--muted);margin:10px 0 0;word-break:keep-all}
+.copyright-note b{display:block;color:var(--ink);font-weight:700}
+html[data-edition="student"] .copyright-note{display:block}
+.welcome-copyright{position:relative;z-index:3;text-align:center;margin:6px auto 0;max-width:320px;color:#5d6b58}
+.refresh-settings .copyright-note{text-align:center}
+.free-watermark{display:none}
+html[data-edition="free"] .free-watermark{display:block;position:fixed;inset:0;z-index:40;pointer-events:none;overflow:hidden;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='150'%3E%3Ctext x='110' y='80' text-anchor='middle' transform='rotate(-24 110 75)' font-family='Apple SD Gothic Neo,Noto Sans KR,sans-serif' font-size='22' font-weight='800' fill='%23315e48' fill-opacity='0.07'%3E진담중국어%3C/text%3E%3C/svg%3E");background-repeat:repeat}
+html[data-edition="free"] .free-watermark span{position:absolute;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));font-size:12px;font-weight:800;letter-spacing:1px;color:#315e48;opacity:.35;background:#ffffffaa;padding:2px 8px;border-radius:10px}
+@media print{html[data-edition="free"] .free-watermark{display:block}}
+.lobby-copyright{text-align:center;font-size:10px;margin:8px 0 0;opacity:.85}

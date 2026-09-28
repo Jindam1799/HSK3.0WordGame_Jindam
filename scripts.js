@@ -6,6 +6,9 @@
   'use strict';
   // penalty 0: 오답·시간 초과에도 경험치를 깎지 않아요. 대신 연속 정답(streakEvery개마다) 보너스를 줘요.
   const RULES = Object.freeze({seconds:7, baseXP:5, penalty:0, bonusXP:3, streakEvery:5, streakXP:3, relaxedExtra:5, bonusExtra:2});
+  // 쉬운 모드(한자+병음을 보고 뜻 고르기)는 어려운 모드보다 경험치·코인이 적어요.
+  const EASY_RULES = Object.freeze({baseXP:3, bonusXP:2, streakXP:2, baseCoins:1, bonusCoins:0, perfect10:5, perfect20:12});
+  const difficulty=()=>document.querySelector('input[name="difficulty"]:checked')?.value==='easy'?'easy':'hard';
   // 급수별 제한 시간(초). 급수가 높을수록 뜻이 길어져서 조금 더 여유를 줘요.
   const LEVEL_SECONDS = Object.freeze({1:7,2:7,3:8,4:10,5:12,6:12,7:14,8:14,9:14});
   // 단어 파일이 있는 급수. data/hsk6.js 같은 새 파일을 추가하면 여기에 숫자를 더해 주세요.
@@ -1077,7 +1080,7 @@
   }
   let storageAvailable=true;
   function loadForest(index){
-    let loaded={schema:8,garden:normalizeGarden(null),xp:0,level:1,voice:'',rate:.9,auto:false,look:{...LOOK_DEFAULT,poses:{}},routes:{},branches:{},family:null};
+    let loaded={schema:8,garden:normalizeGarden(null),xp:0,level:1,voice:'',rate:.9,auto:false,difficulty:'hard',look:{...LOOK_DEFAULT,poses:{}},routes:{},branches:{},family:null};
     try{
       const saved=JSON.parse(localStorage.getItem(forestKey(index))||'null');
       if(saved&&Number.isSafeInteger(saved.xp)&&saved.xp>=0){
@@ -1086,7 +1089,7 @@
         const baseXP=saved.schema>=5?saved.xp:migrated;
         const xp=saved.schema>=6?saved.xp:Math.min(Number.MAX_SAFE_INTEGER,Math.floor(baseXP*XP_MULTIPLIERS[index]));
         const level=levelFromXP(xp,index);
-        loaded={...loaded,xp,level,garden:normalizeGarden(saved.garden),voice:typeof saved.voice==='string'?saved.voice:'',rate:[.5,.75].includes(saved.rate)?.5:.9,
+        loaded={...loaded,xp,level,garden:normalizeGarden(saved.garden),voice:typeof saved.voice==='string'?saved.voice:'',difficulty:saved.difficulty==='easy'?'easy':'hard',rate:[.5,.75].includes(saved.rate)?.5:.9,
           look:safeLook(saved.look,level,index),routes:safeRoutes(saved.routes,level),branches:safeBranches(saved.branches,level,safeRoutes(saved.routes,level)),family:level>=3&&petAllowed(saved.family)&&GROWTH[saved.family]?saved.family:null};
         if(loaded.family)loaded.look.pet=loaded.family;
       }
@@ -1176,7 +1179,7 @@
       buy.disabled=gardenBusy()||g.coins<item.price||g.inventory[kind]>=999;
       use.disabled=gardenBusy()||g.inventory[kind]<1;
       use.textContent=g.active?'비료 사용 중':'식물에게 주기';
-      $(kind+'Hint').textContent=g.active?'지금 비료를 다 쓰면 다음 비료를 줄 수 있어요.':g.inventory[kind]>0?'준비 운동과 오답에서는 횟수가 줄지 않아요.':g.coins<item.price?`${item.price-g.coins}코인을 더 모으면 살 수 있어요.`:'구입한 비료는 보관함에 저장돼요.';
+      $(kind+'Hint').textContent=g.active?'지금 비료를 다 쓰면 다음 비료를 줄 수 있어요.':g.inventory[kind]>0?'오답·보너스에서는 횟수가 줄지 않아요.':g.coins<item.price?`${item.price-g.coins}코인을 더 모으면 살 수 있어요.`:'구입한 비료는 보관함에 저장돼요.';
     }
   }
   function renderSupplies(){
@@ -1217,7 +1220,7 @@
   }
   function gardenReward(correct,bonus){
     if(state.mode!=='main'||!correct)return {coins:0,boost:0};
-    const g=profile.garden,earned=bonus?GARDEN_RULES.bonusCoins:GARDEN_RULES.baseCoins;
+    const g=profile.garden,rc=state.easy?EASY_RULES:GARDEN_RULES,earned=bonus?rc.bonusCoins:rc.baseCoins;
     const coins=Math.min(earned,9999999-g.coins);g.coins+=coins;
     let boost=0;
     if(!bonus&&g.active){
@@ -1753,7 +1756,7 @@
     queue=queue.filter(w=>levelWords(w.level).length>=4);
     if(!queue.length){if(kind==='due'){friendSay('今天的复习都完成啦！','오늘 복습을 다 끝냈어!');renderCare();}return;}
     state={mode:kind==='mistakes'?'practice':document.querySelector('input[name="mode"]:checked').value,kind,
-      direction:$('direction').value,queue,reviews,relaxed:$('timeSetting')?.value==='relaxed',
+      direction:'mixed',easy:kind!=='mistakes'&&difficulty()==='easy',queue,reviews,relaxed:$('timeSetting')?.value==='relaxed',
       roundChoice:kind==='normal'?roundChoice:'review',index:0,phase:'basic',answered:0,correct:0,bonusAnswered:0,bonusCorrect:0,netXP:0,earnedCoins:0,fertilizerXP:0,
       streak:0,bestStreak:0,streakXP:0,
       mistakes:new Map(),startLevel:profile.level,startAppearance:$('mascot').innerHTML,growthEventPlayed:false};
@@ -1768,7 +1771,7 @@
   function pinyinToggle(hanzi,pinyin,id){
     const wrap=document.createElement('span');wrap.className='quiz-reading';
     const button=document.createElement('button');button.type='button';button.className='hanzi-reveal';button.textContent=hanzi;button.lang='zh-CN';button.setAttribute('aria-expanded','false');button.setAttribute('aria-controls',id);
-    const py=document.createElement('span');py.id=id;py.className='quiz-pinyin';py.textContent=pinyin||'병음 준비 중';py.hidden=true;
+    const py=document.createElement('span');py.id=id;py.className='quiz-pinyin';py.textContent=pinyin||'병음 준비 중';py.hidden=!state?.easy;button.setAttribute('aria-expanded',String(!py.hidden));
     button.onclick=()=>{py.hidden=!py.hidden;button.setAttribute('aria-expanded',String(!py.hidden));};wrap.append(button,py);return wrap;
   }
   function showQuestion(bonus) {
@@ -1790,17 +1793,17 @@
     for(const candidate of ordered){if(label(candidate)&&!seen.has(label(candidate))){wrong.push(candidate);seen.add(label(candidate));}if(wrong.length===3)break;}
     if(wrong.length!==3) {finish();$('resultSubtitle').textContent='서로 다른 보기가 부족해 종료했어요. data.js 내용을 확인해 주세요.';return;}
     state.options=shuffle([e,...wrong]);
-    $('gameMode').textContent=state.mode==='practice'?'☘ 준비 운동':'⚡ 덩어리 숲속으로';
+    $('gameMode').textContent=state.mode==='practice'?'☘ 틀린 단어 연습':state.easy?'🌱 쉬운 모드':'🔥 어려운 모드';
     $('questionNumber').textContent=`${state.index+1} / ${state.queue.length} 단어`;
     $('roundProgress').max=state.queue.length;$('roundProgress').value=state.index;
     $('sessionXp').textContent=state.mode==='practice'?'경험치·코인 없음':`${state.netXP>=0?'+':''}${state.netXP} XP · ${state.earnedCoins} 코인`;
     const fertilizerBoost=state.mode==='main'&&profile.garden.active?FERTILIZERS[profile.garden.active.kind].boost:0;
     const reviewing=!bonus&&memoryOf(word)&&(state.kind==='due'||isDue(memoryOf(word)));
-    $('questionKind').textContent=bonus?'✦ 짝꿍어휘 보너스 · +3 XP':(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?`+5 XP${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}`:'천천히 풀어요');
+    $('questionKind').textContent=bonus?`✦ 짝꿍어휘 보너스 · +${state.easy?EASY_RULES.bonusXP:RULES.bonusXP} XP`:(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?`+${state.easy?EASY_RULES.baseXP:RULES.baseXP} XP${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}`:'천천히 풀어요');
     $('questionInstruction').textContent=bonus?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
     $('questionText').replaceChildren();
     if(state.directionNow==='zh-ko')$('questionText').append(pinyinToggle(e.hanzi,e.pinyin,'promptPinyin'));else $('questionText').textContent=e.meaning;
-    $('quizHint').textContent=state.directionNow==='ko-zh'?'한자를 누르면 병음 · 선택 버튼 또는 키보드 1–4로 답하기':'문제의 한자를 누르면 병음 · 보기 선택 또는 키보드 1–4';
+    $('quizHint').textContent=state.easy?'병음이 함께 보여요 · 보기 선택 또는 키보드 1–4':state.directionNow==='ko-zh'?'한자를 누르면 병음 · 선택 버튼 또는 키보드 1–4로 답하기':'문제의 한자를 누르면 병음 · 보기 선택 또는 키보드 1–4';
     $('questionText').classList.toggle('korean',state.directionNow==='ko-zh');
     $('questionText').lang=state.directionNow==='zh-ko'?'zh-CN':'ko';
     $('answers').replaceChildren();
@@ -1856,9 +1859,10 @@
     let streakBonus=0;
     if(!bonus&&state.mode==='main'){
       state.streak=correct?state.streak+1:0;state.bestStreak=Math.max(state.bestStreak,state.streak);
-      if(correct&&state.streak%RULES.streakEvery===0)streakBonus=RULES.streakXP;
+      if(correct&&state.streak%RULES.streakEvery===0)streakBonus=state.easy?EASY_RULES.streakXP:RULES.streakXP;
     }
-    const delta=changeXP(correct?(bonus?RULES.bonusXP:RULES.baseXP+reward.boost+streakBonus):(bonus?0:-RULES.penalty));
+    const R=state.easy?EASY_RULES:RULES;
+    const delta=changeXP(correct?(bonus?R.bonusXP:R.baseXP+reward.boost+streakBonus):(bonus?0:-RULES.penalty));
     state.earnedCoins+=reward.coins;state.fertilizerXP+=reward.boost;state.streakXP+=streakBonus;
     state.netXP+=delta;
     state.offerBonus=!bonus&&correct&&state.mode==='main'&&state.word.collocations.length>0;
@@ -1918,13 +1922,13 @@
   function finish() {
     if(!state||state.phase==='result')return;
     state.perfectXP=0;
-    if(state.mode==='main'&&['10','20'].includes(state.roundChoice)&&state.answered===Number(state.roundChoice)&&state.correct===state.answered){state.perfectXP=state.answered===10?10:25;state.netXP+=changeXP(state.perfectXP);}
+    if(state.mode==='main'&&['10','20'].includes(state.roundChoice)&&state.answered===Number(state.roundChoice)&&state.correct===state.answered){state.perfectXP=state.easy?(state.answered===10?EASY_RULES.perfect10:EASY_RULES.perfect20):state.answered===10?10:25;state.netXP+=changeXP(state.perfectXP);}
     const celebrate=state.mode==='main'&&profile.level>state.startLevel&&!state.growthEventPlayed;
     clearTimer();stopSound();if(!celebrate)forestAudio.effect('finish');state.phase='result';screen('result');
     if($('feedback').open)$('feedback').close();
     $('resultSubtitle').textContent=`${state.answered}개의 기본 문제를 풀었어요.`+(state.perfectXP?` 전체 정답 보너스 +${state.perfectXP} XP!`:'')+(profile.level>state.startLevel?` 레벨 ${profile.level} 달성!`:'');
     const watered=studyWater();
-    const gardenLine=state.mode==='practice'?'준비 운동에서는 코인·경험치 변화와 비료 소모가 없어요.':`숲 코인 +${state.earnedCoins}`+(state.fertilizerXP?` · 비료 추가 +${state.fertilizerXP} XP`:'')+(state.streakXP?` · 연속 정답 보너스 +${state.streakXP} XP (최고 ${state.bestStreak}연속)`:'');
+    const gardenLine=state.mode==='practice'?'틀린 단어 연습에서는 코인·경험치 변화와 비료 소모가 없어요.':`숲 코인 +${state.earnedCoins}`+(state.fertilizerXP?` · 비료 추가 +${state.fertilizerXP} XP`:'')+(state.streakXP?` · 연속 정답 보너스 +${state.streakXP} XP (최고 ${state.bestStreak}연속)`:'');
     $('resultGarden').textContent=gardenLine;
     const backSoon=[...state.mistakes.values()].filter(m=>!m.bonus).length;
     $('resultMemory').replaceChildren();
@@ -1951,12 +1955,16 @@
     const evolve=()=>{if(celebrate){state.growthEventPlayed=true;showEvolution();}};
     showPromotion('finish',()=>{if(state.perfectXP)showPerfect(evolve);else evolve();});
   }
+  function syncDifficulty(){document.querySelectorAll('input[name="difficulty"]').forEach(r=>{r.checked=r.value===(profile.difficulty||'hard');});modeChanged();}
   function modeChanged(){
-    const practice=document.querySelector('input[name="mode"]:checked').value==='practice';
-    $('ruleBox').innerHTML=practice?'시간제한 없이 기본 단어만 연습해요.<br>경험치·코인 변화와 비료 소모, 보너스 문제는 없어요.':'기본 정답 <b>+5 XP</b> · 틀려도 경험치는 그대로<br><b>5개 연속 정답</b>마다 <b>+3 XP</b> · 짝꿍어휘 보너스 <b>+3 XP</b><br>기본 정답 <b>2코인</b> · 보너스 정답 <b>1코인</b> · 비료는 기본 정답에만 적용';
-    $('startBtn').firstChild.textContent=practice?'연습 시작하기 ':'모험 시작하기 ';
-    $('startBtn').nextElementSibling.textContent=practice?'틀려도 괜찮아요. 발음을 듣고 천천히 익혀 보세요.':'기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
-    if(!practice&&levelReady(Number($('levelSelect').value)))updateCount();else renderStartCard();
+    const easy=difficulty()==='easy';
+    if(profile.difficulty!==(easy?'easy':'hard')){profile.difficulty=easy?'easy':'hard';save();}
+    $('ruleBox').innerHTML=easy
+      ?'<b>쉬운 모드</b> · 두 방향이 섞여 나오고, 한자에 병음이 늘 함께 보여요.<br>기본 정답 <b>+3 XP · 1코인</b> · 5개 연속 정답마다 <b>+2 XP</b> · 짝꿍어휘 보너스 <b>+2 XP</b>'
+      :'<b>어려운 모드</b> · 두 방향이 섞여 나오고, 병음은 한자를 눌러야 보여요.<br>기본 정답 <b>+5 XP · 2코인</b> · 5개 연속 정답마다 <b>+3 XP</b> · 짝꿍어휘 보너스 <b>+3 XP · 1코인</b>';
+    $('startBtn').firstChild.textContent='모험 시작하기 ';
+    $('startBtn').nextElementSibling.textContent='기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
+    if(levelReady(Number($('levelSelect').value)))updateCount();else renderStartCard();
   }
   document.querySelector('.brand').addEventListener('click',e=>{e.preventDefault();clearTimer();stopSound();state=null;screen('setup');refreshGarden();});
   $('startBtn').onclick=()=>start();$('continueBtn').onclick=()=>advance();$('skipBonus').onclick=()=>advance(true);
@@ -1965,7 +1973,7 @@
   $('quitBtn').onclick=finish;
   $('homeBtn').onclick=()=>{const reviewed=state?.kind==='due'&&state.answered>0;stopSound();state=null;screen('setup');refreshGarden();if(reviewed)setTimeout(waterPlant,450);(mobileLayout.matches?$('openAdventure'):$('startBtn')).focus();};
   $('reviewBtn').onclick=()=>start([...new Set([...state.mistakes.values()].map(x=>x.parent))]);
-  document.querySelectorAll('input[name="mode"]').forEach(r=>r.addEventListener('change',modeChanged));
+  document.querySelectorAll('input[name="difficulty"]').forEach(r=>{r.checked=r.value===(profile.difficulty||'hard');r.addEventListener('change',modeChanged);});
   document.addEventListener('keydown',e=>{
     if(e.repeat||e.altKey||e.ctrlKey||e.metaKey||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
     if(state&&['basic','bonus'].includes(state.phase)&&/^[1-4]$/.test(e.key)){e.preventDefault();answer(state.options[Number(e.key)-1].id);}
@@ -2305,7 +2313,7 @@
   function switchForest(index){
     if(index===activeForest||!FORESTS[index]||state&&['basic','bonus','feedback'].includes(state.phase))return;
     closeEvolution(false);save();stopSound();clearTimer();resetFriend();state=null;activeForest=index;profile=forestProfiles[index];$('careMessage').textContent='';
-    forestAudio.setForest(index);screen('setup');populateGrades();loadLevels(forestLevels()).then(()=>renderCare());renderProfile();$('speechRate').value=profile.rate;populateVoices();modeChanged();refreshGarden();save();
+    forestAudio.setForest(index);screen('setup');populateGrades();loadLevels(forestLevels()).then(()=>renderCare());renderProfile();$('speechRate').value=profile.rate;populateVoices();syncDifficulty();refreshGarden();save();
   }
   FORESTS.forEach((f,i)=>{
     const button=document.createElement('button');button.type='button';button.className='forest-tab';
@@ -2328,14 +2336,14 @@
   const GUIDE_PAGES=[
     ['처음 만나는 덩어리 숲',
       '인트로를 누르고 공부할 숲을 골라요. 초록빛 숲은 HSK 1~3급, 살구빛 숲은 4~6급, 보랏빛 숲은 7~9급이에요. 어휘가 아직 없는 급수는 준비 중으로 표시돼요.',
-      '오늘의 모험에서 급수, 문제 방향, 문제 수를 정한 뒤 시작해요. 휴대폰에서는 상단 버튼을 누르면 열리고, 데스크톱에서는 모험 설정이 화면에 보여요.',
+      '오늘의 모험에서 쉬운 모드·어려운 모드, 급수, 문제 수를 정한 뒤 시작해요. 휴대폰에서는 상단 버튼을 누르면 열리고, 데스크톱에서는 모험 설정이 화면에 보여요.',
       '세 숲은 친구·경험치·코인·보관함을 각각 따로 관리해요. 다른 숲에서는 마음씨부터 새롭게 키워요.'],
     ['문제 풀기와 발음 듣기',
-      '덩어리 숲속으로는 제한 시간(1~2급 7초, 3급 8초, 4급 10초, 5급 12초 · ‘여유롭게’는 +5초) 안에 답하는 본게임이에요. 기본 문제를 맞히면 짝꿍어휘 보너스에 도전해요. 준비 운동은 시간제한·경험치·코인·보너스 없이 연습해요.',
+      '덩어리 숲속으로는 제한 시간(1~2급 7초, 3급 8초, 4급 10초, 5급 12초 · ‘여유롭게’는 +5초) 안에 답하는 본게임이에요. 기본 문제를 맞히면 짝꿍어휘 보너스에 도전해요. 두 모드 모두 한자→뜻, 뜻→한자 두 방향이 섞여 나와요. 쉬운 모드는 병음이 늘 함께 보이고, 어려운 모드는 한자를 눌러야 병음이 보여요.',
       '문제와 보기의 한자를 누르면 병음이 보여요. 한자 보기에서는 병음 확인과 정답 선택 버튼을 구분해 눌러 주세요. 답을 확인하는 팝업에서는 먼저 보이는 단어를 누르면 나머지 정보가 열려요.',
       '발음은 음성 듣기를 눌러 재생해요. 보통 또는 천천히를 선택할 수 있어요. 틀린 문제는 결과 화면에서 기본 단어로 다시 연습해 보세요.'],
     ['경험치·코인·학습 진행률',
-      '본게임 기본 정답은 +5 XP와 2코인, 보너스 정답은 +3 XP와 1코인이에요. 틀리거나 시간이 지나도 경험치는 줄지 않아요. 기본 문제를 5개 연속으로 맞힐 때마다 +3 XP를 더 받아요. 기본 10문제 전체 정답은 +10 XP, 20문제는 +25 XP를 더 받아요.',
+      '어려운 모드 기본 정답은 +5 XP와 2코인, 보너스 정답은 +3 XP와 1코인이에요. 쉬운 모드는 기본 정답 +3 XP와 1코인, 보너스 +2 XP, 연속 정답 +2 XP, 전체 정답 +5/+12 XP로 조금 적어요. 틀리거나 시간이 지나도 경험치는 줄지 않아요. 기본 문제를 5개 연속으로 맞힐 때마다 +3 XP를 더 받아요. 기본 10문제 전체 정답은 +10 XP, 20문제는 +25 XP를 더 받아요.',
       '레벨이 높아질수록 필요한 경험치가 늘어요. 살구빛 숲과 보랏빛 숲은 초록빛 숲보다 더 천천히 자라요. 꾸준히 단어를 익히며 성장시켜 주세요.',
       '단어마다 맞힌 기록을 기억해요. 틀린 단어는 다음 판에 먼저 나오고, 맞힌 단어는 1일·3일·7일·14일·30일 뒤에 복습으로 다시 나와요. 한 판의 절반까지 복습 단어가 섞이고 나머지는 새 단어예요. 학습 진행률에서 급수별로 오래 기억하는 단어와 오늘 복습할 단어 수를 볼 수 있어요.'],
     ['친구 성장과 꾸미기',
@@ -2349,7 +2357,7 @@
     ['숲 상점 사용법',
       '문제로 모은 코인으로 사요. 햇살 비료는 20코인, 든든 비료는 35코인이며 기본 정답 10회 동안 각각 +1 XP, +2 XP를 더 줘요. 반짝 비료는 50코인에 +3 XP예요. 구매 후 바구니에서 식물에게 주기를 눌러야 적용되고 한 번에 하나만 사용해요.',
       '살충제 10코인과 감기약 12코인은 한 번 쓰면 1개가 소모돼요. 우산 30코인, 부채 25코인, 난로 35코인은 한 번 사면 해당 숲에서 계속 쓸 수 있어요.',
-      '준비 운동·오답·보너스에서는 비료 횟수가 줄지 않아요. 현금 결제는 없어요. 모바일은 상품 버튼을 눌러 살펴보고, 데스크톱은 상품 카드를 함께 볼 수 있어요. 도구 사용은 로비의 바구니에서 해요. 상황에 맞지 않으면 친구가 거절하며 소모품은 줄지 않아요.'],
+      '오답·보너스·틀린 단어 연습에서는 비료 횟수가 줄지 않아요. 현금 결제는 없어요. 모바일은 상품 버튼을 눌러 살펴보고, 데스크톱은 상품 카드를 함께 볼 수 있어요. 도구 사용은 로비의 바구니에서 해요. 상황에 맞지 않으면 친구가 거절하며 소모품은 줄지 않아요.'],
     ['비·찬바람·감기 돌보기',
       '가랑비는 도움을 요청해도 경험치를 깎지 않아요. 폭우에는 번개가 치고 우산 안으로도 비가 튈 수 있어요. 1분 노출마다 감기 확률은 우산 없이 20%, 우산을 쓰면 5%예요.',
       '찬바람에는 1분마다 25% 확률로 감기에 걸려요. 난로를 놓으면 찬바람 감기를 예방해요. 이미 걸린 감기는 날씨가 맑아지거나 난로를 켜도 낫지 않으니 감기약을 먹여 주세요.',
@@ -2367,7 +2375,7 @@
     ['전체 정답 선물과 반짝 비료',
       '본게임에서 선택한 기본 10문제를 모두 맞히면 +10 XP, 20문제를 모두 맞히면 +25 XP를 한 번 더 받아요. 짝꿍어휘 정답 여부는 별개예요. 준비 운동·전체 단어 모드·기본 문제를 다 풀기 전 중도 종료에는 지급하지 않아요.',
       '전체 정답을 달성하면 친구가 중국어 격려 표현 5개 중 하나로 약 3초 동안 축하해 줘요. 레벨업도 했다면 이어서 진화 연출과 성장 선택을 진행해요.',
-      '반짝 비료는 50코인에 구매해요. 바구니에서 먹이면 본게임 기본 정답 10회에 각각 +3 XP를 더 받아요. 오답·보너스·준비 운동에는 횟수가 줄지 않고, 전체 정답 보너스에는 비료 효과를 더하지 않아요.']
+      '반짝 비료는 50코인에 구매해요. 바구니에서 먹이면 본게임 기본 정답 10회에 각각 +3 XP를 더 받아요. 오답·보너스·틀린 단어 연습에는 횟수가 줄지 않고, 전체 정답 보너스에는 비료 효과를 더하지 않아요.']
   );
   if(!STUDENT_BG)GUIDE_PAGES.push(['무료판과 기록 안내',
     '무료판은 한 판을 마친 뒤 결과 화면에서 진담중국어 소식이 한 번 나와요. 5초 뒤 닫고 결과를 볼 수 있어요.',
@@ -2847,8 +2855,8 @@
     const practice=document.querySelector('input[name="mode"]:checked')?.value==='practice';
     const level=$('levelSelect').value,size=$('roundSize').value;
     const due=levelReady(Number(level))?levelWords(Number(level)).filter(w=>isDue(memoryOf(w))).length:0;
-    $('quickStartLabel').textContent=practice?'준비 운동 시작하기':'오늘의 모험 떠나기';
-    $('quickStartInfo').textContent=`HSK ${level}급 · ${size==='all'?'전체 단어':size+'문제'}`+(due?` · 복습 ${due}`:'');
+    $('quickStartLabel').textContent='오늘의 모험 떠나기';
+    $('quickStartInfo').textContent=(difficulty()==='easy'?'🌱 쉬운 모드 · ':'🔥 어려운 모드 · ')+`HSK ${level}급 · ${size==='all'?'전체 단어':size+'문제'}`+(due?` · 복습 ${due}`:'');
     $('quickStart').disabled=$('startBtn').disabled&&levelState[Number(level)]!=='loading';
   }
   $('quickStart').onclick=()=>{
@@ -2906,6 +2914,6 @@
   }
   $('levelSelect').onchange=updateCount;
   populateGrades();
-  updateCount();renderProfile();refreshGarden();save();populateVoices();modeChanged();
+  updateCount();renderProfile();refreshGarden();save();populateVoices();syncDifficulty();
   loadLevels(forestLevels()).then(()=>renderCare());
 })();
