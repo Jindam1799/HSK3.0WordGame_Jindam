@@ -612,30 +612,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk2-n0020",
+    "id": "hsk2-015",
     "level": 2,
     "sourceNumber": 20,
     "hanzi": "出去",
-    "pinyin": "chūqù 动 84 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "chūqù",
     "meaning": "나가다",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk2-n0020-p1",
+        "id": "hsk2-015-p1",
         "hanzi": "走出去",
         "pinyin": "zǒu chūqù",
         "meaning": "걸어 나가다",
         "audio": ""
       },
       {
-        "id": "hsk2-n0020-p2",
+        "id": "hsk2-015-p2",
         "hanzi": "出去玩",
         "pinyin": "chūqù wán",
         "meaning": "나가서 놀다",
         "audio": ""
       },
       {
-        "id": "hsk2-n0020-p3",
+        "id": "hsk2-015-p3",
         "hanzi": "跑出去",
         "pinyin": "pǎo chūqù",
         "meaning": "뛰어나가다",
@@ -1892,30 +1892,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk2-n0060",
+    "id": "hsk2-049",
     "level": 2,
     "sourceNumber": 60,
     "hanzi": "坏",
-    "pinyin": "huài 形 85 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "huài",
     "meaning": "나쁘다, 망가지다",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk2-n0060-p1",
+        "id": "hsk2-049-p1",
         "hanzi": "坏了",
         "pinyin": "huài le",
         "meaning": "망가졌다",
         "audio": ""
       },
       {
-        "id": "hsk2-n0060-p2",
+        "id": "hsk2-049-p2",
         "hanzi": "坏孩子",
         "pinyin": "huài háizi",
         "meaning": "나쁜 아이",
         "audio": ""
       },
       {
-        "id": "hsk2-n0060-p3",
+        "id": "hsk2-049-p3",
         "hanzi": "手机坏了",
         "pinyin": "shǒujī huài le",
         "meaning": "휴대전화가 고장 났다",
@@ -3176,7 +3176,7 @@ window.HSK_DATA = [
     "level": 2,
     "sourceNumber": 100,
     "hanzi": "门",
-    "pinyin": "mén 名 86 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "mén",
     "meaning": "문",
     "audio": "",
     "collocations": [
@@ -5732,30 +5732,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk2-n0180",
+    "id": "hsk2-144",
     "level": 2,
     "sourceNumber": 180,
     "hanzi": "有时",
-    "pinyin": "yǒushí 副 88 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "yǒushí",
     "meaning": "때때로",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk2-n0180-p1",
+        "id": "hsk2-144-p1",
         "hanzi": "有时很忙",
         "pinyin": "yǒushí hěn máng",
         "meaning": "때때로 매우 바쁘다",
         "audio": ""
       },
       {
-        "id": "hsk2-n0180-p2",
+        "id": "hsk2-144-p2",
         "hanzi": "有时下雨",
         "pinyin": "yǒushí xià yǔ",
         "meaning": "가끔 비가 온다",
         "audio": ""
       },
       {
-        "id": "hsk2-n0180-p3",
+        "id": "hsk2-144-p3",
         "hanzi": "有时去旅游",
         "pinyin": "yǒushí qù lǚyóu",
         "meaning": "가끔 여행을 간다",

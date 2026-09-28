@@ -612,30 +612,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0020",
+    "id": "hsk3-019",
     "level": 3,
     "sourceNumber": 20,
     "hanzi": "笔记",
-    "pinyin": "bǐjì 名 89 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "bǐjì",
     "meaning": "필기, 노트",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0020-p1",
+        "id": "hsk3-019-p1",
         "hanzi": "做笔记",
         "pinyin": "zuò bǐ jì",
         "meaning": "필기하다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0020-p2",
+        "id": "hsk3-019-p2",
         "hanzi": "看笔记",
         "pinyin": "kàn bǐ jì",
         "meaning": "필기를 보다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0020-p3",
+        "id": "hsk3-019-p3",
         "hanzi": "课堂笔记",
         "pinyin": "kè táng bǐ jì",
         "meaning": "수업 필기",
@@ -1622,7 +1622,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-045-p2",
         "hanzi": "差一点儿",
-        "pinyin": "chà yī diǎnér",
+        "pinyin": "chà yī diǎnr",
         "meaning": "조금 부족하다",
         "audio": ""
       },
@@ -1892,30 +1892,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0060",
+    "id": "hsk3-052",
     "level": 3,
     "sourceNumber": 60,
     "hanzi": "城市",
-    "pinyin": "chéngshì 名 90 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "chéngshì",
     "meaning": "도시",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0060-p1",
+        "id": "hsk3-052-p1",
         "hanzi": "大城市",
         "pinyin": "dà chéng shì",
         "meaning": "대도시",
         "audio": ""
       },
       {
-        "id": "hsk3-n0060-p2",
+        "id": "hsk3-052-p2",
         "hanzi": "城市生活",
         "pinyin": "chéng shì shēng huó",
         "meaning": "도시 생활",
         "audio": ""
       },
       {
-        "id": "hsk3-n0060-p3",
+        "id": "hsk3-052-p3",
         "hanzi": "这座城市",
         "pinyin": "zhè zuò chéng shì",
         "meaning": "이 도시",
@@ -2525,7 +2525,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-072-p3",
         "hanzi": "有点儿担心",
-        "pinyin": "yǒu diǎnér dān xīn",
+        "pinyin": "yǒu diǎnr dān xīn",
         "meaning": "조금 걱정되다",
         "audio": ""
       }
@@ -2774,7 +2774,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-078-p2",
         "hanzi": "得早点儿走",
-        "pinyin": "dé zǎodiǎnér zǒu",
+        "pinyin": "dé zǎodiǎnr zǒu",
         "meaning": "좀 일찍 가야 한다",
         "audio": ""
       },
@@ -3176,7 +3176,7 @@ window.HSK_DATA = [
     "level": 3,
     "sourceNumber": 100,
     "hanzi": "东南",
-    "pinyin": "dōngnán 名 91 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "dōngnán",
     "meaning": "동남쪽",
     "audio": "",
     "collocations": [
@@ -3357,7 +3357,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-093-p3",
         "hanzi": "短一点儿",
-        "pinyin": "duǎnyī diǎnér",
+        "pinyin": "duǎnyī diǎnr",
         "meaning": "조금 짧게",
         "audio": ""
       }
@@ -3510,7 +3510,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-098-p2",
         "hanzi": "有点儿饿",
-        "pinyin": "yǒu diǎnér è",
+        "pinyin": "yǒu diǎnr è",
         "meaning": "조금 배고프다",
         "audio": ""
       },
@@ -3670,7 +3670,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-103-p2",
         "hanzi": "有点儿发烧",
-        "pinyin": "yǒu diǎnér fā shāo",
+        "pinyin": "yǒu diǎnr fā shāo",
         "meaning": "열이 조금 있다",
         "audio": ""
       },
@@ -4452,30 +4452,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0140",
+    "id": "hsk3-128",
     "level": 3,
     "sourceNumber": 140,
     "hanzi": "干",
-    "pinyin": "gàn 动 92 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "gàn",
     "meaning": "하다, 일하다",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0140-p1",
+        "id": "hsk3-128-p1",
         "hanzi": "干什么",
         "pinyin": "gàn shén me",
         "meaning": "무엇을 하다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0140-p2",
+        "id": "hsk3-128-p2",
         "hanzi": "干工作",
         "pinyin": "gàn gōng zuò",
         "meaning": "일을 하다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0140-p3",
+        "id": "hsk3-128-p3",
         "hanzi": "干得很好",
         "pinyin": "gàn dé hěn hǎo",
         "meaning": "일을 잘하다",
@@ -5732,30 +5732,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0180",
+    "id": "hsk3-166",
     "level": 3,
     "sourceNumber": 180,
     "hanzi": "换",
-    "pinyin": "huàn 动 93 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "huàn",
     "meaning": "바꾸다, 교체하다",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0180-p1",
+        "id": "hsk3-166-p1",
         "hanzi": "换衣服",
         "pinyin": "huàn yī fú",
         "meaning": "옷을 갈아입다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0180-p2",
+        "id": "hsk3-166-p2",
         "hanzi": "换手机",
         "pinyin": "huàn shǒu jī",
         "meaning": "휴대전화를 바꾸다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0180-p3",
+        "id": "hsk3-166-p3",
         "hanzi": "换一个",
         "pinyin": "huàn yī gè",
         "meaning": "하나 다른 것으로 바꾸다",
@@ -6223,7 +6223,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-178-p1",
         "hanzi": "加点儿水",
-        "pinyin": "jiā diǎnér shuǐ",
+        "pinyin": "jiā diǎnr shuǐ",
         "meaning": "물을 조금 더하다",
         "audio": ""
       },
@@ -7012,30 +7012,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0220",
+    "id": "hsk3-201",
     "level": 3,
     "sourceNumber": 220,
     "hanzi": "酒",
-    "pinyin": "jiǔ 名 94 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "jiǔ",
     "meaning": "술",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0220-p1",
+        "id": "hsk3-201-p1",
         "hanzi": "喝酒",
         "pinyin": "hē jiǔ",
         "meaning": "술을 마시다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0220-p2",
+        "id": "hsk3-201-p2",
         "hanzi": "一杯酒",
         "pinyin": "yī bēijiǔ",
         "meaning": "술 한 잔",
         "audio": ""
       },
       {
-        "id": "hsk3-n0220-p3",
+        "id": "hsk3-201-p3",
         "hanzi": "不喝酒",
         "pinyin": "bù hē jiǔ",
         "meaning": "술을 마시지 않다",
@@ -7414,7 +7414,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-213-p2",
         "hanzi": "有点儿渴",
-        "pinyin": "yǒu diǎnér kě",
+        "pinyin": "yǒu diǎnr kě",
         "meaning": "조금 목마르다",
         "audio": ""
       },
@@ -8253,7 +8253,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-233-p3",
         "hanzi": "和邻居聊天儿",
-        "pinyin": "hé lín jū liáo tiān ér",
+        "pinyin": "hé lín jū liáo tiānr",
         "meaning": "이웃과 이야기하다",
         "audio": ""
       }
@@ -8292,30 +8292,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0260",
+    "id": "hsk3-235",
     "level": 3,
     "sourceNumber": 260,
     "hanzi": "留学生",
-    "pinyin": "liúxuéshēng 名 95 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "liúxuéshēng",
     "meaning": "유학생",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0260-p1",
+        "id": "hsk3-235-p1",
         "hanzi": "中国留学生",
         "pinyin": "zhōng guó liú xué shēng",
         "meaning": "중국 유학생",
         "audio": ""
       },
       {
-        "id": "hsk3-n0260-p2",
+        "id": "hsk3-235-p2",
         "hanzi": "一名留学生",
         "pinyin": "yī míng liú xué shēng",
         "meaning": "유학생 한 명",
         "audio": ""
       },
       {
-        "id": "hsk3-n0260-p3",
+        "id": "hsk3-235-p3",
         "hanzi": "留学生生活",
         "pinyin": "liú xué shēng shēng huó",
         "meaning": "유학생 생활",
@@ -9359,7 +9359,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-262-p1",
         "hanzi": "有点儿胖",
-        "pinyin": "yǒu diǎnér pàng",
+        "pinyin": "yǒu diǎnr pàng",
         "meaning": "조금 통통하다",
         "audio": ""
       },
@@ -9572,30 +9572,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0300",
+    "id": "hsk3-266",
     "level": 3,
     "sourceNumber": 300,
     "hanzi": "其他",
-    "pinyin": "qítā 代 96 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "qítā",
     "meaning": "기타의, 다른",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0300-p1",
+        "id": "hsk3-266-p1",
         "hanzi": "其他人",
         "pinyin": "qí tā rén",
         "meaning": "다른 사람들",
         "audio": ""
       },
       {
-        "id": "hsk3-n0300-p2",
+        "id": "hsk3-266-p2",
         "hanzi": "其他地方",
         "pinyin": "qí tā de fāng",
         "meaning": "다른 곳",
         "audio": ""
       },
       {
-        "id": "hsk3-n0300-p3",
+        "id": "hsk3-266-p3",
         "hanzi": "其他问题",
         "pinyin": "qí tā wèn tí",
         "meaning": "다른 문제",
@@ -10852,30 +10852,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0340",
+    "id": "hsk3-299",
     "level": 3,
     "sourceNumber": 340,
     "hanzi": "受到",
-    "pinyin": "shòudào 动 97 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "shòudào",
     "meaning": "~을 받다",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0340-p1",
+        "id": "hsk3-299-p1",
         "hanzi": "受到帮助",
         "pinyin": "shòu dào bāng zhù",
         "meaning": "도움을 받다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0340-p2",
+        "id": "hsk3-299-p2",
         "hanzi": "受到影响",
         "pinyin": "shòu dào yǐng xiǎng",
         "meaning": "영향을 받다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0340-p3",
+        "id": "hsk3-299-p3",
         "hanzi": "受到欢迎",
         "pinyin": "shòu dào huān yíng",
         "meaning": "환영받다",
@@ -12054,7 +12054,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-332-p2",
         "hanzi": "卫生间在哪儿",
-        "pinyin": "wèi shēng jiān zài nǎ ér",
+        "pinyin": "wèi shēng jiān zài nǎr",
         "meaning": "화장실이 어디예요?",
         "audio": ""
       },
@@ -12136,7 +12136,7 @@ window.HSK_DATA = [
     "level": 3,
     "sourceNumber": 380,
     "hanzi": "西",
-    "pinyin": "xī 名 98 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "xī",
     "meaning": "서쪽",
     "audio": "",
     "collocations": [
@@ -12719,7 +12719,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-350-p1",
         "hanzi": "小心一点儿",
-        "pinyin": "xiǎo xīn yī diǎnér",
+        "pinyin": "xiǎo xīn yī diǎnr",
         "meaning": "좀 조심해",
         "audio": ""
       },
@@ -13412,30 +13412,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0420",
+    "id": "hsk3-367",
     "level": 3,
     "sourceNumber": 420,
     "hanzi": "要求",
-    "pinyin": "yāoqiú 动、名 99 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "yāoqiú",
     "meaning": "요구하다; 요구",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0420-p1",
+        "id": "hsk3-367-p1",
         "hanzi": "要求很高",
         "pinyin": "yào qiú hěn gāo",
         "meaning": "요구 수준이 높다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0420-p2",
+        "id": "hsk3-367-p2",
         "hanzi": "按要求做",
         "pinyin": "àn yào qiú zuò",
         "meaning": "요구대로 하다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0420-p3",
+        "id": "hsk3-367-p3",
         "hanzi": "提出要求",
         "pinyin": "tí chū yào qiú",
         "meaning": "요구를 제시하다",
@@ -14692,30 +14692,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk3-n0460",
+    "id": "hsk3-403",
     "level": 3,
     "sourceNumber": 460,
     "hanzi": "运动会",
-    "pinyin": "yùndònghuì 名 100 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "yùndònghuì",
     "meaning": "운동회, 체육대회",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk3-n0460-p1",
+        "id": "hsk3-403-p1",
         "hanzi": "参加运动会",
         "pinyin": "cān jiā yùn dòng huì",
         "meaning": "운동회에 참가하다",
         "audio": ""
       },
       {
-        "id": "hsk3-n0460-p2",
+        "id": "hsk3-403-p2",
         "hanzi": "学校运动会",
         "pinyin": "xué xiào yùn dòng huì",
         "meaning": "학교 운동회",
         "audio": ""
       },
       {
-        "id": "hsk3-n0460-p3",
+        "id": "hsk3-403-p3",
         "hanzi": "开运动会",
         "pinyin": "kāi yùn dòng huì",
         "meaning": "운동회를 열다",
@@ -15279,7 +15279,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-417-p1",
         "hanzi": "只是有点儿累",
-        "pinyin": "zhǐ shìyǒu diǎnér lèi",
+        "pinyin": "zhǐ shìyǒu diǎnr lèi",
         "meaning": "단지 조금 피곤할 뿐이다",
         "audio": ""
       },
@@ -15855,7 +15855,7 @@ window.HSK_DATA = [
       {
         "id": "hsk3-434-p1",
         "hanzi": "最好早点儿睡",
-        "pinyin": "zuì hǎo zǎodiǎnér shuì",
+        "pinyin": "zuì hǎo zǎodiǎnr shuì",
         "meaning": "일찍 자는 게 좋다",
         "audio": ""
       },

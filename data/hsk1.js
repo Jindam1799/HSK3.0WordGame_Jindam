@@ -431,8 +431,8 @@ window.HSK_DATA = [
       {
         "id": "hsk1-n0014-p1",
         "hanzi": "谢谢！—不客气。",
-        "pinyin": "xièxie!",
-        "meaning": "bú kèqi  —  고마워요! — 천만에요",
+        "pinyin": "xièxie! — bú kèqi",
+        "meaning": "고마워요! — 천만에요",
         "audio": ""
       },
       {
@@ -1252,30 +1252,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk1-n0040",
+    "id": "hsk1-027",
     "level": 1,
     "sourceNumber": 40,
     "hanzi": "东西",
-    "pinyin": "dōngxi 名 77 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "dōngxi",
     "meaning": "물건, 것",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk1-n0040-p1",
+        "id": "hsk1-027-p1",
         "hanzi": "买东西",
         "pinyin": "mǎi dōngxi",
         "meaning": "물건을 사다",
         "audio": ""
       },
       {
-        "id": "hsk1-n0040-p2",
+        "id": "hsk1-027-p2",
         "hanzi": "吃东西",
         "pinyin": "chī dōngxi",
         "meaning": "무언가를 먹다",
         "audio": ""
       },
       {
-        "id": "hsk1-n0040-p3",
+        "id": "hsk1-027-p3",
         "hanzi": "什么东西",
         "pinyin": "shénme dōngxi",
         "meaning": "무슨 물건, 무엇",
@@ -2536,7 +2536,7 @@ window.HSK_DATA = [
     "level": 1,
     "sourceNumber": 80,
     "hanzi": "后",
-    "pinyin": "hòu 名 78 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "hòu",
     "meaning": "뒤, 이후",
     "audio": "",
     "collocations": [
@@ -3816,15 +3816,15 @@ window.HSK_DATA = [
     "level": 1,
     "sourceNumber": 120,
     "hanzi": "没关系",
-    "pinyin": "méi guānxi 79 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "méi guānxi",
     "meaning": "괜찮다, 상관없다",
     "audio": "",
     "collocations": [
       {
         "id": "hsk1-n0120-p1",
         "hanzi": "对不起。—没关系。",
-        "pinyin": "duìbuqǐ",
-        "meaning": "méi guānxi  —  미안해요. — 괜찮아요",
+        "pinyin": "duìbuqǐ — méi guānxi",
+        "meaning": "미안해요. — 괜찮아요",
         "audio": ""
       },
       {
@@ -5096,7 +5096,7 @@ window.HSK_DATA = [
     "level": 1,
     "sourceNumber": 160,
     "hanzi": "七",
-    "pinyin": "qī 数 80 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "qī",
     "meaning": "일곱",
     "audio": "",
     "collocations": [
@@ -6376,7 +6376,7 @@ window.HSK_DATA = [
     "level": 1,
     "sourceNumber": 200,
     "hanzi": "他",
-    "pinyin": "tā 代 81 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "tā",
     "meaning": "그, 그 사람",
     "audio": "",
     "collocations": [
@@ -7652,30 +7652,30 @@ window.HSK_DATA = [
     ]
   },
   {
-    "id": "hsk1-n0240",
+    "id": "hsk1-156",
     "level": 1,
     "sourceNumber": 240,
     "hanzi": "写",
-    "pinyin": "xiě 动 82 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "xiě",
     "meaning": "쓰다",
     "audio": "",
     "collocations": [
       {
-        "id": "hsk1-n0240-p1",
+        "id": "hsk1-156-p1",
         "hanzi": "写汉字",
         "pinyin": "xiě Hànzì",
         "meaning": "한자를 쓰다",
         "audio": ""
       },
       {
-        "id": "hsk1-n0240-p2",
+        "id": "hsk1-156-p2",
         "hanzi": "写名字",
         "pinyin": "xiě míngzi",
         "meaning": "이름을 쓰다",
         "audio": ""
       },
       {
-        "id": "hsk1-n0240-p3",
+        "id": "hsk1-156-p3",
         "hanzi": "写字",
         "pinyin": "xiě zì",
         "meaning": "글자를 쓰다",
@@ -8936,7 +8936,7 @@ window.HSK_DATA = [
     "level": 1,
     "sourceNumber": 280,
     "hanzi": "这边",
-    "pinyin": "zhèbiān 代 83 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 汉考国际 序号 等级 词语 拼音 词性",
+    "pinyin": "zhèbiān",
     "meaning": "이쪽",
     "audio": "",
     "collocations": [

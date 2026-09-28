@@ -10,7 +10,7 @@
   const LEVEL_SECONDS = Object.freeze({1:7,2:7,3:8,4:10,5:12,6:12,7:14,8:14,9:14});
   // 단어 파일이 있는 급수. data/hsk6.js 같은 새 파일을 추가하면 여기에 숫자를 더해 주세요.
   const DATA_LEVELS = [1,2,3,4,5];
-  const DATA_VERSION = '20260929';
+  const DATA_VERSION = '20260929b';
   // 홍보 팝업(무료판 전용): 결과 화면 뒤에만 한 번, PROMO_MS 뒤에 닫을 수 있어요.
   const PROMO_MS = 5000;
   const GARDEN_RULES=Object.freeze({baseCoins:2,bonusCoins:1,graceHours:48,penaltyHours:24,penaltyXP:5,maxPenaltySteps:4});
