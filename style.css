@@ -845,3 +845,13 @@ html[data-edition="free"] .copyright-note{display:block}
 @media(max-width:620px){.brand-icon{width:32px!important;height:32px!important;border-radius:9px}.brand-wordmark .brand-promise{display:none}.brand-wordmark strong{font-size:16px!important;white-space:nowrap}}
 .topbar .brand-icon{display:block!important}.topbar .brand{display:flex;align-items:center;gap:8px}
 .topbar .brand-icon{display:block!important}.topbar .brand{display:flex;align-items:center;gap:8px}
+/* 휴대폰 상단: 로고 줄 + 메뉴 줄이 친구 창과 겹치지 않게 */
+@media(max-width:620px){
+ #gameApp .topbar{height:auto!important;min-height:0!important;flex-wrap:wrap;align-items:center;row-gap:6px;padding:8px 2px 8px;border-bottom:0}
+ #gameApp .topbar .brand{flex:1 1 100%}
+ #gameApp .mobile-tools{flex:1 1 100%;display:flex;gap:6px}
+ #gameApp .mobile-tools button{min-height:38px;padding:6px 8px;border-radius:12px;flex:1 1 0;font-size:12px}
+ #gameApp .mobile-tools #openSettings{flex:0 0 40px;width:40px;padding:0}
+ #gameApp>main{padding-top:2px}
+}
+.scene-thumb{display:block;width:100%;height:56px;border-radius:10px;background-size:cover;background-position:center 80%;box-shadow:inset 0 0 0 1px #0000000d}
