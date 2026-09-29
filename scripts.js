@@ -48,6 +48,14 @@
   const MAX_LEVEL=EDITION==='free'?10:Infinity;
   const xpCap=(forest=activeForest)=>MAX_LEVEL===Infinity?Number.MAX_SAFE_INTEGER:xpStart(MAX_LEVEL+1,forest)-1;
   const $ = id => document.getElementById(id);
+  // 저작권 안내: 수강생판·체험판 모두 보여 줘요. 체험판은 문구만 달라요.
+  if(EDITION==='free'){
+    document.querySelectorAll('.copyright-note').forEach(n=>{
+      if(n.classList.contains('lobby-copyright'))n.textContent='© 2026 진담중국어 · 체험판 · 무단 복제·배포 금지';
+      else if(n.classList.contains('welcome-copyright'))n.textContent='© 2026 진담중국어. All rights reserved. 체험판 · 무단 복제·배포 금지';
+      else n.innerHTML='<b>© 2026 진담중국어. All rights reserved.</b>이 게임의 단어 자료·그림·문제·캐릭터 등 모든 콘텐츠의 저작권은 진담중국어에 있습니다. 체험판은 개인 학습용으로만 쓸 수 있으며, 무단 복제·배포·상업적 이용을 금합니다.';
+    });
+  }
   { const tag=document.querySelector('.topbar .edition');if(tag)tag.textContent=(EDITION==='free'?'무료판':'수강생판')+' · 함께 자라는 숲'; }
   // 단어는 급수별 파일(data/hsk1.js …)에서 필요할 때만 불러와요.
   const data = [];
@@ -898,7 +906,51 @@
   const star=(x,y,r,fill='#f6d66b')=>`<path d="M${x} ${y-r}L${fx2(x+r*.28)} ${fx2(y-r*.28)}L${x+r} ${y}L${fx2(x+r*.28)} ${fx2(y+r*.28)}L${x} ${y+r}L${fx2(x-r*.28)} ${fx2(y+r*.28)}L${x-r} ${y}L${fx2(x-r*.28)} ${fx2(y-r*.28)}Z" fill="${fill}" stroke="#fffbe8" stroke-width=".8"/>`;
   const finalAura=c=>`<circle cx="90" cy="104" r="88" fill="${c}" opacity=".28"/><circle cx="90" cy="104" r="68" fill="${c}" opacity=".3"/>`;
   const finalSparkles=()=>star(22,34,7)+star(160,24,6)+star(166,132,5)+star(14,120,5)+star(90,6,5);
-  function creatureSVG(pet,route,level,color='#aac875',silhouette=false,branch){
+  // 친구 색깔 = 계절·빛 '분위기'. 원색을 그대로 입히지 않고, 식물 종류마다 자연에 있을 법한 색으로만 바꿔요.
+  //  (해바라기는 분홍·레몬·붉은·하얀·크림 해바라기가 될 수 있지만 보라·파랑은 되지 않아요.)
+  //  [대표 색 색상(도), 최대 채도, 밝기 조절] · 'W'는 하얀 품종
+  const W='W';
+  const FAMILY_TONES={
+    petal:    {spring:[338,.55,.08],summer:[48,.8,.02],autumn:[12,.68,-.05],winter:W,sunset:[6,.6,0],dawn:[22,.5,.12],moon:[48,.28,.18]},
+    mushroom: {spring:[350,.35,.1],summer:[38,.7,.02],autumn:[8,.62,-.05],winter:W,sunset:[24,.62,0],dawn:[285,.3,.02],moon:[195,.28,.08]},
+    succulent:{spring:[340,.35,.06],summer:[85,.42,.02],autumn:[14,.48,-.04],winter:[205,.14,.12],sunset:[26,.48,0],dawn:[275,.24,.04],moon:[215,.2,.05]},
+    clover:   {spring:[340,.45,.08],summer:[105,.5,0],autumn:[18,.5,-.05],winter:W,sunset:[28,.52,0],dawn:[290,.28,-.02],moon:[200,.2,.06]},
+    berry:    {spring:[345,.55,.1],summer:[356,.72,0],autumn:[345,.6,-.12],winter:W,sunset:[28,.7,.02],dawn:[320,.35,.1],moon:[332,.45,-.18]},
+    tree:     {spring:[340,.45,.14],summer:[100,.5,0],autumn:[12,.6,-.03],winter:[180,.1,.18],sunset:[24,.6,0],dawn:[45,.7,.02],moon:[200,.28,.02]}
+  };
+  FAMILY_TONES.seed=FAMILY_TONES.sprout=FAMILY_TONES.tree;
+  // 대표 색이 아닌 잎·줄기(초록)도 분위기에 맞게 살짝 물들여요.
+  const LEAF_TONES={spring:([h,s,l])=>[h-4,s,l+.04],summer:x=>x,autumn:([h,s,l])=>[Math.max(55,h-35),s*.8,l-.02],winter:([h,s,l])=>[h,s*.35,l+.12],
+    sunset:([h,s,l])=>[h-14,s*.9,l],dawn:([h,s,l])=>[h+6,s*.7,l+.04],moon:([h,s,l])=>[h+20,s*.6,l-.04]};
+  const GREEN_BODY=new Set(['succulent','clover','tree','sprout','seed']);
+  const CHEEK='#efb69f';
+  function hexToHsl(hex){let h=hex.slice(1);if(h.length===3)h=h.split('').map(c=>c+c).join('');const r=parseInt(h.slice(0,2),16)/255,g=parseInt(h.slice(2,4),16)/255,b=parseInt(h.slice(4,6),16)/255;
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let hh=0,ss=0;if(mx!==mn){const d=mx-mn;ss=l>.5?d/(2-mx-mn):d/(mx+mn);hh=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;hh*=60;}return [hh,ss,l];}
+  function hslToHex(h,s,l){h=((h%360)+360)%360;s=Math.max(0,Math.min(1,s));l=Math.max(.06,Math.min(.97,l));const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,9-k(n),1));return '#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('');}
+  const tintCache=new Map();
+  function tintArt(art,mood,family,leafOnly=false){
+    const tones=FAMILY_TONES[family]||FAMILY_TONES.petal,tone=tones[mood];if(!tone)return art;
+    const key=mood+family+(leafOnly?'L':'')+'|'+art.length+'|'+art.slice(0,80)+art.slice(-80);if(tintCache.has(key))return tintCache.get(key);
+    const counts={};for(const m of art.matchAll(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g)){const c=m[0].toLowerCase();counts[c]=(counts[c]||0)+1;}
+    const info=Object.entries(counts).map(([c,n])=>[c,n,hexToHsl(c)]);
+    const green=([h,s,l])=>h>=60&&h<=200&&s>=.07&&l>=.2&&l<=.93;
+    const brown=([h,s,l])=>h>=8&&h<=50&&l<.56;
+    const body=GREEN_BODY.has(family)&&!leafOnly;
+    // 대표 색: 초록이 아닌 선명한 색(꽃잎·갓·열매). 초록 몸 식물은 잎·몸통도 대표 색으로 봐요.
+    const sig=info.filter(([,,x])=>x[1]>=.35&&x[2]>=.3&&x[2]<=.93&&!green(x)&&!brown(x)).concat(body?info.filter(([,,x])=>green(x)):[]);
+    const map={};
+    if(sig.length){
+      const dom=sig.slice().sort((a,b)=>b[1]-a[1])[0][2][0];
+      for(const [c,,[h,s,l]] of sig){
+        if(tone===W){map[c]=hslToHex(h,.08,.72+l*.26);continue;}
+        const [th,maxS,dl]=tone;map[c]=hslToHex(th+Math.max(-12,Math.min(12,((h-dom+540)%360)-180)),maxS*(.7+.3*Math.min(1,s)),l+dl);
+      }
+    }
+    if(!body)for(const [c,,x] of info)if(green(x)&&!map[c]){const [h,s,l]=LEAF_TONES[mood](x);map[c]=hslToHex(h,s,l);}
+    const out=art.replace(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g,m=>map[m.toLowerCase()]||m);
+    if(tintCache.size>300)tintCache.clear();tintCache.set(key,out);return out;
+  }
+  function creatureSVG(pet,route,level,color='#aac875',silhouette=false,branch,tint){
     const g=plantGeometry(pet,route,level,branch),kind=g.family,adult=g.adult;
     const C=(x,y,r,fill)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
     const leaf=(x,y,angle,size=1,fill='#648e52')=>`<g transform="translate(${x} ${y}) rotate(${angle}) scale(${size})"><path d="M0 0Q-24 -24 0 -58Q26 -26 0 0Z" fill="${fill}" stroke="#416e42" stroke-width="1.3"/><path d="M0 -3V-50M0 -20L-10 -30M0 -30L9 -40" stroke="#b5c695" stroke-width="1" fill="none"/></g>`;
@@ -997,15 +1049,16 @@
     const baseFace=C(fx-10,fy,level>=5?2.3:3,'#38442d')+C(fx+10,fy,level>=5?2.3:3,'#38442d')+`<path d="M${fx-4} ${fy+7}Q${fx} ${fy+11} ${fx+4} ${fy+7}" stroke="#38442d" stroke-width="2" fill="none" stroke-linecap="round"/>`;
     const face=g.form?LEGEND.face(g.form.st,fx,fy,g.form.fs||1.1):baseFace;
     const charm=`<ellipse cx="${fx-18}" cy="${fy+7}" rx="4" ry="2.5" fill="${color}"/><ellipse cx="${fx+18}" cy="${fy+7}" rx="4" ry="2.5" fill="${color}"/>`;
+    if(tint&&tint!=='original'&&!silhouette)art=tintArt(art,tint,kind,g.form&&branchOf(pet,route,level,adult,branch)==='bamboo');
     // SVG filter is local to each SVG. Silhouette removes all fill/stroke colors and facial detail.
     if(silhouette)art=art.replace(/fill="[^"]+"/g,'fill="#34453d"').replace(/stroke="[^"]+"/g,'stroke="#34453d"').replace(/opacity="[^"]+"/g,'opacity="1"');
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210" aria-hidden="true"><g transform="translate(${90*(1-g.scale)} ${197*(1-g.scale)}) scale(${g.scale})"><g class="plant-body">${art}</g>${silhouette?'':charm+`<g class="expression-normal">${face}</g><g class="expression-happy"><path d="M${fx-16} ${fy+1}q6 -10 12 0M${fx+4} ${fy+1}q6 -10 12 0" fill="none" stroke="#38442d" stroke-width="2.6" stroke-linecap="round"/><path d="M${fx-7} ${fy+8}q7 4 14 0q-1 14-7 14t-7-14" fill="#79473f"/><path d="M${fx-4} ${fy+17}q4 -4 8 0" fill="none" stroke="#edaaa0" stroke-width="3"/><ellipse cx="${fx-19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/><ellipse cx="${fx+19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/></g><g class="expression-lift"><circle cx="${fx-10}" cy="${fy}" r="4" fill="#38442d"/><circle cx="${fx+10}" cy="${fy}" r="4" fill="#38442d"/><ellipse cx="${fx}" cy="${fy+10}" rx="4" ry="6" fill="#68483a"/></g><g class="expression-land"><path d="M${fx-15} ${fy-4}l7 4-7 4M${fx+15} ${fy-4}l-7 4 7 4M${fx-5} ${fy+12}q5 -5 10 0" stroke="#38442d" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`}</g></svg>`;
   }
-  const LOOK_DEFAULT = Object.freeze({pet:'', color:'mint', head:'none', face:'none', neck:'none', scene:'meadow', back:'none', charm:'none', name:''});
+  const LOOK_DEFAULT = Object.freeze({pet:'', color:'original', head:'none', face:'none', neck:'none', scene:'meadow', back:'none', charm:'none', name:''});
   // [id, label, icon or color, required level]. Unlocks never consume XP.
   const WARDROBE = {
     pet: {label:'01 · Lv.3 성장 계열 선택',items:[['petal','마음꽃','🌷',3],['mushroom','마음송이','🍄',3],['succulent','마음담이','🪴',3]]},
-    color: {label:'02 · 볼 포인트 색상',items:[['mint','민트','#aac875',1],['peach','복숭아','#efb69f',1],['cream','바닐라','#eed594',1],['sky','하늘','#9cc9de',1],['lavender','라벤더','#c2acd9',3],['rose','장미','#df9eae',5]]},
+    color: {label:'02 · 친구 분위기 색',items:[['original','원래 색','conic-gradient(#f2c94c,#e98a6a,#9fb8d9,#8cbf5a,#f2c94c)',1],['spring','봄 벚꽃','#f4b6c8',1],['summer','여름 햇살','#f2c94c',1],['autumn','가을 단풍','#d9653b',1],['winter','겨울 눈꽃','#eef1f4',1],['sunset','노을','#f08a5d',3],['dawn','새벽 하늘','#c9b8e0',3],['moon','달빛','#9fb8d9',5]]},
     head: {label:'03 · 머리 장식',items:[['none','없음','—',1],['ribbon','리본','🎀',1],['flower','꽃','🌼',2],['cap','모자','🧢',3],['crown','왕관','👑',5],['wizard','마법 모자','🧙',8]]},
     face: {label:'04 · 얼굴 장식',items:[['none','없음','—',1],['glasses','동글 안경','👓',2],['stars','스타 안경','⭐',4]]},
     neck: {label:'05 · 목 장식',items:[['none','없음','—',1],['bow','나비넥타이','🎀',2],['scarf','목도리','🧣',3],['medal','성장 메달','🏅',6]]},
@@ -1045,7 +1098,7 @@
     const out={};
     if(raw&&typeof raw==='object')for(const [key,p] of Object.entries(raw).slice(0,150)){
       if(!/^(seed|sprout|petal|mushroom|succulent|clover|berry|tree):(young|adult-[a-z]+):(head|face|neck|back|charm):[a-z]+$/.test(key)||!p)continue;
-      if(['x','y','scale','rotation'].every(k=>typeof p[k]==='number'&&Number.isFinite(p[k])))out[key]={x:clamp(p.x,-1,1),y:clamp(p.y,-1,1),scale:clamp(p.scale,.4,2),rotation:clamp(p.rotation,-180,180),...(Number.isFinite(p.gx)&&Number.isFinite(p.gy)?{gx:clamp(p.gx,.03,.97),gy:clamp(p.gy,.03,.97)}:{})};
+      if(['x','y','scale','rotation'].every(k=>typeof p[k]==='number'&&Number.isFinite(p[k])))out[key]={x:clamp(p.x,-1,1),y:clamp(p.y,-1,1),scale:clamp(p.scale,.4,2),rotation:clamp(p.rotation,-180,180),...(Number.isFinite(p.ax)&&Number.isFinite(p.ay)?{ax:clamp(p.ax,-.6,1.6),ay:clamp(p.ay,-.4,1.4)}:Number.isFinite(p.gx)&&Number.isFinite(p.gy)?{gx:clamp(p.gx,.03,.97),gy:clamp(p.gy,.03,.97)}:{})};
     }return out;
   }
   function safeLook(raw,level,forest=activeForest){
@@ -1247,7 +1300,10 @@
       const el=avatar.querySelector('.wear-'+slot),pose=look.poses?.[poseKey(look,routes,slot)]||defaultPose();
       const anchor=g[slot]||(slot==='back'?[90,116]:[135,165]);
       let x=90+(anchor[0]-90)*g.scale+pose.x*180*g.scale,y=197+(anchor[1]-197)*g.scale+pose.y*210*g.scale;
-      if(Number.isFinite(pose.gx)&&Number.isFinite(pose.gy)){const a=avatar.getBoundingClientRect(),h=avatar.closest('.habitat').getBoundingClientRect();if(a.width&&a.height){x=(h.left+pose.gx*h.width-a.left)/a.width*180;y=(h.top+pose.gy*h.height-a.top)/a.height*210;}}
+      // 꾸미기에서 옮긴 장식은 친구 몸 기준(ax, ay)으로 저장해요. 그래서 어느 화면에서든 같은 자리에 붙어 있어요.
+      if(Number.isFinite(pose.ax)&&Number.isFinite(pose.ay)){x=pose.ax*180;y=pose.ay*210;}
+      else if(Number.isFinite(pose.gx)&&Number.isFinite(pose.gy)){const a=avatar.getBoundingClientRect(),h=avatar.closest('.habitat').getBoundingClientRect();if(a.width&&a.height){x=(h.left+pose.gx*h.width-a.left)/a.width*180;y=(h.top+pose.gy*h.height-a.top)/a.height*210;
+        if(avatar.id==='previewAvatar'&&look.poses?.[poseKey(look,routes,slot)]){const q=look.poses[poseKey(look,routes,slot)];q.ax=x/180;q.ay=y/210;delete q.gx;delete q.gy;}}}
       const size={head:50,face:63,neck:38,back:145,charm:30}[slot];
       Object.assign(el.style,{left:(x/180*100)+'%',top:(y/210*100)+'%',right:'auto',bottom:'auto',width:size+'px',height:size+'px',fontSize:size+'px',lineHeight:'1',transform:`translate(-50%,-50%) rotate(${pose.rotation}deg) scale(${pose.scale*g.scale})`});
     }
@@ -1259,7 +1315,7 @@
     avatar.classList.add('forest-avatar');avatar.style.background='transparent';
     let illustration=avatar.querySelector('.creature-art');if(!illustration){illustration=document.createElement('div');illustration.className='creature-art';avatar.prepend(illustration);}
     const concealed=avatar.id==='previewAvatar'&&g.adult&&profile.routes[look.pet]!==route?.id;
-    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,WARDROBE.color.items.find(i=>i[0]===look.color)[2],concealed);habitat.dataset.scene=look.scene;{const sc=['meadow','sunset','night','rainbow'].includes(look.scene)?look.scene:'meadow';
+    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,CHEEK,concealed,undefined,look.color);habitat.dataset.scene=look.scene;{const sc=['meadow','sunset','night','rainbow'].includes(look.scene)?look.scene:'meadow';
       // 살구빛·보랏빛 숲의 기본 풍경은 그 숲 색깔의 언덕이에요. 언덕(땅)이 늘 보이도록 아래쪽을 기준으로 맞춰요.
       const file=sc==='meadow'&&activeForest===1?'apricot':sc==='meadow'&&activeForest===2?'violet':sc;
       habitat.style.backgroundImage=`url("assets/garden-${file}.svg")`;habitat.style.backgroundSize='cover';habitat.style.backgroundPosition='center 82%';}
@@ -1286,7 +1342,7 @@
   let draftLook=null,draftRoutes=null,drag=null,selectedSlot='head';
   function renderGrowthMap(){
     const tree=$('growthMapTree');tree.replaceChildren();
-    const family=profile.family||profile.look.pet,chosen=routeFor(family,profile.routes),color=WARDROBE.color.items.find(c=>c[0]===profile.look.color)?.[2]||'#aac875';
+    const family=profile.family||profile.look.pet,chosen=routeFor(family,profile.routes),color=CHEEK;
     $('growthMapForest').textContent=FORESTS[activeForest].name+' · '+FORESTS[activeForest].grades;
     $('growthMapStatus').textContent=`${profile.look.name||growthName(family,profile.routes,profile.level)} · 현재 Lv.${profile.level}`;
     const node=(pet,route,level,name,reached,current=false,branch)=>{
@@ -1399,12 +1455,11 @@
   function mutatePose(mutator){
     if(!draftLook||draftLook[selectedSlot]==='none')return;
     const key=poseKey(draftLook,draftRoutes,selectedSlot),pose={...(draftLook.poses[key]||defaultPose())},before={...pose};mutator(pose);
-    if(Number.isFinite(before.gx)&&Number.isFinite(before.gy)){
-      const a=$('previewAvatar').getBoundingClientRect(),h=$('previewHabitat').getBoundingClientRect(),g=plantGeometry(draftLook.pet,routeFor(draftLook.pet,draftRoutes)?.id,profile.level);
-      pose.gx+=(pose.x-before.x)*a.width*g.scale/h.width;pose.gy+=(pose.y-before.y)*a.height*g.scale/h.height;
-      pose.x=before.x;pose.y=before.y;
+    if(Number.isFinite(before.ax)&&Number.isFinite(before.ay)){
+      const g=plantGeometry(draftLook.pet,routeFor(draftLook.pet,draftRoutes)?.id,profile.level);
+      pose.ax+=(pose.x-before.x)*g.scale;pose.ay+=(pose.y-before.y)*g.scale;pose.x=before.x;pose.y=before.y;
     }
-    draftLook.poses[key]={x:clamp(pose.x,-1,1),y:clamp(pose.y,-1,1),scale:clamp(pose.scale,.4,2),rotation:clamp(pose.rotation,-180,180),...(Number.isFinite(pose.gx)&&Number.isFinite(pose.gy)?{gx:clamp(pose.gx,.03,.97),gy:clamp(pose.gy,.03,.97)}:{})};
+    const p=pose;draftLook.poses[key]={x:clamp(pose.x,-1,1),y:clamp(pose.y,-1,1),scale:clamp(pose.scale,.4,2),rotation:clamp(pose.rotation,-180,180),...(Number.isFinite(p.ax)&&Number.isFinite(p.ay)?{ax:clamp(p.ax,-.6,1.6),ay:clamp(p.ay,-.4,1.4)}:Number.isFinite(p.gx)&&Number.isFinite(p.gy)?{gx:clamp(p.gx,.03,.97),gy:clamp(p.gy,.03,.97)}:{})};
     placeAccessories($('previewAvatar'),draftLook,draftRoutes);refreshPositionControls();
   }
   function setupDragging(avatar){
@@ -1427,7 +1482,7 @@
       const ps=[...points.values()],old=baseline.ps,h=habitat.getBoundingClientRect();let dx=ps[0].x-old[0].x,dy=ps[0].y-old[0].y,scale=baseline.pose.scale,rotation=baseline.pose.rotation;
       if(ps.length===2){dx=(ps[0].x+ps[1].x-old[0].x-old[1].x)/2;dy=(ps[0].y+ps[1].y-old[0].y-old[1].y)/2;scale*=distance(ps[0],ps[1])/distance(old[0],old[1]);rotation+=(angle(ps[0],ps[1])-angle(old[0],old[1]))*180/Math.PI;}
       else if(baseline.mode==='handle'){dx=dy=0;scale*=distance(baseline.c,ps[0])/distance(baseline.c,old[0]);rotation+=(angle(baseline.c,ps[0])-angle(baseline.c,old[0]))*180/Math.PI;}
-      mutatePose(p=>{p.gx=(baseline.c.x+dx-h.left)/h.width;p.gy=(baseline.c.y+dy-h.top)/h.height;p.scale=scale;p.rotation=((rotation+180)%360+360)%360-180;});
+      const a=avatar.getBoundingClientRect();mutatePose(p=>{p.ax=(baseline.c.x+dx-a.left)/a.width;p.ay=(baseline.c.y+dy-a.top)/a.height;delete p.gx;delete p.gy;p.scale=scale;p.rotation=((rotation+180)%360+360)%360-180;});
     };
     const end=e=>{if(!points.delete(e.pointerId))return;if(points.size)rebase();else{baseline=null;avatar.classList.remove('is-dragging');}};
     habitat.onpointerup=end;habitat.onpointercancel=end;habitat.onlostpointercapture=end;
@@ -2350,55 +2405,32 @@
     };$('forestTabs').append(button);
   });
   // Move the existing controls, retaining their listeners and desktop positions.
+  // 게임·돌봄 안내: 한 페이지에 두세 줄로 짧게.
   const GUIDE_PAGES=[
-    ['처음 만나는 덩어리 숲',
-      '인트로를 누르고 공부할 숲을 골라요. 초록빛 숲은 HSK 1~3급, 살구빛 숲은 4~6급, 보랏빛 숲은 7~9급이에요. 어휘가 아직 없는 급수는 준비 중으로 표시돼요.',
-      '오늘의 모험에서 쉬운 모드·어려운 모드, 급수, 문제 수를 정한 뒤 시작해요. 휴대폰에서는 상단 버튼을 누르면 열리고, 데스크톱에서는 모험 설정이 화면에 보여요.',
-      '세 숲은 친구·경험치·코인·보관함을 각각 따로 관리해요. 다른 숲에서는 마음씨부터 새롭게 키워요.'],
-    ['문제 풀기와 발음 듣기',
-      '덩어리 숲속으로는 제한 시간(1~2급 7초, 3급 8초, 4급 10초, 5급 12초 · ‘여유롭게’는 +5초) 안에 답하는 본게임이에요. 기본 문제를 맞히면 짝꿍어휘 보너스에 도전해요. 두 모드 모두 한자→뜻, 뜻→한자 두 방향이 섞여 나와요. 쉬운 모드는 병음이 늘 함께 보이고, 어려운 모드는 한자를 눌러야 병음이 보여요.',
-      '문제와 보기의 한자를 누르면 병음이 보여요. 한자 보기에서는 병음 확인과 정답 선택 버튼을 구분해 눌러 주세요. 답을 확인하는 팝업에서는 먼저 보이는 단어를 누르면 나머지 정보가 열려요.',
-      '발음은 음성 듣기를 눌러 재생해요. 보통 또는 천천히를 선택할 수 있어요. 틀린 문제는 결과 화면에서 기본 단어로 다시 연습해 보세요.'],
-    ['경험치·코인·학습 진행률',
-      '어려운 모드 기본 정답은 +5 XP와 2코인, 보너스 정답은 +3 XP와 1코인이에요. 쉬운 모드는 기본 정답 +3 XP와 1코인, 보너스 +2 XP, 연속 정답 +2 XP, 전체 정답 +5/+12 XP로 조금 적어요. 틀리거나 시간이 지나도 경험치는 줄지 않아요. 기본 문제를 5개 연속으로 맞힐 때마다 +3 XP를 더 받아요. 기본 10문제 전체 정답은 +10 XP, 20문제는 +25 XP를 더 받아요.',
-      '레벨이 높아질수록 필요한 경험치가 늘어요. 살구빛 숲과 보랏빛 숲은 초록빛 숲보다 더 천천히 자라요. 꾸준히 단어를 익히며 성장시켜 주세요.',
-      '단어마다 맞힌 기록을 기억해요. 틀린 단어는 다음 판에 먼저 나오고, 맞힌 단어는 1일·3일·7일·14일·30일 뒤에 복습으로 다시 나와요. 한 판의 절반까지 복습 단어가 섞이고 나머지는 새 단어예요. 학습 진행률에서 급수별로 오래 기억하는 단어와 오늘 복습할 단어 수를 볼 수 있어요.'],
-    ['친구 성장과 꾸미기',
-      '레벨 1 마음씨에서 레벨 2 마음싹으로 자라요. 레벨 3에는 성장 계열을 고르고, 레벨 4부터 9까지 점차 성장해요. 레벨 10에 세 갈래, 레벨 15에 두 갈래 중 하나를 고르고, 레벨 20에 최종 진화해요.',
-      '마음꽃·마음송이·마음담이는 모두 고를 수 있어요. 마음잎·마음열매·마음나무는 수강생판에서 열려요. 주요 진화는 한 판을 마친 뒤 연출 중에 선택하며, 선택 전 최종 모습은 실루엣으로 보여요.',
-      '내 친구 꾸미기에서 해금된 장식을 골라 위치를 조절해요. 날개와 망토는 몸 뒤에 놓여요. 로비에서 친구를 톡 누르면 대화하고, 꾹 누르면 들어 올렸다 놓을 수 있어요.'],
-    ['물을 주며 함께 자라기',
-      '물주기는 물뿌리개로 해요. 한 판의 기본 문제를 모두 맞히면 물뿌리개가 가득 차요. 틀린 단어가 있으면 결과 화면이나 물주기 버튼에서 틀린 단어를 한 번 더 보고 다시 풀어요. 다 맞히면 물뿌리개가 가득 차고, 로비에서 물주기 버튼을 눌러 친구에게 물을 줘요.',
-      '마지막 물주기에서 48시간이 지나면 −5 XP, 이후 24시간마다 −5 XP예요. 다시 물을 줄 때까지 최대 −20 XP이며 레벨은 내려가지 않아요. 물을 주면 이 차감 주기도 새로 시작해요.',
-      '물 부족은 미접속 시간도 계산해요. 문제를 푸는 동안은 차감을 미뤘다가 학습 후 반영해요. 날씨·벌레 시간은 로비가 보일 때만 흘러요. 학습·팝업·다른 탭·미접속 중에는 멈춰요.'],
-    ['숲 상점 사용법',
-      '문제로 모은 코인으로 사요. 햇살 비료는 20코인, 든든 비료는 35코인이며 기본 정답 10회 동안 각각 +1 XP, +2 XP를 더 줘요. 반짝 비료는 50코인에 +3 XP예요. 구매 후 바구니에서 식물에게 주기를 눌러야 적용되고 한 번에 하나만 사용해요.',
-      '살충제 10코인과 감기약 12코인은 한 번 쓰면 1개가 소모돼요. 우산 30코인, 부채 25코인, 난로 35코인은 한 번 사면 해당 숲에서 계속 쓸 수 있어요.',
-      '오답·보너스·틀린 단어 연습에서는 비료 횟수가 줄지 않아요. 현금 결제는 없어요. 모바일은 상품 버튼을 눌러 살펴보고, 데스크톱은 상품 카드를 함께 볼 수 있어요. 도구 사용은 로비의 바구니에서 해요. 상황에 맞지 않으면 친구가 거절하며 소모품은 줄지 않아요.'],
-    ['비·찬바람·감기 돌보기',
-      '가랑비는 도움을 요청해도 경험치를 깎지 않아요. 폭우에는 번개가 치고 우산 안으로도 비가 튈 수 있어요. 1분 노출마다 감기 확률은 우산 없이 20%, 우산을 쓰면 5%예요.',
-      '찬바람에는 1분마다 25% 확률로 감기에 걸려요. 난로를 놓으면 찬바람 감기를 예방해요. 이미 걸린 감기는 날씨가 맑아지거나 난로를 켜도 낫지 않으니 감기약을 먹여 주세요.',
-      '감기 방치는 활성 로비 시간 2분마다 −1 XP예요. 치료 전 돌봄 차감은 최대 5회로 제한하고 레벨을 보호해요. 감기와 더위가 겹치면 차감 상한을 함께 사용해요.'],
-    ['더위·벌레와 오래 즐기는 팁',
-      '무더위 때 친구가 부채질을 부탁해요. 부채질하면 45초 동안 시원하고 무더위 이벤트는 계속돼요. 다시 더워진 뒤 45초 내 돌보지 않으면 −1 XP예요. 한 무더위의 돌봄 차감은 최대 5회예요.',
-      '벌레는 90초 안에 살충제로 퇴치해요. 놓치면 한 번 −10 XP이며 처음에는 살충제 1개를 선물해요. 날씨는 로비에서 2분 동안 이어지고, 이벤트는 보통 2~4분 간격으로 찾아와요.',
-      '감기약·살충제를 미리 준비하고, 먼저 문제를 풀어 코인을 모아 보세요. 기록은 이 브라우저에 저장돼요. 설정 › 기록 옮기기에서 기록 코드를 저장해 두면 사이트 데이터를 지우거나 기기를 바꿔도 이어서 할 수 있어요.']
+    ['게임 시작하기',
+      '숲을 골라요. 초록빛 숲은 HSK 1~3급, 살구빛 숲은 4~6급, 보랏빛 숲은 7~9급이에요. 숲마다 친구와 기록이 따로예요.',
+      '‘오늘의 모험 떠나기’를 누르면 바로 시작해요. 급수·모드·문제 수는 옆의 ‘급수·방향’에서 바꿔요.'],
+    ['문제 풀기',
+      '두 모드 모두 한자→뜻, 뜻→한자 문제가 섞여 나와요. 쉬운 모드는 병음이 늘 보이고, 어려운 모드는 한자를 눌러야 보여요.',
+      '제한 시간 안에 답해요. 기본 문제를 맞히면 짝꿍어휘 보너스 문제가 나와요. 🔊를 누르면 발음을 들을 수 있어요.'],
+    ['경험치와 코인',
+      '정답을 맞히면 어려운 모드는 +5 XP·2코인, 쉬운 모드는 +3 XP·1코인. 5개 연속 정답, 한 판 전체 정답에는 보너스 XP가 더 있어요.',
+      '틀려도 경험치는 줄지 않아요. 틀린 단어는 다음 판에 먼저, 맞힌 단어는 며칠 뒤 복습으로 다시 나와요.'],
+    ['💧 물주기',
+      '한 판을 모두 맞히면 물뿌리개가 가득 차요. 틀린 단어가 있으면 한 번 더 보고 다시 풀어서 다 맞히면 가득 차요.',
+      '가득 차면 친구 창 오른쪽의 물주기 버튼으로 물을 줘요.',
+      '48시간 동안 물을 주지 않으면 경험치가 조금씩 줄어요. (최대 −20 XP, 레벨은 그대로)'],
+    ['친구 키우기와 꾸미기',
+      'Lv.3에 성장 계열, Lv.10에 세 갈래, Lv.15에 두 갈래를 골라요. Lv.20에는 전설의 식물로 최종 진화해요.',
+      '꾸미기에서 친구 색과 장식을 골라요. 친구를 톡 누르면 말하고, 꾹 누르면 들어 올릴 수 있어요.'],
+    ['상점·바구니·날씨',
+      '코인으로 상점에서 비료(정답 경험치 추가)와 돌봄 도구를 사고, 바구니에서 사용해요.',
+      '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 경험치가 조금 줄어요.',
+      '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.']
   ];
-  GUIDE_PAGES.splice(6,0,
-    ['바구니와 귀여운 거절 반응',
-      '상점은 구매만 하는 곳이에요. 물주기·숲 상점 옆 바구니에서 보유 수량을 확인하고 비료·살충제·감기약·우산·부채·난로를 사용해요. 비료·살충제·감기약은 소모품이며 우산·부채·난로는 계속 쓸 수 있어요.',
-      '무더위에 난로를 놓으면 친구가 화내며 치워 달라고 해요. 난로를 먼저 치운 뒤 부채질해 주세요. 비가 오거나 찬바람이 불 때 부채질하면 춥다고 투덜거려요.',
-      '감기가 없는데 약을 주거나 벌레가 없는데 살충제를 쓰면 거절해요. 비료가 이미 적용 중일 때도 새 비료를 거절해요. 거절한 소모품은 줄지 않고, 장난에 대한 추가 경험치 차감도 없어요.'],
-    ['전체 정답 선물과 반짝 비료',
-      '본게임에서 선택한 기본 10문제를 모두 맞히면 +10 XP, 20문제를 모두 맞히면 +25 XP를 한 번 더 받아요. 짝꿍어휘 정답 여부는 별개예요. 준비 운동·전체 단어 모드·기본 문제를 다 풀기 전 중도 종료에는 지급하지 않아요.',
-      '전체 정답을 달성하면 친구가 중국어 격려 표현 5개 중 하나로 약 3초 동안 축하해 줘요. 레벨업도 했다면 이어서 진화 연출과 성장 선택을 진행해요.',
-      '반짝 비료는 50코인에 구매해요. 바구니에서 먹이면 본게임 기본 정답 10회에 각각 +3 XP를 더 받아요. 오답·보너스·틀린 단어 연습에는 횟수가 줄지 않고, 전체 정답 보너스에는 비료 효과를 더하지 않아요.']
-  );
-  if(!STUDENT_BG)GUIDE_PAGES.push(['무료판과 기록 안내',
-    '체험판(무료판)은 친구가 Lv.10까지 자라고, 성장 계열은 마음꽃·마음송이 두 가지 중에서 골라요. Lv.15 신기한 식물과 Lv.20 전설의 식물, 더 많은 성장 계열은 수강생판에서 만날 수 있어요.',
-    '무료판은 한 판을 마친 뒤 결과 화면에서 진담중국어 소식이 한 번 나와요. 5초 뒤 닫고 결과를 볼 수 있어요.',
-    '오른쪽 위 원형 타이머로 남은 시청 시간을 봐요. 다른 탭으로 이동하면 시청 시간이 멈추며, 홍보 중에는 문제 타이머도 흐르지 않아요. 결과 홍보를 닫으면 전체 정답 축하·진화가 있는 경우 순서대로 볼 수 있어요. 수강생판에는 홍보가 표시되지 않아요.',
-    '캐릭터와 학습 기록은 이 브라우저에 저장해요. 다른 브라우저나 기기로 옮길 때는 설정 › 기록 옮기기에서 기록 코드를 만들어 붙여 넣어 주세요. 무료판과 수강생판 기록도 별개예요.']);
+  if(!STUDENT_BG)GUIDE_PAGES.push(['체험판 안내',
+    '체험판은 친구가 Lv.10까지 자라고, 성장 계열은 마음꽃·마음송이 중에서 골라요.',
+    '한 판을 마치면 진담중국어 소식이 5초 동안 나와요. 더 많은 식물과 Lv.20 전설의 식물은 수강생판에서 만나요.']);
   let guidePage=0;
   function renderGuide(){
     const page=GUIDE_PAGES[guidePage];$('guideTitle').textContent=page[0];$('guideCopy').replaceChildren();

@@ -839,3 +839,9 @@ html{touch-action:manipulation;-webkit-text-size-adjust:100%}
  #result #reviewBtn,#result #homeBtn{flex:none;min-height:46px;margin:0;width:100%}
 }
 @media(max-width:620px) and (max-height:620px){#result .result-garden{display:none}}
+html[data-edition="free"] .copyright-note{display:block}
+.brand-icon{background:none!important;padding:0;overflow:hidden}.brand-icon svg{width:100%;height:100%;display:block}
+.brand-wordmark strong em{font-style:normal;color:#6f9e57;font-weight:800}
+@media(max-width:620px){.brand-icon{width:32px!important;height:32px!important;border-radius:9px}.brand-wordmark .brand-promise{display:none}.brand-wordmark strong{font-size:16px!important;white-space:nowrap}}
+.topbar .brand-icon{display:block!important}.topbar .brand{display:flex;align-items:center;gap:8px}
+.topbar .brand-icon{display:block!important}.topbar .brand{display:flex;align-items:center;gap:8px}
