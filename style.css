@@ -855,3 +855,7 @@ html[data-edition="free"] .copyright-note{display:block}
  #gameApp>main{padding-top:2px}
 }
 .scene-thumb{display:block;width:100%;height:56px;border-radius:10px;background-size:cover;background-position:center 80%;box-shadow:inset 0 0 0 1px #0000000d}
+.source-note{margin:14px 0 0;padding:12px 14px;border-radius:14px;background:#f3f7ec;border:1px solid #dfe8d2;text-align:left}
+.source-note h3{margin:0 0 6px;font-size:14px;color:var(--green)}
+.source-note p{margin:0;font-size:12px;line-height:1.65;color:var(--ink);word-break:keep-all}
+.source-note .source-cite{margin-top:6px;font-size:10.5px;color:var(--muted)}

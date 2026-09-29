@@ -325,30 +325,31 @@
 
     /* ---------- 표정 ---------- */
     const INK='#2f3a28';
-    function face(style,fx,fy,s=1){
-      const d=10*s,e=3*s;
-      const smile=(w=4)=>L(`M${n(fx-w*s)} ${n(fy+7*s)}Q${n(fx)} ${n(fy+11.5*s)} ${n(fx+w*s)} ${n(fy+7*s)}`,INK,2*s);
-      const shine=(x,y,r)=>C(x,y,r,INK)+C(x-r*.35,y-r*.35,r*.38,'#ffffff');
+    // 얼굴은 마음씨·마음잎처럼 작고 자연스럽게: 작은 점 눈 + 작은 입. 표정만 살짝 달라요.
+    function face(style,fx,fy,s=1,ink=INK){
+      const d=10*s,r=2.4*s,hl=ink===INK?'#ffffff':'#3a2a2a';
+      const eye=(x)=>E(x,fy,r,r*1.15,ink)+C(x-r*.35,fy-r*.45,r*.36,hl,'',0,op(.9));
+      const eyes=eye(fx-d)+eye(fx+d);
+      const arcs=(up=true)=>L(`M${n(fx-d-3*s)} ${n(fy+(up?1:-1)*s)}q${n(3*s)} ${n((up?-4:4)*s)} ${n(6*s)} 0M${n(fx+d-3*s)} ${n(fy+(up?1:-1)*s)}q${n(3*s)} ${n((up?-4:4)*s)} ${n(6*s)} 0`,ink,1.9*s);
+      const smile=(w=4)=>L(`M${n(fx-w*s)} ${n(fy+6.5*s)}Q${n(fx)} ${n(fy+10.5*s)} ${n(fx+w*s)} ${n(fy+6.5*s)}`,ink,1.9*s);
+      const open=()=>P(`M${n(fx-4.5*s)} ${n(fy+6*s)}Q${n(fx)} ${n(fy+13*s)} ${n(fx+4.5*s)} ${n(fy+6*s)}Z`,'#8a4a3e','',0);
       switch(style){
-        case 'sparkle':return shine(fx-d,fy,e*1.6)+shine(fx+d,fy,e*1.6)+C(fx-d+e*.7,fy+e*.6,e*.25,'#ffffff')+C(fx+d+e*.7,fy+e*.6,e*.25,'#ffffff')+smile(4);
-        case 'star':return star5(fx-d,fy,e*1.9,'#f7c948','#9a6f12')+star5(fx+d,fy,e*1.9,'#f7c948','#9a6f12')+P(`M${n(fx-6*s)} ${n(fy+7*s)}Q${n(fx)} ${n(fy+15*s)} ${n(fx+6*s)} ${n(fy+7*s)}Z`,'#7a3b34');
-        case 'wink':return L(`M${n(fx-d-4*s)} ${n(fy)}q${n(4*s)} ${n(-5*s)} ${n(8*s)} 0`,INK,2.4*s)+shine(fx+d,fy,e*1.4)+P(`M${n(fx-5*s)} ${n(fy+7*s)}Q${n(fx)} ${n(fy+13*s)} ${n(fx+5*s)} ${n(fy+7*s)}Z`,'#7a3b34')+E(fx+3*s,fy+10.5*s,2.2*s,1.6*s,'#e88a8a');
-        case 'cool':return P(`M${n(fx-d-5*s)} ${n(fy-2*s)}h${n(10*s)}v${n(3*s)}a${n(5*s)} ${n(4*s)} 0 0 1 ${n(-10*s)} 0z`,INK)+P(`M${n(fx+d-5*s)} ${n(fy-2*s)}h${n(10*s)}v${n(3*s)}a${n(5*s)} ${n(4*s)} 0 0 1 ${n(-10*s)} 0z`,INK)+L(`M${n(fx-5*s)} ${n(fy+8*s)}Q${n(fx+1*s)} ${n(fy+11*s)} ${n(fx+6*s)} ${n(fy+6*s)}`,INK,2*s);
-        case 'sleepy':return L(`M${n(fx-d-4*s)} ${n(fy)}q${n(4*s)} ${n(4*s)} ${n(8*s)} 0M${n(fx+d-4*s)} ${n(fy)}q${n(4*s)} ${n(4*s)} ${n(8*s)} 0`,INK,2.2*s)+E(fx,fy+9*s,2.4*s,3*s,'#7a3b34')+`<text x="${n(fx+16*s)}" y="${n(fy-12*s)}" font-size="${n(12*s)}" font-family="Arial" font-weight="bold" fill="#6d7fb3">z</text><text x="${n(fx+24*s)}" y="${n(fy-20*s)}" font-size="${n(8*s)}" font-family="Arial" font-weight="bold" fill="#6d7fb3">z</text>`;
-        case 'fierce':return L(`M${n(fx-d-5*s)} ${n(fy-7*s)}l${n(9*s)} ${n(3*s)}M${n(fx+d+5*s)} ${n(fy-7*s)}l${n(-9*s)} ${n(3*s)}`,INK,2.4*s)+shine(fx-d,fy,e*1.3)+shine(fx+d,fy,e*1.3)+P(`M${n(fx-7*s)} ${n(fy+6*s)}H${n(fx+7*s)}Q${n(fx+6*s)} ${n(fy+14*s)} ${n(fx)} ${n(fy+14*s)}Q${n(fx-6*s)} ${n(fy+14*s)} ${n(fx-7*s)} ${n(fy+6*s)}Z`,'#7a3b34')+P(`M${n(fx-6*s)} ${n(fy+6*s)}H${n(fx+6*s)}V${n(fy+8.5*s)}H${n(fx-6*s)}Z`,'#ffffff');
-        case 'heart':return heart(fx-d,fy,e*1.5,'#e8506e')+heart(fx+d,fy,e*1.5,'#e8506e')+smile(5);
-        case 'laugh':return L(`M${n(fx-d-4*s)} ${n(fy+1*s)}q${n(4*s)} ${n(-6*s)} ${n(8*s)} 0M${n(fx+d-4*s)} ${n(fy+1*s)}q${n(4*s)} ${n(-6*s)} ${n(8*s)} 0`,INK,2.4*s)+P(`M${n(fx-7*s)} ${n(fy+6*s)}Q${n(fx)} ${n(fy+8*s)} ${n(fx+7*s)} ${n(fy+6*s)}Q${n(fx+6*s)} ${n(fy+17*s)} ${n(fx)} ${n(fy+17*s)}Q${n(fx-6*s)} ${n(fy+17*s)} ${n(fx-7*s)} ${n(fy+6*s)}Z`,'#7a3b34')+E(fx,fy+14*s,4*s,2.4*s,'#e88a8a');
-        case 'surprise':return C(fx-d,fy,e*1.5,'#ffffff',INK,1.6*s)+C(fx-d,fy,e*.8,INK)+C(fx+d,fy,e*1.5,'#ffffff',INK,1.6*s)+C(fx+d,fy,e*.8,INK)+E(fx,fy+10*s,3*s,4*s,'#7a3b34');
-        case 'owl':return C(fx-11*s,fy,9*s,'#fffbe8','#5a4432',2*s)+C(fx+11*s,fy,9*s,'#fffbe8','#5a4432',2*s)+shine(fx-11*s,fy+1*s,4.4*s)+shine(fx+11*s,fy+1*s,4.4*s)+P(`M${n(fx-4*s)} ${n(fy+8*s)}L${n(fx+4*s)} ${n(fy+8*s)}L${n(fx)} ${n(fy+15*s)}Z`,'#f0a534','#a8671a',1);
-        case 'panda':return E(fx-11*s,fy+1*s,7*s,8.5*s,'#2b2b2b','',0,rot(-20,fx-11*s,fy))+E(fx+11*s,fy+1*s,7*s,8.5*s,'#2b2b2b','',0,rot(20,fx+11*s,fy))+C(fx-10*s,fy,3*s,'#ffffff')+C(fx+10*s,fy,3*s,'#ffffff')+C(fx-9.6*s,fy+.4*s,1.6*s,INK)+C(fx+10.4*s,fy+.4*s,1.6*s,INK)+E(fx,fy+8*s,3.6*s,2.6*s,'#2b2b2b')+smile(3.5);
-        default:return C(fx-d,fy,e,INK)+C(fx+d,fy,e,INK)+smile(4);
+        case 'laugh':case 'star':return arcs(true)+open();
+        case 'wink':return L(`M${n(fx-d-3*s)} ${n(fy+1*s)}q${n(3*s)} ${n(-4*s)} ${n(6*s)} 0`,ink,1.9*s)+eye(fx+d)+smile(4);
+        case 'sleepy':return arcs(false)+E(fx,fy+8*s,1.8*s,2.2*s,'#8a4a3e');
+        case 'cool':return L(`M${n(fx-d-3*s)} ${n(fy-1*s)}h${n(6*s)}M${n(fx+d-3*s)} ${n(fy-1*s)}h${n(6*s)}`,ink,1.4*s)+eyes+smile(3.5);
+        case 'fierce':return L(`M${n(fx-d-3.5*s)} ${n(fy-5*s)}l${n(6*s)} ${n(2*s)}M${n(fx+d+3.5*s)} ${n(fy-5*s)}l${n(-6*s)} ${n(2*s)}`,ink,1.6*s)+eyes+smile(4);
+        case 'surprise':return eyes+E(fx,fy+8*s,2*s,2.6*s,'#8a4a3e');
+        case 'heart':return eyes+smile(4)+heart(fx+d+8*s,fy-6*s,2.2*s,'#ef8aa0');
+        case 'sparkle':return eyes+smile(4)+star(fx+d+9*s,fy-8*s,3*s,'#fff3b0','#e8c85a');
+        default:return eyes+smile(4);
       }
     }
 
     /* ---------- 식물 변신 (Lv.15 신기한 식물 → Lv.20 고대·전설의 식물) ---------- */
     const trunk=(x,top,bot,wt,wb,c,d)=>P(`M${n(x-wb/2)} ${bot}Q${n(x-wt/2-3)} ${n((top+bot)/2)} ${n(x-wt/2)} ${top}H${n(x+wt/2)}Q${n(x+wt/2+3)} ${n((top+bot)/2)} ${n(x+wb/2)} ${bot}Z`,c,d,2);
     const petal=(cx,cy,r0,len,w,ang,f,s,sw=1.2)=>E(cx,cy-r0-len/2,w,len/2,f,s,sw,rot(ang,cx,cy));
-    const patch=(x,y,rx=18,ry=13,c='#fdf3df')=>E(x,y,rx,ry,c);
+    const patch=()=>'';
     const blobs=(arr,c,d,w=2)=>arr.map(([x,y,r])=>C(x,y,r,c,d,w)).join('');
     const soil=(c='#6b5238')=>E(90,193,58,6,c,'',0,op(.22));
     const stem=(d,c='#4f7d3a',w=5)=>L(d,c,w);
@@ -361,14 +362,22 @@
         a+=G('translate(0 34) scale(1 .74)',[0,72,144,216,288].map(ang=>E(90,70,30,36,'#c2412f','#7a1f14',2.5,rot(ang,90,118))).join('')+(()=>{let o='';for(let i=0;i<5;i++)for(const [dx,dy,r] of [[-10,-28,5],[8,-34,4],[0,-44,6],[14,-22,3],[-16,-40,3]])o+=C(90+dx,118+dy,r,'#f5e6d8','',0,rot(i*72,90,118));return o;})());
         a+=E(90,122,30,20,'#8e2a1c','#5c160c',2)+E(90,118,24,13,'#f1d3c8');
         a+=leaf(34,190,-70,.5,'#6f8a4a')+leaf(146,190,70,.5,'#6f8a4a');return a;}},
-      {name:'태양을 삼킨 타이탄 아룸',face:[90,100],head:[90,18],neck:[90,132],st:'star',fs:.95,draw(){let a=soil();
-        a+=P('M24 190Q8 120 40 96Q60 110 70 140Q76 110 90 100Q104 110 110 140Q120 110 140 96Q172 120 156 190Z','#6b1f3a','#3f0c20',2.5);
-        a+=P('M32 188Q22 132 44 110Q60 126 66 152M148 188Q158 132 136 110Q120 126 114 152','none','#a33a5a',3);
-        a+=P('M40 190Q30 150 54 132Q66 150 90 150Q114 150 126 132Q150 150 140 190Z','#8a2a4a','#3f0c20',2);
-        a+=P('M72 150Q70 60 80 20Q90 4 100 20Q110 60 108 150Z','#e9d38a','#a8871c',2.5);
-        for(let y=36;y<140;y+=12)a+=L(`M${80-(y<60?0:2)} ${y}q10 3 20 0`,'#cdb46a',1.3);
-        a+=patch(90,104,16,12,'#f8ecc0');
-        a+=P('M24 190Q40 170 60 186M156 190Q140 170 120 186','none','#5f8a3a',4);return a;}});
+      {name:'태양을 삼킨 타이탄 아룸',face:[90,96],head:[90,14],neck:[90,138],st:'star',fs:1,draw(){let a=soil();
+        // 뒤쪽 잎
+        a+=leaf(26,192,-58,.95,'#6f9a52','#456e3a')+leaf(154,192,58,.95,'#6f9a52','#456e3a');
+        // 불염포 안쪽(자줏빛)
+        a+=P('M22 120Q44 98 90 106Q136 98 158 120Q150 178 90 188Q30 178 22 120Z','#7a2440','#4e1428',2);
+        for(let i=0;i<9;i++){const x=34+i*14;a+=L(`M${x} ${118+Math.abs(4-i)*1.5}Q${90+(x-90)*.8} 160 ${90+(x-90)*.55} 184`,'#9a3a58',1.6);}
+        // 꽃차례 기둥(육수꽃차례)
+        a+=P('M73 152Q68 74 81 24Q90 6 99 24Q112 74 107 152Z','#ead58a','#b39a3e',2.2);
+        a+=P('M84 30Q80 80 82 150','none','#f7eab8',4,op(.8));
+        for(let y=30;y<150;y+=9)if(y<82||y>114)for(let k=-1;k<=1;k++)a+=C(90+k*(6+(y-20)*.07)+(y%18?2:-2),y,1.3,'#c9ad52');
+        // 불염포 바깥(초록, 가장자리 자줏빛 주름)
+        a+=P('M12 118Q24 134 40 130Q56 144 72 134Q90 148 108 134Q124 144 140 130Q156 134 168 118Q164 178 90 194Q16 178 12 118Z','#5e8c4c','#3d6634',2.4);
+        a+=P('M12 118Q24 134 40 130Q56 144 72 134Q90 148 108 134Q124 144 140 130Q156 134 168 118','none','#8a2a4a',4);
+        for(const x of [36,58,90,122,144])a+=L(`M${x} ${x===90?146:138}Q${90+(x-90)*.7} 170 ${90+(x-90)*.5} 190`,'#79a862',1.6);
+        a+=P('M30 150Q40 176 70 186','none','#86b46c',3,op(.6));
+        return a;}});
     def('moonflower',
       {name:'날렵한 극락조화',face:[82,104],head:[96,40],neck:[82,126],st:'wink',draw(){let a=soil();
         a+=stem('M92 192Q90 150 86 118','#4f7d3a',6)+leaf(92,190,-40,1.05,'#4f8a4a')+leaf(92,190,34,.95,'#5f9a55');
@@ -530,7 +539,7 @@
         a+=C(90,120,40,'#ffd36a','',0,op(.15));
         a+=patch(90,122,15,9,'#fbe6c8');return a;}});
     def('nightreishi',
-      {name:'수줍은 먹물버섯',face:[90,82],head:[90,24],neck:[90,132],st:'sleepy',draw(){let a=soil();
+      {ink:'#fff6e6',name:'수줍은 먹물버섯',face:[90,82],head:[90,24],neck:[90,132],st:'sleepy',draw(){let a=soil();
         a+=R(82,120,16,72,6,'#fbf8f0','#c9c0ae',2);
         a+=P('M62 124Q58 60 66 34Q90 12 114 34Q122 60 118 124Z','#f4f0e6','#b9b09a',2.5);
         for(let r=0;r<6;r++)for(let k=0;k<4;k++)a+=P(`M${68+k*12+(r%2?6:0)} ${40+r*14}q4 6 8 0`,'none','#c9b89a',1.5);
@@ -553,7 +562,7 @@
         for(let i=0;i<7;i++)a+=petal(90,136,0,26,10,i*51+8,'#cfe4dd','#8faba3',1.2);
         for(let i=0;i<11;i++){const ang=(i*32.7-90)*Math.PI/180;a+=C(90+Math.cos(ang)*54,140+Math.sin(ang)*54,3.5,'#f08aa8');}
         a+=patch(90,132,15,10,'#effaf5');return a;}},
-      {name:'천년을 사는 웰위치아',face:[90,160],head:[90,120],neck:[90,176],st:'star',draw(){let a='';
+      {ink:'#fff6e6',name:'천년을 사는 웰위치아',face:[90,160],head:[90,120],neck:[90,176],st:'star',draw(){let a='';
         a+=E(90,194,68,8,'#e8c890');
         a+=P('M76 170Q30 150 10 176Q4 190 30 186Q20 176 40 172Q56 176 70 180Z','#6f8a3a','#3f5a1a',2)+L('M70 174Q40 162 20 180','#9ab45a',1.5)+P('M12 184q-6 6 2 8M22 186q-2 8 6 6','none','#8a6a3a',2);
         a+=P('M104 170Q150 150 170 176Q176 190 150 186Q160 176 140 172Q124 176 110 180Z','#6f8a3a','#3f5a1a',2)+L('M110 174Q140 162 160 180','#9ab45a',1.5)+P('M168 184q6 6 -2 8M158 186q2 8 -6 6','none','#8a6a3a',2);
@@ -634,7 +643,7 @@
         return a;}});
     /* ===== 마음잎 ===== */
     def('fiveleaf',
-      {name:'사랑스러운 사랑초',face:[90,86],head:[90,40],neck:[90,112],st:'heart',draw(){let a=soil();
+      {ink:'#fff6e6',name:'사랑스러운 사랑초',face:[90,86],head:[90,40],neck:[90,112],st:'heart',draw(){let a=soil();
         const tri=(x,y,s)=>G(`translate(${x} ${y}) scale(${s})`,[0,120,240].map(ang=>P('M0 0L-16 -30Q0 -38 16 -30Z','#7a3f9a','#4a1f6a',1.5,rot(ang,0,0))+E(0,-22,5,3,'#b98ad8',op(.7),rot(ang,0,0))).join(''));
         for(const [x,y,s] of [[46,128,.9],[134,124,.95],[62,158,.7],[120,160,.7]])a+=L(`M90 190Q${x} ${y+30} ${x} ${y}`,'#8a5a8a',2)+tri(x,y,s);
         a+=L('M90 190V100','#8a5a8a',3)+tri(90,96,1.5);
@@ -734,7 +743,7 @@
         for(const [x,y,s] of [[56,92,1],[124,88,1],[90,70,1.3]])a+=P(`M${x} ${y-12*s}Q${x-14*s} ${y-12*s} ${x-13*s} ${y+2*s}Q${x-8*s} ${y+14*s} ${x} ${y+14*s}Q${x+8*s} ${y+14*s} ${x+13*s} ${y+2*s}Q${x+14*s} ${y-12*s} ${x} ${y-12*s}Z`,'#ffb0bc','#d86a7a',1.5)+P(`M${x} ${y-12*s}Q${x+6*s} ${y} ${x} ${y+14*s}`,'none','#f08a9a',1.2)+E(x-6*s,y-4*s,4*s,6*s,'#ff8a9a',op(.6));
         a+=patch(90,156,13,10,'#f4e2cc');return a;}});
     def('berryfield',
-      {name:'줄무늬 수박 덩굴',face:[90,146],head:[90,106],neck:[90,176],st:'laugh',draw(){let a=soil();
+      {ink:'#fff6e6',name:'줄무늬 수박 덩굴',face:[90,146],head:[90,106],neck:[90,176],st:'laugh',draw(){let a=soil();
         a+=L('M10 150Q40 120 60 140T110 120T170 140','#5f9a45',3)+P('M150 128q10 -10 16 0q-6 10 -16 0','none','#5f9a45',2);
         for(const [x,y] of [[30,136],[78,126],[134,124]])a+=leaf(x,y,-40,.55,'#6fae55');
         a+=bloom(106,116,6,'#f6d66b','#f2a33a');
@@ -752,14 +761,14 @@
         for(const [x,y,c] of [[48,176,'#f6d66b'],[132,178,'#e8403a'],[40,160,'#4f9ae8'],[140,158,'#f6d66b']])a+=C(x,y,5,c,'#ffffff',1.5);
         a+=patch(90,148,16,12,'#fffaf0');return a;}});
     def('violetberry',
-      {name:'주렁주렁 포도 덩굴',face:[90,118],head:[90,64],neck:[90,160],st:'wink',draw(){let a=soil();
+      {ink:'#fff6e6',name:'주렁주렁 포도 덩굴',face:[90,118],head:[90,64],neck:[90,160],st:'wink',draw(){let a=soil();
         a+=L('M8 60Q50 40 90 56Q130 40 172 60','#8a6a3a',5);
         for(const [x,y] of [[30,62],[150,62],[64,56],[116,54]])a+=G(`translate(${x} ${y})`,P('M0 0Q-20 -4 -22 -18Q-14 -30 0 -22Q14 -30 22 -18Q20 -4 0 0Z','#6fae55','#3f7d3a',1.5));
         a+=P('M150 64q10 10 4 18q-8 4 -6 -4','none','#8a6a3a',1.5);
         a+=L('M90 56V76','#8a6a3a',3);
         for(let r=0;r<6;r++)for(let k=0;k<6-r;k++)a+=C(90-(5-r-1)*9+k*18,86+r*16,10,(r+k)%2?'#7a4aa8':'#8a5ac0','#4a2a70',1.2)+C(86-(5-r-1)*9+k*18,82+r*16,2.5,'#c8a8f0');
         a+=patch(90,120,15,11,'#f4ecfb');return a;}},
-      {name:'억만 년을 견딘 소철',face:[90,150],head:[90,56],neck:[90,172],st:'star',draw(){let a='';
+      {ink:'#fff6e6',name:'억만 년을 견딘 소철',face:[90,150],head:[90,56],neck:[90,172],st:'star',draw(){let a='';
         a+=E(90,194,68,8,'#8a7a5a');
         a+=P('M66 194Q60 130 70 100H110Q120 130 114 194Z','#8a6a4a','#5a4228',2.5);
         for(let r=0;r<8;r++)for(let k=0;k<4;k++)a+=P(`M${70+k*10+(r%2?5:0)} ${106+r*11}l5 -5 5 5-5 5Z`,'#a8845c','#6f5236',.8);
@@ -879,7 +888,7 @@
         for(let t=0;t<7;t++){const y=24+t*16,w=12+t*9;a+=P(`M90 ${y-12}L${90-w} ${y+14}H${90+w}Z`,t%2?'#d88a4a':'#c8783a','#8a4a1a',1.5);}
         for(let i=0;i<20;i++)a+=L(`M${60+(i*13)%60} ${30+((i*17)%100)}l-4 3M${60+(i*13)%60} ${30+((i*17)%100)}l4 3`,'#f0b870',1.2);
         a+=patch(90,166,11,9,'#f4e0cc');return a;}},
-      {name:'석탄기의 거인 인목',face:[90,150],head:[90,10],neck:[90,172],st:'star',draw(){let a='';
+      {ink:'#fff6e6',name:'석탄기의 거인 인목',face:[90,150],head:[90,10],neck:[90,172],st:'star',draw(){let a='';
         a+=E(90,194,68,8,'#4f6a4a')+E(40,194,30,5,'#7fa0a8',op(.6));
         a+=R(74,40,32,154,10,'#6f8a5a','#3f5a34',2.5);
         for(let r=0;r<14;r++)for(let k=0;k<3;k++)a+=P(`M${78+k*9+(r%2?4.5:0)} ${46+r*10}l4 -4 4 4-4 5Z`,'#8aa870','#4f6a44',.8);
@@ -904,7 +913,8 @@
   })();
   const fx2=n=>Number(n.toFixed(1));
   const star=(x,y,r,fill='#f6d66b')=>`<path d="M${x} ${y-r}L${fx2(x+r*.28)} ${fx2(y-r*.28)}L${x+r} ${y}L${fx2(x+r*.28)} ${fx2(y+r*.28)}L${x} ${y+r}L${fx2(x-r*.28)} ${fx2(y+r*.28)}L${x-r} ${y}L${fx2(x-r*.28)} ${fx2(y-r*.28)}Z" fill="${fill}" stroke="#fffbe8" stroke-width=".8"/>`;
-  const finalAura=c=>`<circle cx="90" cy="104" r="88" fill="${c}" opacity=".28"/><circle cx="90" cy="104" r="68" fill="${c}" opacity=".3"/>`;
+  let auraSeq=0;
+  const finalAura=c=>{const id='aura'+(++auraSeq);return `<defs><radialGradient id="${id}"><stop offset="0" stop-color="${c}" stop-opacity=".7"/><stop offset=".55" stop-color="${c}" stop-opacity=".32"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs><circle cx="90" cy="104" r="96" fill="url(#${id})"/>`;};
   const finalSparkles=()=>star(22,34,7)+star(160,24,6)+star(166,132,5)+star(14,120,5)+star(90,6,5);
   // 친구 색깔 = 계절·빛 '분위기'. 원색을 그대로 입히지 않고, 식물 종류마다 자연에 있을 법한 색으로만 바꿔요.
   //  (해바라기는 분홍·레몬·붉은·하얀·크림 해바라기가 될 수 있지만 보라·파랑은 되지 않아요.)
@@ -950,8 +960,9 @@
     const out=art.replace(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g,m=>map[m.toLowerCase()]||m);
     if(tintCache.size>300)tintCache.clear();tintCache.set(key,out);return out;
   }
-  function creatureSVG(pet,route,level,color='#aac875',silhouette=false,branch,tint){
-    const g=plantGeometry(pet,route,level,branch),kind=g.family,adult=g.adult;
+  let shadeSeq=0;
+  function creatureSVG(pet,route,level,color='#aac875',silhouette=false,branch,tint,rich=false){
+    const g=plantGeometry(pet,route,level,branch),kind=g.family,adult=g.adult;let richOverlay='';
     const C=(x,y,r,fill)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
     const leaf=(x,y,angle,size=1,fill='#648e52')=>`<g transform="translate(${x} ${y}) rotate(${angle}) scale(${size})"><path d="M0 0Q-24 -24 0 -58Q26 -26 0 0Z" fill="${fill}" stroke="#416e42" stroke-width="1.3"/><path d="M0 -3V-50M0 -20L-10 -30M0 -30L9 -40" stroke="#b5c695" stroke-width="1" fill="none"/></g>`;
     let art='';
@@ -1047,12 +1058,15 @@
     }
     const [fx,fy]=g.face;
     const baseFace=C(fx-10,fy,level>=5?2.3:3,'#38442d')+C(fx+10,fy,level>=5?2.3:3,'#38442d')+`<path d="M${fx-4} ${fy+7}Q${fx} ${fy+11} ${fx+4} ${fy+7}" stroke="#38442d" stroke-width="2" fill="none" stroke-linecap="round"/>`;
-    const face=g.form?LEGEND.face(g.form.st,fx,fy,g.form.fs||1.1):baseFace;
+    const face=g.form?LEGEND.face(g.form.st,fx,fy,g.form.fs||1,g.form.ink):baseFace;
     const charm=`<ellipse cx="${fx-18}" cy="${fy+7}" rx="4" ry="2.5" fill="${color}"/><ellipse cx="${fx+18}" cy="${fy+7}" rx="4" ry="2.5" fill="${color}"/>`;
+    if(rich&&!silhouette&&kind!=='seed'){const id='shade'+(++shadeSeq),mask=art.replace(/fill="(?!none)[^"]+"/g,'fill="#fff"').replace(/stroke="(?!none)[^"]+"/g,'stroke="#fff"');
+      // 빛이 왼쪽 위에서 비치는 것처럼 은은한 명암을 입혀 입체감을 더해요.
+      richOverlay=`<defs><linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".26"/><stop offset=".42" stop-color="#fff" stop-opacity="0"/><stop offset=".62" stop-color="#1d2a1a" stop-opacity="0"/><stop offset="1" stop-color="#1d2a1a" stop-opacity=".2"/></linearGradient><mask id="${id}m" maskUnits="userSpaceOnUse" x="-40" y="-40" width="260" height="290">${mask}</mask></defs><rect x="-40" y="-40" width="260" height="290" fill="url(#${id}g)" mask="url(#${id}m)" pointer-events="none"/>`;}
     if(tint&&tint!=='original'&&!silhouette)art=tintArt(art,tint,kind,g.form&&branchOf(pet,route,level,adult,branch)==='bamboo');
     // SVG filter is local to each SVG. Silhouette removes all fill/stroke colors and facial detail.
     if(silhouette)art=art.replace(/fill="[^"]+"/g,'fill="#34453d"').replace(/stroke="[^"]+"/g,'stroke="#34453d"').replace(/opacity="[^"]+"/g,'opacity="1"');
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210" aria-hidden="true"><g transform="translate(${90*(1-g.scale)} ${197*(1-g.scale)}) scale(${g.scale})"><g class="plant-body">${art}</g>${silhouette?'':charm+`<g class="expression-normal">${face}</g><g class="expression-happy"><path d="M${fx-16} ${fy+1}q6 -10 12 0M${fx+4} ${fy+1}q6 -10 12 0" fill="none" stroke="#38442d" stroke-width="2.6" stroke-linecap="round"/><path d="M${fx-7} ${fy+8}q7 4 14 0q-1 14-7 14t-7-14" fill="#79473f"/><path d="M${fx-4} ${fy+17}q4 -4 8 0" fill="none" stroke="#edaaa0" stroke-width="3"/><ellipse cx="${fx-19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/><ellipse cx="${fx+19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/></g><g class="expression-lift"><circle cx="${fx-10}" cy="${fy}" r="4" fill="#38442d"/><circle cx="${fx+10}" cy="${fy}" r="4" fill="#38442d"/><ellipse cx="${fx}" cy="${fy+10}" rx="4" ry="6" fill="#68483a"/></g><g class="expression-land"><path d="M${fx-15} ${fy-4}l7 4-7 4M${fx+15} ${fy-4}l-7 4 7 4M${fx-5} ${fy+12}q5 -5 10 0" stroke="#38442d" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`}</g></svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210" aria-hidden="true"><g transform="translate(${90*(1-g.scale)} ${197*(1-g.scale)}) scale(${g.scale})"><g class="plant-body">${art}${richOverlay}</g>${silhouette?'':charm+`<g class="expression-normal">${face}</g><g class="expression-happy"><path d="M${fx-16} ${fy+1}q6 -10 12 0M${fx+4} ${fy+1}q6 -10 12 0" fill="none" stroke="#38442d" stroke-width="2.6" stroke-linecap="round"/><path d="M${fx-7} ${fy+8}q7 4 14 0q-1 14-7 14t-7-14" fill="#79473f"/><path d="M${fx-4} ${fy+17}q4 -4 8 0" fill="none" stroke="#edaaa0" stroke-width="3"/><ellipse cx="${fx-19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/><ellipse cx="${fx+19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/></g><g class="expression-lift"><circle cx="${fx-10}" cy="${fy}" r="4" fill="#38442d"/><circle cx="${fx+10}" cy="${fy}" r="4" fill="#38442d"/><ellipse cx="${fx}" cy="${fy+10}" rx="4" ry="6" fill="#68483a"/></g><g class="expression-land"><path d="M${fx-15} ${fy-4}l7 4-7 4M${fx+15} ${fy-4}l-7 4 7 4M${fx-5} ${fy+12}q5 -5 10 0" stroke="#38442d" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`}</g></svg>`;
   }
   const LOOK_DEFAULT = Object.freeze({pet:'', color:'original', head:'none', face:'none', neck:'none', scene:'meadow', back:'none', charm:'none', name:''});
   // [id, label, icon or color, required level]. Unlocks never consume XP.
@@ -1315,7 +1329,7 @@
     avatar.classList.add('forest-avatar');avatar.style.background='transparent';
     let illustration=avatar.querySelector('.creature-art');if(!illustration){illustration=document.createElement('div');illustration.className='creature-art';avatar.prepend(illustration);}
     const concealed=avatar.id==='previewAvatar'&&g.adult&&profile.routes[look.pet]!==route?.id;
-    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,CHEEK,concealed,undefined,look.color);habitat.dataset.scene=look.scene;{const sc=WARDROBE.scene.items.some(i=>i[0]===look.scene)?look.scene:'meadow';
+    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,CHEEK,concealed,undefined,look.color,true);habitat.dataset.scene=look.scene;{const sc=WARDROBE.scene.items.some(i=>i[0]===look.scene)?look.scene:'meadow';
       // 살구빛·보랏빛 숲의 기본 풍경은 그 숲 색깔의 언덕이에요. 언덕(땅)이 늘 보이도록 아래쪽을 기준으로 맞춰요.
       const file=sc==='meadow'&&activeForest===1?'apricot':sc==='meadow'&&activeForest===2?'violet':sc;
       habitat.style.backgroundImage=`url("assets/garden-${file}.svg")`;habitat.style.backgroundSize='cover';habitat.style.backgroundPosition='center 82%';}
@@ -1831,7 +1845,9 @@
       mistakes:new Map(),startLevel:profile.level,startAppearance:$('mascot').innerHTML,growthEventPlayed:false};
     screen('game');showQuestion(false);
   }
-  const questionSeconds=(word,bonus)=>(LEVEL_SECONDS[word.level]||RULES.seconds)+(bonus?RULES.bonusExtra:0)+(state?.relaxed?RULES.relaxedExtra:0);
+  // 제한 시간은 급수와 상관없이 모드로 정해요: 쉬운 모드 12초, 어려운 모드 7초 (짝꿍어휘 보너스는 +2초).
+  const MODE_SECONDS={easy:12,hard:7};
+  const questionSeconds=(word,bonus)=>(state?.easy?MODE_SECONDS.easy:MODE_SECONDS.hard)+(bonus?RULES.bonusExtra:0);
   // Pronunciation belongs to the reveal panel, never to quiz choices.
   function cleanQuizText(value){
     return String(value||'').replace(/[（(][^()（）]*[A-Za-z\u00c0-\u024f\u1e00-\u1eff][^()（）]*[)）]/g,'')
@@ -2034,8 +2050,8 @@
     const easy=difficulty()==='easy';
     if(profile.difficulty!==(easy?'easy':'hard')){profile.difficulty=easy?'easy':'hard';save();}
     $('ruleBox').innerHTML=easy
-      ?'<b>쉬운 모드</b> · 두 방향이 섞여 나오고, 한자에 병음이 늘 함께 보여요.<br>기본 정답 <b>+3 XP · 1코인</b> · 5개 연속 정답마다 <b>+2 XP</b> · 짝꿍어휘 보너스 <b>+2 XP</b>'
-      :'<b>어려운 모드</b> · 두 방향이 섞여 나오고, 병음은 한자를 눌러야 보여요.<br>기본 정답 <b>+5 XP · 2코인</b> · 5개 연속 정답마다 <b>+3 XP</b> · 짝꿍어휘 보너스 <b>+3 XP · 1코인</b>';
+      ?'<b>쉬운 모드</b> · 두 방향이 섞여 나오고, 병음이 늘 보여요. <b>12초</b> 안에 답해요.<br>기본 정답 <b>+3 XP · 1코인</b> · 5개 연속 정답마다 <b>+2 XP</b> · 짝꿍어휘 보너스 <b>+2 XP</b>'
+      :'<b>어려운 모드</b> · 두 방향이 섞여 나오고, 병음은 한자를 눌러야 보여요. <b>7초</b> 안에 답해요.<br>기본 정답 <b>+5 XP · 2코인</b> · 5개 연속 정답마다 <b>+3 XP</b> · 짝꿍어휘 보너스 <b>+3 XP · 1코인</b>';
     $('startBtn').firstChild.textContent='모험 시작하기 ';
     $('startBtn').nextElementSibling.textContent='기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
     if(levelReady(Number($('levelSelect').value)))updateCount();else renderStartCard();
@@ -2414,7 +2430,7 @@
       '‘오늘의 모험 떠나기’를 누르면 바로 시작해요. 급수·모드·문제 수는 옆의 ‘급수·방향’에서 바꿔요.'],
     ['문제 풀기',
       '두 모드 모두 한자→뜻, 뜻→한자 문제가 섞여 나와요. 쉬운 모드는 병음이 늘 보이고, 어려운 모드는 한자를 눌러야 보여요.',
-      '제한 시간 안에 답해요. 기본 문제를 맞히면 짝꿍어휘 보너스 문제가 나와요. 🔊를 누르면 발음을 들을 수 있어요.'],
+      '제한 시간은 쉬운 모드 12초, 어려운 모드 7초예요(모든 급수 같아요). 기본 문제를 맞히면 짝꿍어휘 보너스 문제가 나와요. 🔊를 누르면 발음을 들을 수 있어요.'],
     ['경험치와 코인',
       '정답을 맞히면 어려운 모드는 +5 XP·2코인, 쉬운 모드는 +3 XP·1코인. 5개 연속 정답, 한 판 전체 정답에는 보너스 XP가 더 있어요.',
       '틀려도 경험치는 줄지 않아요. 틀린 단어는 다음 판에 먼저, 맞힌 단어는 며칠 뒤 복습으로 다시 나와요.'],
@@ -2424,11 +2440,14 @@
       '48시간 동안 물을 주지 않으면 경험치가 조금씩 줄어요. (최대 −20 XP, 레벨은 그대로)'],
     ['친구 키우기와 꾸미기',
       'Lv.3에 성장 계열, Lv.10에 세 갈래, Lv.15에 두 갈래를 골라요. Lv.20에는 전설의 식물로 최종 진화해요.',
-      '꾸미기에서 친구 색과 장식을 골라요. 친구를 톡 누르면 말하고, 꾹 누르면 들어 올릴 수 있어요.'],
+      '꾸미기에서 친구 분위기 색, 장식, 정원을 골라요. 레벨이 오를 때마다 새 정원이 열려요(모두 12곳). 친구를 톡 누르면 자기소개를 하고, 꾹 누르면 들어 올릴 수 있어요.'],
     ['상점·바구니·날씨',
       '코인으로 상점에서 비료(정답 경험치 추가)와 돌봄 도구를 사고, 바구니에서 사용해요.',
       '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 경험치가 조금 줄어요.',
-      '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.']
+      '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.'],
+    ['믿고 익히는 HSK 단어 🌱',
+      '게임 속 HSK 단어와 급수는 《HSK考试大纲》의 어휘 목록을 기준으로 확인했어요. 짝꿍어휘는 진담중국어가 말하기 연습을 위해 더했어요.',
+      '출처: 중외언어교류협력센터 《HSK考试大纲》 · 짝꿍어휘: 진담중국어']
   ];
   if(!STUDENT_BG)GUIDE_PAGES.push(['체험판 안내',
     '체험판은 친구가 Lv.10까지 자라고, 성장 계열은 마음꽃·마음송이 중에서 골라요.',
@@ -2922,10 +2941,7 @@
   document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshGarden();});
   setInterval(()=>{if(!document.hidden)refreshGarden();},60000);
   function renderTimeLabels(){
-    const sel=$('timeSetting');if(!sel)return;
-    const level=Number($('levelSelect').value),base=LEVEL_SECONDS[level]||RULES.seconds;
-    sel.options[0].textContent=`기본 · ${base}초 (HSK ${level}급)`;
-    sel.options[1].textContent=`여유롭게 · ${base+RULES.relaxedExtra}초`;
+    return;
   }
   function renderStartCard(){
     renderTimeLabels();
