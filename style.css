@@ -755,3 +755,22 @@ html[data-edition="free"] .free-watermark span{position:absolute;right:12px;bott
 .lobby-copyright{text-align:center;font-size:10px;margin:8px 0 0;opacity:.85}
 .growth-trial-lock{margin:6px auto 0;max-width:420px;padding:14px 16px;border-radius:16px;border:1.5px dashed #c9b477;background:#fffbea;text-align:center}
 .growth-trial-lock strong{display:block;font-size:14px;color:#6b5418}.growth-trial-lock span{display:block;margin-top:4px;font-size:12px;color:var(--muted);word-break:keep-all}
+/* 모바일 로비: 화면이 짧아도 캐릭터 창이 작아지지 않게, 대신 아래로 스크롤돼요. */
+@media(max-width:620px){
+ body[data-screen=setup]:has(#gameApp:not([hidden])){height:auto;min-height:100dvh;overflow-y:auto}
+ body[data-screen=setup] #gameApp{height:auto;min-height:100dvh;overflow:visible}
+ body[data-screen=setup] #gameApp>main,body[data-screen=setup] #gameApp .layout{flex:1 0 auto}
+ body[data-screen=setup] #gameApp .companion{flex:1 0 auto;overflow:visible}
+ body[data-screen=setup] #gameApp .companion #homeHabitat{flex:1 0 auto;min-height:clamp(330px,52svh,460px)}
+}
+/* 결과 화면 물뿌리개 */
+.result-can{display:flex;align-items:center;gap:12px;margin:10px 0 4px;padding:10px 14px;border-radius:14px;background:#eef7fb;border:1px solid #cfe6f2}
+.result-can svg{width:64px;height:56px;flex:0 0 64px}
+.result-can p{margin:0;font-size:13px;font-weight:700;color:#2f6f94;text-align:left;word-break:keep-all}
+.result-can .result-can-water,.result-can .result-can-wave{transform-box:view-box;transform:translateY(calc((1 - var(--to,0)) * 28px))}
+.result-can.animate .result-can-water,.result-can.animate .result-can-wave{animation:can-rise 1.6s ease-out .3s both}
+.result-can.full{background:#e6f5ff;border-color:#8fcbee;box-shadow:0 0 0 3px #bfe4f7aa}
+@keyframes can-rise{from{transform:translateY(calc((1 - var(--from,0)) * 28px))}to{transform:translateY(calc((1 - var(--to,0)) * 28px))}}
+#waterPlant.can-retry{border-color:#e8b35a;background:#fff8e8}#waterPlant.can-retry small{color:#9a6a1c;font-weight:700}
+#retryStudy .review-list{max-height:50dvh}
+#retryStudy #retryGo{width:100%;margin-top:10px}

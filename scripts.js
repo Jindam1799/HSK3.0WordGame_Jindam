@@ -16,7 +16,6 @@
   const DATA_VERSION = '20260929b';
   // 홍보 팝업(무료판 전용): 결과 화면 뒤에만 한 번, PROMO_MS 뒤에 닫을 수 있어요.
   const PROMO_MS = 5000;
-  const CAN_SIZE=5;let canWasFull=null;
   const GARDEN_RULES=Object.freeze({baseCoins:2,bonusCoins:1,graceHours:48,penaltyHours:24,penaltyXP:5,maxPenaltySteps:4});
   const FERTILIZERS=Object.freeze({
     gentle:{name:'햇살 비료',price:20,boost:1,uses:10},
@@ -1070,6 +1069,8 @@
     const health={sick:h?.sick===true,medicine:Math.min(999,integer(h?.medicine,999)+(h?.medicineGift===true?0:1)),medicineGift:true,fan:h?.fan===true,heater:h?.heater===true,heaterOn:h?.heater===true&&h?.heaterOn===true,exposure:milliseconds(h?.exposure,0,60000),illMs:milliseconds(h?.illMs,0,120000),heatMs:milliseconds(h?.heatMs,0,45000),coolMs:milliseconds(h?.coolMs,0,45000),loss:integer(h?.loss,5)};
     return {health,coins:integer(raw?.coins,9999999),inventory:{lush:integer(raw?.inventory?.lush,999),gentle:integer(raw?.inventory?.gentle,999),rich:integer(raw?.inventory?.rich,999),spray:raw?.world?integer(raw?.inventory?.spray,999):1},world,
       lastWatered,penaltySteps:integer(raw?.penaltySteps,GARDEN_RULES.maxPenaltySteps),
+      // 물뿌리개: 한 판을 모두 맞히면 가득(canFull). 틀린 단어(retry)를 다시 다 맞혀도 가득 차요.
+      canFull:raw?.canFull===true,can:Number.isFinite(raw?.can)?Math.min(1,Math.max(0,raw.can)):0,retry:Array.isArray(raw?.retry)?raw.retry.filter(x=>typeof x==='string').slice(0,60):[],
       neglectLoss:integer(raw?.neglectLoss,integer(raw?.penaltySteps,GARDEN_RULES.maxPenaltySteps)*GARDEN_RULES.penaltyXP),
       active:active&&Object.hasOwn(FERTILIZERS,active.kind)&&Number.isInteger(active.remaining)&&active.remaining>0
         ?{kind:active.kind,remaining:Math.min(active.remaining,FERTILIZERS[active.kind].uses)}:null};
@@ -1138,14 +1139,12 @@
     $('waterState').textContent=hours>=48?'목이 말라요':hours>=24?'물을 주면 좋아요':'촉촉해요';
     $('carePanel').dataset.dry=String(hours>=48);
     $('waterPlant').disabled=gardenBusy();$('openShop').disabled=gardenBusy();
-    // 물뿌리개: 복습할 단어(틀린 단어)가 쌓일수록 물이 차고, 가득 차면 복습하고 물을 줄 수 있어요.
-    const due=dueCount(forestLevels()),fill=Math.min(due,CAN_SIZE),full=due>=CAN_SIZE;
-    const can=$('canWater');if(can){const h=11*fill/CAN_SIZE;can.setAttribute('y',String(24-h));can.setAttribute('height',String(h));}
-    $('waterPlant').classList.toggle('review-water',full);$('waterPlant').classList.toggle('can-filling',!full);
-    $('waterPlant').querySelector('span').innerHTML=full?`물이 가득 찼어요!<small>복습하고 물주기 · ${Math.min(due,99)}${due>99?'+':''}단어</small>`:`물 모으는 중<small>복습 단어 ${fill} / ${CAN_SIZE}</small>`;
-    $('waterPlant').setAttribute('aria-label',full?`물뿌리개가 가득 찼어요. 복습할 단어 ${due}개를 풀고 물주기`:`물뿌리개 ${fill}/${CAN_SIZE}. 틀린 단어가 ${CAN_SIZE}개 모이면 물을 줄 수 있어요`);
-    if(full&&!canWasFull)setTimeout(()=>friendSay('水壶装满啦！快复习，然后给我浇水吧！','물뿌리개에 물이 가득 찼어! 복습하고 나한테 물 줘!'),900);
-    canWasFull=full;
+    // 물뿌리개: 한 판을 모두 맞히면 가득 차요. 틀렸다면 틀린 단어를 다시 풀어 다 맞혀야 가득 차요.
+    const retry=g.retry.length,full=g.canFull,fill=full?1:g.can||0;
+    const can=$('canWater');if(can){const h=11*fill;can.setAttribute('y',String(24-h));can.setAttribute('height',String(h));}
+    $('waterPlant').classList.toggle('review-water',full);$('waterPlant').classList.toggle('can-filling',!full);$('waterPlant').classList.toggle('can-retry',!full&&retry>0);
+    $('waterPlant').querySelector('span').innerHTML=full?'물주기!<small>물뿌리개가 가득 찼어요</small>':retry?`틀린 단어 다시 풀기<small>${retry}개를 맞히면 물이 가득</small>`:'물 모으는 중<small>한 판을 모두 맞히면 가득</small>';
+    $('waterPlant').setAttribute('aria-label',full?'물뿌리개가 가득 찼어요. 친구에게 물 주기':retry?`틀린 단어 ${retry}개를 다시 풀어 물뿌리개 채우기`:'물뿌리개가 비어 있어요. 한 판을 모두 맞히면 가득 차요');
     renderStartCard();
     const active=g.active,remaining=active?.remaining||0;
     // 비료 안내는 캐릭터가 말로 알려 줘요. 비료를 쓰는 중일 때만 남은 횟수를 짧게 보여 줘요.
@@ -1169,9 +1168,8 @@
   function waterPlant(){
     if(gardenBusy())return;
     refreshGarden();
-    const g=profile.garden;g.lastWatered=Date.now();g.penaltySteps=0;g.neglectLoss=0;
+    const g=profile.garden;if(!g.canFull)return;g.canFull=false;g.can=0;g.lastWatered=Date.now();g.penaltySteps=0;g.neglectLoss=0;
     save();renderCare();
-    
     playCareAnimation('water');
     forestAudio.effect('dress');
   }
@@ -1261,7 +1259,10 @@
     avatar.classList.add('forest-avatar');avatar.style.background='transparent';
     let illustration=avatar.querySelector('.creature-art');if(!illustration){illustration=document.createElement('div');illustration.className='creature-art';avatar.prepend(illustration);}
     const concealed=avatar.id==='previewAvatar'&&g.adult&&profile.routes[look.pet]!==route?.id;
-    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,WARDROBE.color.items.find(i=>i[0]===look.color)[2],concealed);habitat.dataset.scene=look.scene;habitat.style.backgroundImage=`url("assets/garden-${['meadow','sunset','night','rainbow'].includes(look.scene)?look.scene:'meadow'}.svg")`;habitat.style.backgroundSize='cover';
+    illustration.innerHTML=creatureSVG(look.pet,route?.id,profile.level,WARDROBE.color.items.find(i=>i[0]===look.color)[2],concealed);habitat.dataset.scene=look.scene;{const sc=['meadow','sunset','night','rainbow'].includes(look.scene)?look.scene:'meadow';
+      // 살구빛·보랏빛 숲의 기본 풍경은 그 숲 색깔의 언덕이에요. 언덕(땅)이 늘 보이도록 아래쪽을 기준으로 맞춰요.
+      const file=sc==='meadow'&&activeForest===1?'apricot':sc==='meadow'&&activeForest===2?'violet':sc;
+      habitat.style.backgroundImage=`url("assets/garden-${file}.svg")`;habitat.style.backgroundSize='cover';habitat.style.backgroundPosition='center 82%';}
     for(const key of SLOTS){
       let el=avatar.querySelector('.wear-'+key);if(!el){el=document.createElement('span');el.className='wear-'+key;avatar.append(el);}
       const item=WARDROBE[key].items.find(i=>i[0]===look[key]);
@@ -1742,8 +1743,8 @@
   $('promotionContinue').onclick=closePromotion;$('promotionClose').onclick=closePromotion;
   $('promotionDialog').addEventListener('cancel',e=>{e.preventDefault();closePromotion();});
 
-  // kind: 'normal' | 'mistakes'(틀린 단어 다시 연습, 준비 운동) | 'due'(오늘의 복습)
-  function start(reviewIds=null,kind=reviewIds?'mistakes':'normal') {
+  // kind: 'normal' | 'refill'(틀린 단어 다시 풀어 물뿌리개 채우기) | 'due'(오늘의 복습)
+  function start(reviewIds=null,kind=reviewIds?'refill':'normal') {
     closeEvolution(false);
     forestAudio.unlock();
     refreshGarden();
@@ -1760,7 +1761,7 @@
       const pool=levelWords(level);if(pool.length<4)return;
       const size=roundChoice==='all'?pool.length:Number(roundChoice);
       ({queue,reviews}=buildQueue(pool,size));
-    }else if(kind==='mistakes'){
+    }else if(kind==='refill'){
       queue=shuffle(data.filter(w=>reviewIds.includes(w.id)));
     }else{
       const size=roundChoice==='20'?20:10;
@@ -1768,8 +1769,8 @@
     }
     queue=queue.filter(w=>levelWords(w.level).length>=4);
     if(!queue.length){if(kind==='due'){friendSay('今天的复习都完成啦！','오늘 복습을 다 끝냈어!');renderCare();}return;}
-    state={mode:kind==='mistakes'?'practice':document.querySelector('input[name="mode"]:checked').value,kind,
-      direction:'mixed',easy:kind!=='mistakes'&&difficulty()==='easy',queue,reviews,relaxed:$('timeSetting')?.value==='relaxed',
+    state={mode:kind==='refill'?'practice':document.querySelector('input[name="mode"]:checked').value,kind,
+      direction:'mixed',easy:kind==='refill'||difficulty()==='easy',queue,reviews,relaxed:$('timeSetting')?.value==='relaxed',
       roundChoice:kind==='normal'?roundChoice:'review',index:0,phase:'basic',answered:0,correct:0,bonusAnswered:0,bonusCorrect:0,netXP:0,earnedCoins:0,fertilizerXP:0,
       streak:0,bestStreak:0,streakXP:0,
       mistakes:new Map(),startLevel:profile.level,startAppearance:$('mascot').innerHTML,growthEventPlayed:false};
@@ -1806,7 +1807,7 @@
     for(const candidate of ordered){if(label(candidate)&&!seen.has(label(candidate))){wrong.push(candidate);seen.add(label(candidate));}if(wrong.length===3)break;}
     if(wrong.length!==3) {finish();$('resultSubtitle').textContent='서로 다른 보기가 부족해 종료했어요. data.js 내용을 확인해 주세요.';return;}
     state.options=shuffle([e,...wrong]);
-    $('gameMode').textContent=state.mode==='practice'?'☘ 틀린 단어 연습':state.easy?'🌱 쉬운 모드':'🔥 어려운 모드';
+    $('gameMode').textContent=state.kind==='refill'?'💧 틀린 단어 다시 풀기':state.mode==='practice'?'☘ 틀린 단어 연습':state.easy?'🌱 쉬운 모드':'🔥 어려운 모드';
     $('questionNumber').textContent=`${state.index+1} / ${state.queue.length} 단어`;
     $('roundProgress').max=state.queue.length;$('roundProgress').value=state.index;
     $('sessionXp').textContent=state.mode==='practice'?'경험치·코인 없음':`${state.netXP>=0?'+':''}${state.netXP} XP · ${state.earnedCoins} 코인`;
@@ -1926,12 +1927,6 @@
     state.index++;
     if(state.index>=state.queue.length)finish();else showQuestion(false);
   }
-  // Studying waters the friend: a finished round with enough basic answers refills moisture.
-  function studyWater(){
-    if(!state||state.answered<Math.min(5,state.queue.length))return false;
-    const g=profile.garden;g.lastWatered=Date.now();g.penaltySteps=0;g.neglectLoss=0;save();renderCare();
-    return true;
-  }
   function finish() {
     if(!state||state.phase==='result')return;
     state.perfectXP=0;
@@ -1940,13 +1935,22 @@
     clearTimer();stopSound();if(!celebrate)forestAudio.effect('finish');state.phase='result';screen('result');
     if($('feedback').open)$('feedback').close();
     $('resultSubtitle').textContent=`${state.answered}개의 기본 문제를 풀었어요.`+(state.perfectXP?` 전체 정답 보너스 +${state.perfectXP} XP!`:'')+(profile.level>state.startLevel?` 레벨 ${profile.level} 달성!`:'');
-    const watered=studyWater();
+    // 물뿌리개 채우기
+    const g=profile.garden,wrong=[...new Set([...state.mistakes.values()].filter(m=>!m.bonus).map(m=>m.parent))];
+    const finished=state.index>=state.queue.length&&state.answered>0,before=g.canFull?1:g.can||0;let canLine='';
+    if(finished&&(state.kind==='refill'||state.mode==='main')&&!g.canFull){
+      if(!wrong.length){g.canFull=true;g.can=1;g.retry=[];canLine=state.kind==='refill'?'틀린 단어를 모두 맞혔어요! 물뿌리개가 가득 찼어요. 로비에서 물을 주세요.':'모두 맞혔어요! 물뿌리개가 가득 찼어요. 로비에서 물을 주세요.';}
+      else{g.retry=wrong;g.can=Math.max(g.can||0,Math.min(.85,state.correct/state.answered));canLine=`틀린 단어 ${wrong.length}개를 다시 풀어 다 맞히면 물뿌리개가 가득 차요.`;}
+      save();
+    }else if(g.canFull)canLine='물뿌리개는 이미 가득 차 있어요. 로비에서 물을 주세요.';
+    state.canJustFilled=g.canFull&&before<1;
+    const rc=$('resultCan');rc.hidden=!canLine;$('resultCanText').textContent=canLine;rc.classList.toggle('full',g.canFull);
+    rc.style.setProperty('--from',String(before));rc.style.setProperty('--to',String(g.canFull?1:g.can||0));rc.classList.remove('animate');void rc.offsetWidth;rc.classList.add('animate');
     const gardenLine=state.mode==='practice'?'틀린 단어 연습에서는 코인·경험치 변화와 비료 소모가 없어요.':`숲 코인 +${state.earnedCoins}`+(state.fertilizerXP?` · 비료 추가 +${state.fertilizerXP} XP`:'')+(state.streakXP?` · 연속 정답 보너스 +${state.streakXP} XP (최고 ${state.bestStreak}연속)`:'');
     $('resultGarden').textContent=gardenLine;
     const backSoon=[...state.mistakes.values()].filter(m=>!m.bonus).length;
     $('resultMemory').replaceChildren();
     const lines=[];
-    if(watered)lines.push(['💧','공부한 만큼 친구가 물을 듬뿍 마셨어요. 수분이 가득 찼어요.']);
     if(state.reviews)lines.push(['↺',`복습 단어 ${state.reviews}개를 다시 만났어요.`]);
     if(backSoon)lines.push(['📌',`틀린 단어 ${backSoon}개는 다음 판에 먼저 나와요.`]);
     else if(state.answered)lines.push(['🌱','맞힌 단어는 며칠 뒤 복습으로 다시 만나요.']);
@@ -1962,8 +1966,8 @@
       const btn=document.createElement('button');btn.className='secondary';btn.textContent='🔊';btn.setAttribute('aria-label',`${entry.hanzi} 발음 듣기`);btn.onclick=()=>speak(entry);row.append(copy,btn);$('reviewList').append(row);
     });
     if(!state.mistakes.size){const p=document.createElement('p');p.className='subtle';p.textContent=state.answered?'모두 잘했어요! 다음 모험에서 만나요.':'아직 푼 문제가 없어요.';$('reviewList').append(p);}
-    $('reviewBtn').hidden=!state.mistakes.size;
-    $('reviewBtn').textContent='틀린 문제의 기본 단어 연습하기';
+    $('reviewBtn').hidden=g.canFull||!g.retry.length;
+    $('reviewBtn').textContent=`💧 틀린 단어 ${g.retry.length}개 다시 풀고 물 채우기`;
     $('homeBtn').focus({preventScroll:true});
     const evolve=()=>{if(celebrate){state.growthEventPlayed=true;showEvolution();}};
     showPromotion('finish',()=>{if(state.perfectXP)showPerfect(evolve);else evolve();});
@@ -1984,8 +1988,8 @@
   $('feedback').addEventListener('cancel',e=>e.preventDefault());
   $('replayBtn').onclick=()=>{if(state)speak(state.entry);};
   $('quitBtn').onclick=finish;
-  $('homeBtn').onclick=()=>{const reviewed=state?.kind==='due'&&state.answered>0;stopSound();state=null;screen('setup');refreshGarden();if(reviewed)setTimeout(waterPlant,450);(mobileLayout.matches?$('openAdventure'):$('startBtn')).focus();};
-  $('reviewBtn').onclick=()=>start([...new Set([...state.mistakes.values()].map(x=>x.parent))]);
+  $('homeBtn').onclick=()=>{const filled=!!state?.canJustFilled;stopSound();state=null;screen('setup');refreshGarden();if(filled)friendSay('水壶满啦！快给我浇水吧！','물뿌리개가 가득 찼어! 나한테 물 줘!');(mobileLayout.matches?$('openAdventure'):$('startBtn')).focus();};
+  $('reviewBtn').onclick=()=>start([...profile.garden.retry]);
   document.querySelectorAll('input[name="difficulty"]').forEach(r=>{r.checked=r.value===(profile.difficulty||'hard');r.addEventListener('change',modeChanged);});
   document.addEventListener('keydown',e=>{
     if(e.repeat||e.altKey||e.ctrlKey||e.metaKey||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
@@ -2033,7 +2037,7 @@
   // 톡 누르면 인사말과 게임 도움말(중국어 + 번역)을 번갈아 들려줘요.
   const FRIEND_TIPS=[
     ['给我施肥，答对的时候能多得经验哦！','비료를 주면 기본 정답 경험치가 늘어나!'],
-    ['答错的词会装进水壶，满了就复习、给我浇水吧！','틀린 단어는 물뿌리개에 물로 모여. 가득 차면 복습하고 물을 줘!'],
+    ['一轮全部答对，水壶就满了！答错的词再做一次也可以哦。','한 판을 다 맞히면 물뿌리개가 가득 차! 틀리면 틀린 단어를 다시 풀면 돼.'],
     ['连续答对五个，还有奖励哦！','5개 연속으로 맞히면 보너스 경험치가 있어!'],
     ['错了也没关系，下次还会见到它。','틀려도 괜찮아. 다음 판에 또 만나게 될 거야.'],
     ['做完一轮，我就能喝饱水！','한 판을 끝내면 나도 물을 듬뿍 마셔!'],
@@ -2364,7 +2368,7 @@
       '마음꽃·마음송이·마음담이는 모두 고를 수 있어요. 마음잎·마음열매·마음나무는 수강생판에서 열려요. 주요 진화는 한 판을 마친 뒤 연출 중에 선택하며, 선택 전 최종 모습은 실루엣으로 보여요.',
       '내 친구 꾸미기에서 해금된 장식을 골라 위치를 조절해요. 날개와 망토는 몸 뒤에 놓여요. 로비에서 친구를 톡 누르면 대화하고, 꾹 누르면 들어 올렸다 놓을 수 있어요.'],
     ['물을 주며 함께 자라기',
-      '공부가 곧 물주기예요. 한 판(5문제 이상)을 마치면 친구가 물을 듬뿍 마셔요. 틀린 단어는 물뿌리개에 물로 모여요. 5개가 모이면 물뿌리개가 가득 차고, 그때는 모험 전에 꼭 복습을 해야 해요. 복습을 마치면 친구에게 물을 줄 수 있어요.',
+      '물주기는 물뿌리개로 해요. 한 판의 기본 문제를 모두 맞히면 물뿌리개가 가득 차요. 틀린 단어가 있으면 결과 화면이나 물주기 버튼에서 틀린 단어를 한 번 더 보고 다시 풀어요. 다 맞히면 물뿌리개가 가득 차고, 로비에서 물주기 버튼을 눌러 친구에게 물을 줘요.',
       '마지막 물주기에서 48시간이 지나면 −5 XP, 이후 24시간마다 −5 XP예요. 다시 물을 줄 때까지 최대 −20 XP이며 레벨은 내려가지 않아요. 물을 주면 이 차감 주기도 새로 시작해요.',
       '물 부족은 미접속 시간도 계산해요. 문제를 푸는 동안은 차감을 미뤘다가 학습 후 반영해요. 날씨·벌레 시간은 로비가 보일 때만 흘러요. 학습·팝업·다른 탭·미접속 중에는 멈춰요.'],
     ['숲 상점 사용법',
@@ -2419,7 +2423,7 @@
   }
   function fitCompanion(){
     const height=$('homeHabitat').clientHeight;
-    $('mascot').style.setProperty('--mobile-avatar-scale',String(Math.min(1.15,Math.max(.48,(height-12)/210))));
+    $('mascot').style.setProperty('--mobile-avatar-scale',String(Math.min(document.body.dataset.screen==='setup'?1.5:1.15,Math.max(.48,(height-24)/210))));
     positionGround();placeAccessories($('mascot'),profile.look,profile.routes);
   }
   function arrangeLobby(){
@@ -2841,11 +2845,23 @@
 
   setInterval(()=>{renderWaterCountdown();worldTick();},1000);
   $('waterPlant').onclick=()=>{
-    if(gardenBusy())return;const due=dueCount(forestLevels());
-    if(due>=CAN_SIZE){resetFriend();start(null,'due');return;}
-    const left=CAN_SIZE-due;
-    showFriendPhrase(due?[`水壶里有${due}份水了，再错${left}个就满啦！`,`물뿌리개에 물이 ${due}칸 찼어. 틀린 단어가 ${left}개 더 모이면 가득 차!`]:['水壶还是空的。答错的词会变成水哦！','물뿌리개가 아직 비어 있어. 틀린 단어가 물이 돼!']);
+    if(gardenBusy())return;const g=profile.garden;
+    if(g.canFull){waterPlant();return;}
+    if(g.retry.length){openRetryStudy();return;}
+    showFriendPhrase(['一轮全部答对，水壶就满啦！','한 판을 모두 맞히면 물뿌리개가 가득 차! 그때 나한테 물을 줘.']);
   };
+  // 틀린 단어를 한 번 더 보고(한자·병음·뜻·발음) 다시 풀어요.
+  function openRetryStudy(){
+    const ids=profile.garden.retry,words=data.filter(w=>ids.includes(w.id));
+    if(!words.length){loadLevels(forestLevels()).then(()=>{if(data.some(w=>ids.includes(w.id)))openRetryStudy();else{profile.garden.retry=[];save();renderCare();}});return;}
+    const list=$('retryList');list.replaceChildren();
+    for(const w of words){const row=document.createElement('div');row.className='review-item';const c=document.createElement('div');const zh=document.createElement('strong');zh.textContent=w.hanzi;zh.lang='zh-CN';const py=document.createElement('small');py.textContent=w.pinyin;const ko=document.createElement('small');ko.textContent=w.meaning;c.append(zh,py,ko);
+      const btn=document.createElement('button');btn.className='secondary';btn.type='button';btn.textContent='🔊';btn.setAttribute('aria-label',`${w.hanzi} 발음 듣기`);btn.onclick=()=>speak(w);row.append(c,btn);list.append(row);}
+    $('retryStudy').showModal();
+  }
+  $('retryGo').onclick=()=>{$('retryStudy').close();resetFriend();start([...profile.garden.retry]);};
+  $('retryClose').onclick=()=>$('retryStudy').close();
+
   $('openShop').onclick=()=>{
     if(gardenBusy())return;
     resetFriend();refreshGarden();$('shopMessage').textContent='';renderShop();selectShopTab(profile.garden.world.kind==='bug'?3:isRain(profile.garden.world.kind)?4:0);$('gardenShop').showModal();$('closeShop').focus();
@@ -2876,7 +2892,6 @@
   $('quickStart').onclick=()=>{
     resetFriend();
     const practice=document.querySelector('input[name="mode"]:checked')?.value==='practice';
-    if(!practice&&dueCount(forestLevels())>=CAN_SIZE){friendSay('水壶满了！先复习，再去冒险吧！','물뿌리개가 가득 찼어! 복습 먼저 하고 모험을 떠나자!');setTimeout(()=>start(null,'due'),reducedMotion()?0:1600);return;}
     start();
   };
   $('quickSettings').onclick=()=>$('openAdventure').click();
