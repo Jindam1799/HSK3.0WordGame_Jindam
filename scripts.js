@@ -2412,9 +2412,23 @@
   renderGuide();
 
   const mobileLayout=window.matchMedia('(max-width: 620px)');
+  ['gesturestart','gesturechange'].forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
+  document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+  let lastTouchEnd=0;document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTouchEnd<320&&!e.target.closest('input,textarea,select'))e.preventDefault();lastTouchEnd=now;},{passive:false});
   const movable=[document.querySelector('.forest-selector'),$('setup'),...document.querySelectorAll('.audio-settings'),document.querySelector('.care-rules')];
   const anchors=movable.map(node=>{const anchor=document.createComment('desktop control');node.before(anchor);return anchor;});
   const closetAnchor=document.createComment('desktop closet');$('openCloset').before(closetAnchor);
+  // 휴대폰 로비: 수분·코인·돌봄 버튼을 친구 창 위에 올려 한 화면에 모아요. (데스크톱에서는 원래 자리로 돌아가요)
+  const hud=document.createElement('div');hud.className='lobby-hud';
+  hud.innerHTML='<div class="hud-status"></div><div class="hud-coins"></div><div class="hud-dock" role="toolbar" aria-label="친구 돌보기"></div><div class="hud-world"></div>';
+  const HUD_PARTS=[['.hud-status',[document.querySelector('.care-water-label'),$('waterBar'),$('fertilizerState')]],['.hud-coins',[document.querySelector('.coin-pill')]],
+    ['.hud-dock',[$('waterPlant'),$('openShop'),$('openBasket')]],['.hud-world',[document.querySelector('.world-notice')]]];
+  const hudHomes=new Map();HUD_PARTS.forEach(([,nodes])=>nodes.forEach(n=>{if(n){const m=document.createComment('hud home');n.before(m);hudHomes.set(n,m);}}));
+  const lobbyCopy=document.querySelector('.lobby-copyright'),lobbyCopyHome=document.createComment('copyright home');lobbyCopy?.before(lobbyCopyHome);
+  function placeHud(mobile){
+    if(mobile){$('homeHabitat').append(hud);HUD_PARTS.forEach(([sel,nodes])=>hud.querySelector(sel).append(...nodes.filter(Boolean)));hud.querySelector('.hud-dock').append($('openCloset'));if(lobbyCopy)$('startCard').after(lobbyCopy);}
+    else{hudHomes.forEach((m,n)=>m.after(n));hud.remove();if(lobbyCopy)lobbyCopyHome.after(lobbyCopy);}
+  }
   document.body.dataset.screen='setup';
   function settingsTab(index){
     $('updateNotes').hidden=index!==3;$('backupPanel').hidden=index!==4;
@@ -2423,7 +2437,7 @@
   }
   function fitCompanion(){
     const height=$('homeHabitat').clientHeight;
-    $('mascot').style.setProperty('--mobile-avatar-scale',String(Math.min(document.body.dataset.screen==='setup'?1.5:1.15,Math.max(.48,(height-24)/210))));
+    $('mascot').style.setProperty('--mobile-avatar-scale',String(Math.min(document.body.dataset.screen==='setup'?Math.min(1.8,($('homeHabitat').clientWidth-70)/180):1.15,Math.max(.48,(height-20)/210))));
     positionGround();placeAccessories($('mascot'),profile.look,profile.routes);
   }
   function arrangeLobby(){
@@ -2431,12 +2445,12 @@
       $('forestBody').append(movable[0]);$('adventureBody').append(movable[1]);
       $('settingsBody').append(...movable.slice(2));
       movable.slice(2).forEach(n=>n.open=true);settingsTab(0);
-      $('carePanel').before($('openCloset'));
+      placeHud(true);
     }else{
       ['adventureDialog','settingsDialog'].forEach(id=>$(id).close());
       if(!choosingEntryForest)$('forestDialog').close();
       movable.forEach((node,i)=>{anchors[i].after(node);if(i>=2){node.hidden=false;node.open=false;}});
-      closetAnchor.after($('openCloset'));
+      placeHud(false);closetAnchor.after($('openCloset'));
     }
     if(choosingEntryForest)$('forestBody').append(movable[0]);
     resetFriend();requestAnimationFrame(fitCompanion);
@@ -2886,7 +2900,7 @@
     const level=$('levelSelect').value,size=$('roundSize').value;
     const due=levelReady(Number(level))?levelWords(Number(level)).filter(w=>isDue(memoryOf(w))).length:0;
     $('quickStartLabel').textContent='오늘의 모험 떠나기';
-    $('quickStartInfo').textContent=(difficulty()==='easy'?'🌱 쉬운 모드 · ':'🔥 어려운 모드 · ')+`HSK ${level}급 · ${size==='all'?'전체 단어':size+'문제'}`+(due?` · 복습 ${due}`:'');
+    $('quickStartInfo').textContent=(difficulty()==='easy'?'🌱 쉬운 모드':'🔥 어려운 모드')+` · HSK ${level}급 · ${size==='all'?'전체':size+'문제'}`;
     $('quickStart').disabled=$('startBtn').disabled&&levelState[Number(level)]!=='loading';
   }
   $('quickStart').onclick=()=>{
