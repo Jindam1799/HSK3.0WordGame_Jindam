@@ -1,14 +1,14 @@
 /* No build step or server required: keep the four files in the same directory.
- * XP tuning and round timing live in RULES. Never put paid TTS API keys here.
+ * 양분 tuning and round timing live in RULES. Never put paid TTS API keys here.
  * Set data.js audio URLs to reviewed recordings to use consistent voice quality.
  */
 (() => {
   'use strict';
-  // penalty 0: 오답·시간 초과에도 경험치를 깎지 않아요. 대신 연속 정답(streakEvery개마다) 보너스를 줘요.
+  // penalty 0: 오답·시간 초과에도 양분을 깎지 않아요. 대신 연속 정답(streakEvery개마다) 보너스를 줘요.
   const RULES = Object.freeze({seconds:7, baseXP:5, penalty:0, bonusXP:3, streakEvery:5, streakXP:3, relaxedExtra:5, bonusExtra:2});
-  // 쉬운 모드(한자+병음을 보고 뜻 고르기)는 어려운 모드보다 경험치·코인이 적어요.
+  // 쉬운 모드(한자+병음을 보고 뜻 고르기)는 어려운 모드보다 양분·코인이 적어요.
   const EASY_RULES = Object.freeze({baseXP:3, bonusXP:2, streakXP:2, baseCoins:1, bonusCoins:0, perfect10:5, perfect20:20});
-  // 20문제 전체 정답은 보너스를 더 줘요 (경험치 + 코인).
+  // 20문제 전체 정답은 보너스를 더 줘요 (양분 + 코인).
   const PERFECT20_COINS={easy:5,hard:10};
   const difficulty=()=>document.querySelector('input[name="difficulty"]:checked')?.value==='easy'?'easy':'hard';
   // 급수별 제한 시간(초). 급수가 높을수록 뜻이 길어져서 조금 더 여유를 줘요.
@@ -23,7 +23,7 @@
     gentle:{name:'햇살 비료',price:20,boost:1,uses:10},
     rich:{name:'든든 비료',price:35,boost:2,uses:10},
     lush:{name:'반짝 비료',price:50,boost:3,uses:10},
-    // 코인 비료: 경험치 대신 코인을 더 모아요.
+    // 코인 비료: 양분 대신 코인을 더 모아요.
     thrift:{name:'알뜰 비료',price:20,boost:0,xpRate:.5,coins:3,uses:10},
     gold:{name:'황금 비료',price:30,boost:0,xpRate:0,coins:5,uses:10}
   });
@@ -1078,7 +1078,7 @@
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 210" aria-hidden="true"><g transform="translate(${90*(1-g.scale)} ${197*(1-g.scale)}) scale(${g.scale})"><g class="plant-body"><g class="plant-art">${art}</g>${richOverlay}</g>${silhouette?'':charm+`<g class="expression-normal">${face}</g><g class="expression-happy"><path d="M${fx-16} ${fy+1}q6 -10 12 0M${fx+4} ${fy+1}q6 -10 12 0" fill="none" stroke="#38442d" stroke-width="2.6" stroke-linecap="round"/><path d="M${fx-7} ${fy+8}q7 4 14 0q-1 14-7 14t-7-14" fill="#79473f"/><path d="M${fx-4} ${fy+17}q4 -4 8 0" fill="none" stroke="#edaaa0" stroke-width="3"/><ellipse cx="${fx-19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/><ellipse cx="${fx+19}" cy="${fy+9}" rx="6" ry="3.5" fill="#eaa28d" opacity=".8"/></g><g class="expression-lift"><circle cx="${fx-10}" cy="${fy}" r="4" fill="#38442d"/><circle cx="${fx+10}" cy="${fy}" r="4" fill="#38442d"/><ellipse cx="${fx}" cy="${fy+10}" rx="4" ry="6" fill="#68483a"/></g><g class="expression-land"><path d="M${fx-15} ${fy-4}l7 4-7 4M${fx+15} ${fy-4}l-7 4 7 4M${fx-5} ${fy+12}q5 -5 10 0" stroke="#38442d" stroke-width="2.5" fill="none" stroke-linecap="round"/></g>`}</g></svg>`;
   }
   const LOOK_DEFAULT = Object.freeze({pet:'', color:'original', head:'none', face:'none', neck:'none', scene:'meadow', back:'none', charm:'none', name:''});
-  // [id, label, icon or color, required level]. Unlocks never consume XP.
+  // [id, label, icon or color, required level]. Unlocks never consume 양분.
   const WARDROBE = {
     pet: {label:'01 · Lv.3 성장 계열 선택',items:[['petal','마음꽃','🌷',3],['mushroom','마음송이','🍄',3],['succulent','마음담이','🪴',3]]},
     color: {label:'02 · 친구 분위기 색',items:[['original','원래 색','conic-gradient(#f2c94c,#e98a6a,#9fb8d9,#8cbf5a,#f2c94c)',1],['spring','봄 벚꽃','#f4b6c8',1],['summer','여름 햇살','#f2c94c',1],['autumn','가을 단풍','#d9653b',1],['winter','겨울 눈꽃','#eef1f4',1],['sunset','노을','#f08a5d',3],['dawn','새벽 하늘','#c9b8e0',3],['moon','달빛','#9fb8d9',5]]},
@@ -1194,7 +1194,7 @@
   }
   function renderProfile(){
     const progress=profile.xp-xpStart(profile.level), needed=xpNeeded(profile.level);
-    $('levelTag').textContent=`LV. ${profile.level}`;$('xpLabel').textContent=`${progress.toLocaleString()} / ${needed.toLocaleString()} XP`;$('xpBar').max=needed;$('xpBar').value=progress;$('totalXp').textContent=`누적 ${profile.xp.toLocaleString()} XP`;
+    $('levelTag').textContent=`LV. ${profile.level}`;$('xpLabel').textContent=`${progress.toLocaleString()} / ${needed.toLocaleString()} 양분`;$('xpBar').max=needed;$('xpBar').value=progress;$('totalXp').textContent=`누적 ${profile.xp.toLocaleString()} 양분`;
     const capped=profile.level>=MAX_LEVEL;$('xpLabel').nextElementSibling.textContent=capped?'체험판 최고 레벨':'다음 레벨까지';if(capped){$('xpLabel').textContent='Lv.10 달성!';$('xpBar').value=$('xpBar').max;}
     const name=growthName(profile.look.pet,profile.routes,profile.level);
     $('characterName').textContent=profile.look.name||name;$('characterMessage').textContent=profile.look.name?name:profile.level<3?'작은 씨앗에서 시작하는 나의 이야기':'매일 배우며 조금씩 자라고 있어요.';
@@ -1230,20 +1230,20 @@
     renderStartCard();
     const active=g.active,remaining=active?.remaining||0;
     // 비료 안내는 캐릭터가 말로 알려 줘요. 비료를 쓰는 중일 때만 남은 횟수를 짧게 보여 줘요.
-    $('fertilizerState').textContent=active?`${FERTILIZERS[active.kind].name} 사용 중 · ${FERTILIZERS[active.kind].coins?(FERTILIZERS[active.kind].xpRate?'XP 절반 · 코인 +'+FERTILIZERS[active.kind].coins:'XP 대신 코인 +'+FERTILIZERS[active.kind].coins):'기본 정답 +'+FERTILIZERS[active.kind].boost+' XP'} · ${remaining}회 남음`:'';
+    $('fertilizerState').textContent=active?`${FERTILIZERS[active.kind].name} 사용 중 · ${FERTILIZERS[active.kind].coins?(FERTILIZERS[active.kind].xpRate?'양분 절반 · 코인 +'+FERTILIZERS[active.kind].coins:'양분 대신 코인 +'+FERTILIZERS[active.kind].coins):'기본 정답 +'+FERTILIZERS[active.kind].boost+' 양분'} · ${remaining}회 남음`:'';
     $('waterHelp').textContent=hours>=48
-      ?`이번 물 부족 차감 ${g.neglectLoss} / 20 XP · 물을 주면 다시 촉촉해져요.`
+      ?`이번 물 부족 차감 ${g.neglectLoss} / 20 양분 · 물을 주면 다시 촉촉해져요.`
       :`물 부족 차감까지 약 ${Math.max(1,Math.ceil(48-hours))}시간 · 물주기는 무료예요.`;
     renderWorld();
     if($('gardenShop').open)renderShop();
   }
   function refreshGarden(){
-    // No passive XP changes in an active quiz (including practice).
+    // No passive 양분 changes in an active quiz (including practice).
     if(gardenBusy())return;
     const result=settleCare(profile,activeForest);
     if(result.changed){
       save();renderProfile();
-      result.loss?friendSay(`我好渴……经验少了${result.loss}点。`,`목말라… 경험치가 ${result.loss} 줄었어. 레벨은 그대로야.`):friendSay('我好渴，快给我浇水吧！','목말라, 얼른 물 줘! 레벨 보호로 경험치는 그대로야.');
+      result.loss?friendSay(`我好渴……养分少了${result.loss}点。`,`목말라… 양분이 ${result.loss} 줄었어. 레벨은 그대로야.`):friendSay('我好渴，快给我浇水吧！','목말라, 얼른 물 줘! 레벨 보호로 양분은 그대로야.');
     }else renderCare();
   }
   let careReactionTimer,careSpeechTimer,careEndTimer;
@@ -1298,9 +1298,9 @@
     if(g.active)return playfulReaction('puzzled');
     g.inventory[kind]--;g.active={kind,remaining:item.uses};
     save();renderCare();renderShop();forestAudio.effect('dress');
-    const effect=item.coins?(item.xpRate?`XP 절반 · 코인 +${item.coins}`:`XP 대신 코인 +${item.coins}`):`+${item.boost} XP`;
+    const effect=item.coins?(item.xpRate?`양분 절반 · 코인 +${item.coins}`:`양분 대신 코인 +${item.coins}`):`+${item.boost} 양분`;
     $('shopMessage').textContent=`${item.name}를 주었어요! 다음 기본 정답 ${item.uses}회에 ${effect}`;
-    setTimeout(()=>item.coins?friendSay(`金光闪闪！接下来答对${item.uses}次，每次多得${item.coins}个金币。`,`반짝반짝! 다음 기본 정답 ${item.uses}번 동안 ${effect}야.`):friendSay(`好有力气！接下来答对${item.uses}次，每次多${item.boost}点经验。`,`힘이 난다! 다음 기본 정답 ${item.uses}번 동안 +${item.boost} XP야.`),1800);
+    setTimeout(()=>item.coins?friendSay(`金光闪闪！接下来答对${item.uses}次，每次多得${item.coins}个金币。`,`반짝반짝! 다음 기본 정답 ${item.uses}번 동안 ${effect}야.`):friendSay(`好有力气！接下来答对${item.uses}次，每次多${item.boost}点养分。`,`힘이 난다! 다음 기본 정답 ${item.uses}번 동안 +${item.boost} 양분이야.`),1800);
     if($('basketDialog').open)$('basketDialog').close();
     if($('gardenShop').open)$('gardenShop').close();
     $('openShop').focus({preventScroll:true});
@@ -1811,7 +1811,7 @@
   function changeXP(delta) {
     if(state.mode==='practice') return 0;
     const before=profile.xp;
-    // Keep the XP floor at the start of the level already earned.
+    // Keep the 양분 floor at the start of the level already earned.
     profile.xp=Math.min(xpCap(),Math.max(xpStart(profile.level),profile.xp+delta));
     if(MAX_LEVEL!==Infinity&&profile.xp>=xpCap()&&before<xpCap())friendSay('体验版只能长到10级哦！','체험판은 Lv.10까지 자랄 수 있어요. 수강생판에서는 Lv.20 전설의 식물까지 키울 수 있어요!');
     profile.level=Math.max(profile.level,levelFromXP(profile.xp));
@@ -1921,10 +1921,10 @@
     $('gameMode').textContent=state.kind==='refill'?'💧 틀린 단어 다시 풀기':state.mode==='practice'?'☘ 틀린 단어 연습':(state.easy?'🌱 쉬운 모드':'🔥 어려운 모드')+(state.ginseng?' · 🌱산삼 2배':'');
     $('questionNumber').textContent=`${state.index+1} / ${state.queue.length} 단어`;
     $('roundProgress').max=state.queue.length;$('roundProgress').value=state.index;
-    $('sessionXp').textContent=state.mode==='practice'?'경험치·코인 없음':`${state.netXP>=0?'+':''}${state.netXP} XP · ${state.earnedCoins} 코인`;
+    $('sessionXp').textContent=state.mode==='practice'?'양분·코인 없음':`${state.netXP>=0?'+':''}${state.netXP} 양분 · ${state.earnedCoins} 코인`;
     const fertilizerBoost=state.mode==='main'&&profile.garden.active?FERTILIZERS[profile.garden.active.kind].boost:0;
     const reviewing=!bonus&&memoryOf(word)&&(state.kind==='due'||isDue(memoryOf(word)));
-    $('questionKind').textContent=bonus?`✦ 짝꿍어휘 보너스 · +${state.easy?EASY_RULES.bonusXP:RULES.bonusXP} XP`:(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?(()=>{const f=profile.garden.active&&FERTILIZERS[profile.garden.active.kind],b=Math.floor((state.easy?EASY_RULES.baseXP:RULES.baseXP)*(state.ginseng?2:1)*(f?.xpRate??1));return `+${b} XP${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}${f?.coins?` · 코인 +${f.coins}`:''}`;})():'천천히 풀어요');
+    $('questionKind').textContent=bonus?`✦ 짝꿍어휘 보너스 · +${state.easy?EASY_RULES.bonusXP:RULES.bonusXP} 양분`:(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?(()=>{const f=profile.garden.active&&FERTILIZERS[profile.garden.active.kind],b=Math.floor((state.easy?EASY_RULES.baseXP:RULES.baseXP)*(state.ginseng?2:1)*(f?.xpRate??1));return `+${b} 양분${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}${f?.coins?` · 코인 +${f.coins}`:''}`;})():'천천히 풀어요');
     $('questionInstruction').textContent=bonus?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
     $('questionText').replaceChildren();
     if(state.directionNow==='zh-ko')$('questionText').append(pinyinToggle(e.hanzi,e.pinyin,'promptPinyin'));else $('questionText').textContent=e.meaning;
@@ -1995,7 +1995,7 @@
     $('feedback').dataset.result=correct?'correct':'wrong';
     $('feedbackTitle').textContent=correct?(streakBonus?`${state.streak}개 연속 정답!`:'정답이에요!'):id===null?'시간이 다 됐어요':'다시 익히면 괜찮아요';
     $('rewardText').textContent=correct?(state.mode==='practice'?'부담 없이 익히는 중':''):bonus?'보너스는 틀려도 괜찮아요':'다음 판에 다시 나와요';
-    if(state.mode==='main'&&correct)$('rewardText').textContent=`+${delta} XP${reward.boost?` (비료 +${reward.boost})`:''}${streakBonus?` (연속 보너스 +${streakBonus})`:''} · +${reward.coins} 코인${reward.extra?` (비료 +${reward.extra})`:''}`;
+    if(state.mode==='main'&&correct)$('rewardText').textContent=`+${delta} 양분${reward.boost?` (비료 +${reward.boost})`:''}${streakBonus?` (연속 보너스 +${streakBonus})`:''} · +${reward.coins} 코인${reward.extra?` (비료 +${reward.extra})`:''}`;
     const koreanPrompt=state.directionNow==='ko-zh';
     $('answerHanzi').textContent=koreanPrompt?state.entry.meaning:state.entry.hanzi;
     $('answerHanzi').lang=koreanPrompt?'ko':'zh-CN';
@@ -2018,7 +2018,7 @@
       chosenBox.append(label,zh,py,ko);
     }
     $('feedbackNote').textContent=state.offerBonus?'이 단어와 함께 쓰는 표현도 익혀 볼까요?':correct?'발음을 듣고 한 번 따라 말해 보세요.':'결과 화면에서도 틀린 단어를 다시 볼 수 있어요.';
-    $('continueBtn').textContent=state.offerBonus?'짝꿍어휘 도전 · +3 XP':state.index===state.queue.length-1?'학습 결과 보기':'다음 단어 →';
+    $('continueBtn').textContent=state.offerBonus?'짝꿍어휘 도전 · +3 양분':state.index===state.queue.length-1?'학습 결과 보기':'다음 단어 →';
     $('skipBonus').hidden=!state.offerBonus;
     if(profile.level>previousLevel){
       const gifts=Object.values(WARDROBE).flatMap(g=>g.items).filter(i=>accessoryAllowed(i[0])&&i[3]>previousLevel&&i[3]<=profile.level);
@@ -2048,7 +2048,7 @@
     if(newGarden)friendSay('新花园开放啦！快去看看吧！',`새 정원 ‘${newGarden[1]}’이(가) 열렸어! 꾸미기 › 친구의 정원에서 바꿔 봐.`);
     clearTimer();stopSound();if(!celebrate)forestAudio.effect('finish');state.phase='result';screen('result');
     if($('feedback').open)$('feedback').close();
-    $('resultSubtitle').textContent=`${state.answered}개의 기본 문제를 풀었어요.`+(state.perfectXP?` 전체 정답 보너스 +${state.perfectXP} XP!`:'')+(profile.level>state.startLevel?` 레벨 ${profile.level} 달성!`:'');
+    $('resultSubtitle').textContent=`${state.answered}개의 기본 문제를 풀었어요.`+(state.perfectXP?` 전체 정답 보너스 +${state.perfectXP} 양분!`:'')+(profile.level>state.startLevel?` 레벨 ${profile.level} 달성!`:'');
     // 물뿌리개 채우기
     const g=profile.garden,wrong=[...new Set([...state.mistakes.values()].filter(m=>!m.bonus).map(m=>m.parent))];
     const finished=state.index>=state.queue.length&&state.answered>0,before=g.canFull?1:g.can||0;let canLine='';
@@ -2062,7 +2062,7 @@
     rc.style.setProperty('--from',String(before));rc.style.setProperty('--to',String(g.canFull?1:g.can||0));rc.classList.remove('animate');void rc.offsetWidth;rc.classList.add('animate');
     {const from=Math.round(before*100),to=Math.round((g.canFull?1:g.can||0)*100),t0=performance.now()+400,pct=$('resultCanPct');pct.textContent=from+'%';
       const tick=now=>{const k=Math.max(0,Math.min(1,(now-t0)/1500)),e=1-Math.pow(1-k,3);pct.textContent=(to>=100&&k>=1?'가득!':Math.round(from+(to-from)*e)+'%');if(k<1&&$('result').offsetParent)requestAnimationFrame(tick);};requestAnimationFrame(tick);}
-    const gardenLine=state.mode==='practice'?'틀린 단어 연습에서는 코인·경험치 변화와 비료 소모가 없어요.':`숲 코인 +${state.earnedCoins}`+(state.fertilizerXP?` · 비료 추가 +${state.fertilizerXP} XP`:'')+(state.streakXP?` · 연속 정답 보너스 +${state.streakXP} XP (최고 ${state.bestStreak}연속)`:'');
+    const gardenLine=state.mode==='practice'?'틀린 단어 연습에서는 코인·양분 변화와 비료 소모가 없어요.':`숲 코인 +${state.earnedCoins}`+(state.fertilizerXP?` · 비료 추가 +${state.fertilizerXP} 양분`:'')+(state.streakXP?` · 연속 정답 보너스 +${state.streakXP} 양분 (최고 ${state.bestStreak}연속)`:'');
     $('resultGarden').textContent=gardenLine;
     const backSoon=[...state.mistakes.values()].filter(m=>!m.bonus).length;
     $('resultMemory').replaceChildren();
@@ -2093,8 +2093,8 @@
     const easy=difficulty()==='easy';
     if(profile.difficulty!==(easy?'easy':'hard')){profile.difficulty=easy?'easy':'hard';save();}
     $('ruleBox').innerHTML=easy
-      ?'<b>쉬운 모드</b> · 두 방향이 섞여 나오고, 병음이 늘 보여요. <b>12초</b> 안에 답해요.<br>기본 정답 <b>+3 XP · 1코인</b> · 20문제 전체 정답 <b>+20 XP · 5코인</b> · 5개 연속 정답마다 <b>+2 XP</b> · 짝꿍어휘 보너스 <b>+2 XP</b>'
-      :'<b>어려운 모드</b> · 두 방향이 섞여 나오고, 병음은 한자를 눌러야 보여요. <b>7초</b> 안에 답해요.<br>기본 정답 <b>+5 XP · 2코인</b> · 20문제 전체 정답 <b>+40 XP · 10코인</b> · 5개 연속 정답마다 <b>+3 XP</b> · 짝꿍어휘 보너스 <b>+3 XP · 1코인</b>';
+      ?'<b>쉬운 모드</b> · 두 방향이 섞여 나오고, 병음이 늘 보여요. <b>12초</b> 안에 답해요.<br>기본 정답 <b>+3 양분 · 1코인</b> · 20문제 전체 정답 <b>+20 양분 · 5코인</b> · 5개 연속 정답마다 <b>+2 양분</b> · 짝꿍어휘 보너스 <b>+2 양분</b>'
+      :'<b>어려운 모드</b> · 두 방향이 섞여 나오고, 병음은 한자를 눌러야 보여요. <b>7초</b> 안에 답해요.<br>기본 정답 <b>+5 양분 · 2코인</b> · 20문제 전체 정답 <b>+40 양분 · 10코인</b> · 5개 연속 정답마다 <b>+3 양분</b> · 짝꿍어휘 보너스 <b>+3 양분 · 1코인</b>';
     $('startBtn').firstChild.textContent='모험 시작하기 ';
     $('startBtn').nextElementSibling.textContent='기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
     if(levelReady(Number($('levelSelect').value)))updateCount();else renderStartCard();
@@ -2154,9 +2154,9 @@
   }
   // 톡 누르면 인사말과 게임 도움말(중국어 + 번역)을 번갈아 들려줘요.
   const FRIEND_TIPS=[
-    ['给我施肥，答对的时候能多得经验哦！','비료를 주면 기본 정답 경험치가 늘어나!'],
+    ['给我施肥，答对的时候能多得养分哦！','비료를 주면 기본 정답 양분이 늘어나!'],
     ['一轮全部答对，水壶就满了！答错的词再做一次也可以哦。','한 판을 다 맞히면 물뿌리개가 가득 차! 틀리면 틀린 단어를 다시 풀면 돼.'],
-    ['连续答对五个，还有奖励哦！','5개 연속으로 맞히면 보너스 경험치가 있어!'],
+    ['连续答对五个，还有奖励哦！','5개 연속으로 맞히면 보너스 양분이 있어!'],
     ['错了也没关系，下次还会见到它。','틀려도 괜찮아. 다음 판에 또 만나게 될 거야.'],
     ['做完一轮，我就能喝饱水！','한 판을 끝내면 나도 물을 듬뿍 마셔!'],
     ['用金币可以买肥料和工具。','코인으로 비료와 돌봄 도구를 살 수 있어.']
@@ -2416,7 +2416,7 @@
   if('speechSynthesis' in window)window.speechSynthesis.addEventListener('voiceschanged',populateVoices);
   function renderForestTabs(){
     document.body.dataset.forest=String(activeForest);
-    $('forestDescription').textContent=`${FORESTS[activeForest].name} · HSK ${FORESTS[activeForest].grades}은 한 친구와 함께해요. 숲마다 성장 기록은 따로 저장돼요. 다음 레벨 필요 XP ×${XP_MULTIPLIERS[activeForest]}.`;
+    $('forestDescription').textContent=`${FORESTS[activeForest].name} · HSK ${FORESTS[activeForest].grades}은 한 친구와 함께해요. 숲마다 성장 기록은 따로 저장돼요. 다음 레벨 필요 양분 ×${XP_MULTIPLIERS[activeForest]}.`;
     $('forestTabs').querySelectorAll('button').forEach((button,i)=>{
       button.setAttribute('aria-pressed',String(i===activeForest));
       const p=forestProfiles[i];button.querySelector('small').textContent=`Lv.${p.level} · ${p.family?GROWTH[p.family].name:'마음씨부터 시작'}`;
@@ -2480,20 +2480,21 @@
     ['문제 풀기',
       '두 모드 모두 한자→뜻, 뜻→한자 문제가 섞여 나와요. 쉬운 모드는 병음이 늘 보이고, 어려운 모드는 한자를 눌러야 보여요.',
       '제한 시간은 쉬운 모드 12초, 어려운 모드 7초예요(모든 급수 같아요). 기본 문제를 맞히면 짝꿍어휘 보너스 문제가 나와요. 🔊를 누르면 발음을 들을 수 있어요.'],
-    ['경험치와 코인',
-      '정답을 맞히면 어려운 모드는 +5 XP·2코인, 쉬운 모드는 +3 XP·1코인. 5개 연속 정답과 한 판 전체 정답에는 보너스가 있어요. 20문제를 모두 맞히면 가장 큰 보너스(어려운 +40 XP·10코인, 쉬운 +20 XP·5코인)를 받아요.',
-      '틀려도 경험치는 줄지 않아요. 틀린 단어는 다음 판에 먼저, 맞힌 단어는 며칠 뒤 복습으로 다시 나와요.'],
+    ['🌱 양분과 코인',
+      '양분은 친구가 자라는 힘이에요. 양분이 가득 모이면 레벨이 올라요.',
+      '정답을 맞히면 어려운 모드는 +5 양분·2코인, 쉬운 모드는 +3 양분·1코인. 5개 연속 정답과 한 판 전체 정답에는 보너스가 있어요. 20문제를 모두 맞히면 가장 큰 보너스(어려운 +40 양분·10코인, 쉬운 +20 양분·5코인)를 받아요.',
+      '틀려도 양분은 줄지 않아요. 틀린 단어는 다음 판에 먼저, 맞힌 단어는 며칠 뒤 복습으로 다시 나와요.'],
     ['💧 물주기',
       '한 판을 모두 맞히면 물뿌리개가 가득 차요. 틀린 단어가 있으면 한 번 더 보고 다시 풀어서 다 맞히면 가득 차요.',
       '가득 차면 친구 창 오른쪽의 물주기 버튼으로 물을 줘요.',
-      '48시간 동안 물을 주지 않으면 경험치가 조금씩 줄어요. (최대 −20 XP, 레벨은 그대로)'],
+      '48시간 동안 물을 주지 않으면 양분이 조금씩 줄어요. (최대 −20 양분, 레벨은 그대로)'],
     ['친구 키우기와 꾸미기',
       'Lv.3에 성장 계열, Lv.10에 세 갈래, Lv.15에 두 갈래를 골라요. Lv.20에는 전설의 식물로 최종 진화해요.',
       '꾸미기에서 친구 분위기 색, 장식, 정원을 골라요. 레벨이 오를 때마다 새 정원이 열려요(모두 12곳). 친구를 톡 누르면 자기소개를 하고, 꾹 누르면 들어 올릴 수 있어요.'],
     ['상점·바구니·날씨',
-      '코인으로 상점에서 비료와 돌봄 도구를 사고, 바구니에서 사용해요. 햇살·든든·반짝 비료는 경험치를, 알뜰·황금 비료는 코인을 더 모아 줘요.',
-      '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 경험치가 조금 줄어요.',
-      '돌봄 도구는 쓸 수 있는 횟수가 있어요. 우산 2번 · 부채·난로 3번 · 무당벌레 3번 · 울타리·스프링클러 6번 · 파라솔 7번 · 등불 8번. 고급 도구는 날씨가 오면 알아서 작동해요. 도구는 한 번만 사고, 다 닳으면 상점에서 싸게 수리해요(무당벌레 친구는 다시 사요). 도라지는 감기를 낫게 하고 한동안 막아 주고, 산삼은 다음 한 판의 정답 경험치를 2배로 해 줘요.',
+      '코인으로 상점에서 비료와 돌봄 도구를 사고, 바구니에서 사용해요. 햇살·든든·반짝 비료는 양분을, 알뜰·황금 비료는 코인을 더 모아 줘요.',
+      '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 양분이 조금 줄어요.',
+      '돌봄 도구에는 내구도 막대가 있어요. 날씨를 한 번 막을 때마다 한 칸씩 줄고, 다 닳으면 친구가 알려 줘요. 날씨가 끝나면 우산·난로는 알아서 정리돼요. 고급 도구는 날씨가 오면 알아서 작동해요. 도구는 한 번만 사고, 다 닳으면 상점에서 싸게 수리해요(무당벌레 친구는 다시 사요). 도라지는 감기를 낫게 하고 한동안 막아 주고, 산삼은 다음 한 판의 정답 양분을 2배로 해 줘요.',
       '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.'],
     ['믿고 익히는 HSK 단어 🌱',
       '게임 속 HSK 단어와 급수는 《HSK考试大纲》의 어휘 목록을 기준으로 확인했어요. 짝꿍어휘는 진담중국어가 말하기 연습을 위해 더했어요.',
@@ -2606,7 +2607,7 @@
     for(const k of cur.keys){const i=keys.indexOf(k),card=cards[i];const b=document.createElement('button');b.type='button';b.className='shop-pick';b.setAttribute('aria-selected',String(k===key));
       const art=card.querySelector('svg')?.cloneNode(true);if(art)b.append(art);
       const nm=document.createElement('strong');nm.textContent=SHOP_NAMES[k]||card.querySelector('h3')?.textContent||k;
-      const price=document.createElement('small');const m=/(\d+)\s*코인/.exec(card.querySelector('.primary')?.textContent||'');const bt=card.querySelector('.primary')?.textContent||'';price.textContent=bt.includes('수리')?`🔧 ${m[1]} 코인`:m?`${m[1]} 코인`:bt.includes('보유')?'보유 중':'';
+      const price=document.createElement('small');const m=/(\d+)\s*코인/.exec(card.querySelector('.primary')?.textContent||'');const bt=card.querySelector('.primary')?.textContent||'';price.textContent=bt.includes('보유')?'보유 중':m&&bt.includes('수리')?`🔧 ${m[1]} 코인`:m?`${m[1]} 코인`:'';
       b.append(nm,price);b.onclick=()=>selectShopTab(i);picks.append(b);}
     const sel=picks.querySelector('[aria-selected="true"]');if(sel)requestAnimationFrame(()=>{const l=sel.getBoundingClientRect().left-picks.getBoundingClientRect().left+picks.scrollLeft,r=l+sel.offsetWidth;if(l<picks.scrollLeft||r>picks.scrollLeft+picks.clientWidth)picks.scrollLeft=Math.max(0,l-(picks.clientWidth-sel.offsetWidth)/2);});
   }
@@ -2821,12 +2822,12 @@
       w.remainingMs=Math.max(0,w.remainingMs-dt);helpElapsed+=dt;
       if(w.kind==='heavyRain'&&w.remainingMs>0){w.thunderMs=(w.thunderMs??12000)-dt;if(w.thunderMs<=0){flashThunder();w.thunderMs=12000+Math.random()*16000;}}
       if(!w.remainingMs){
-        const was=w.kind;w.kind=null;w.nextMs=worldGap();helpElapsed=0;onWeatherEnd(was,w);
+        const was=w.kind;w.kind=null;w.nextMs=worldGap();helpElapsed=0;const brokeAny=onWeatherEnd(was,w);
         if(was==='bug'){
           const loss=Math.min(10,Math.max(0,profile.xp-xpStart(profile.level)));profile.xp-=loss;
-          loss?friendSay(`虫子咬了我……经验少了${loss}点。`,`벌레한테 물렸어… 경험치가 ${loss} 줄었어. 다음엔 살충제를 뿌려 줘.`):friendSay('虫子来过了，还好没事。','벌레가 다녀갔지만 괜찮아. 레벨은 보호됐어.');
+          loss?friendSay(`虫子咬了我……养分少了${loss}点。`,`벌레한테 물렸어… 양분이 ${loss} 줄었어. 다음엔 살충제를 뿌려 줘.`):friendSay('虫子来过了，还好没事。','벌레가 다녀갔지만 괜찮아. 레벨은 보호됐어.');
           hideBubble();renderProfile();
-        }else{friendSay('天晴了！','날씨가 다시 맑아졌어!');hideBubble();clearThunder();}
+        }else{if(!brokeAny){friendSay('天晴了！','날씨가 다시 맑아졌어!');hideBubble();}clearThunder();}
       }else if(helpElapsed>=20000){helpElapsed=0;showWorldHelp();}
     }
     if(w.kind==='bug'){buzzElapsed+=dt;if(buzzElapsed>=1100){buzzElapsed=0;forestAudio.effect('buzz');}if(Math.random()<.2)$('mascot').classList.toggle('escape-jump');}
@@ -2911,7 +2912,7 @@
   }
   function healthLoss(h){
     if(h.loss>=5)return;
-    const loss=Math.min(1,Math.max(0,profile.xp-xpStart(profile.level)));profile.xp-=loss;h.loss++;renderProfile();loss?friendSay('我不舒服……经验少了1点。','몸이 안 좋아… 경험치가 1 줄었어.'):friendSay('我不舒服，照顾照顾我吧。','몸이 안 좋아, 나 좀 돌봐 줘.');
+    const loss=Math.min(1,Math.max(0,profile.xp-xpStart(profile.level)));profile.xp-=loss;h.loss++;renderProfile();loss?friendSay('我不舒服……养分少了1点。','몸이 안 좋아… 양분이 1 줄었어.'):friendSay('我不舒服，照顾照顾我吧。','몸이 안 좋아, 나 좀 돌봐 줘.');
   }
   function tickHealth(dt){
     const g=profile.garden,h=g.health,w=g.world;
@@ -2959,7 +2960,7 @@
     const lush=document.querySelector('[data-buy="gentle"]').closest('.shop-item').cloneNode(true);
     lush.innerHTML=lush.innerHTML.replaceAll('gentle','lush').replaceAll('햇살 비료','반짝 비료').replaceAll('20코인','50코인').replaceAll('20 코인','50 코인').replaceAll('+1','+3');
     document.querySelector('.shop-catalog .shop-items').append(lush);
-    for(const [k,txt,badge,bag] of [['thrift','기본 정답 XP <strong>절반</strong> · 코인 <strong>+3</strong>','½','#e8e2c2'],['gold','XP 대신 기본 정답마다 코인 <strong>+5</strong>','🪙','#f2d27a']]){
+    for(const [k,txt,badge,bag] of [['thrift','기본 정답 양분 <strong>절반</strong> · 코인 <strong>+3</strong>','½','#e8e2c2'],['gold','양분 대신 기본 정답마다 코인 <strong>+5</strong>','🪙','#f2d27a']]){
       const it=FERTILIZERS[k],card=document.querySelector('[data-buy="gentle"]').closest('.shop-item').cloneNode(true);
       card.innerHTML=card.innerHTML.replaceAll('gentle',k).replaceAll('햇살 비료',it.name).replaceAll('20코인',it.price+'코인').replaceAll('20 코인',it.price+' 코인').replace('>+1<','>'+badge+'<').replace('fill="#efdfae"',`fill="${bag}"`);
       card.querySelector('.fertilizer-benefit').innerHTML=txt;card.querySelector('.shop-duration').textContent='정답 10회 동안 · 코인을 모을 때 좋아요';
@@ -3009,7 +3010,7 @@
   function showPerfect(done){
     const cheers=[['全对了，你真棒！','전부 맞혔어, 정말 멋져!'],['你的努力开花啦！','네 노력이 꽃을 피웠어!'],['一个都没错，太厉害了！','하나도 안 틀렸어, 대단해!'],['坚持学习，你越来越棒了！','꾸준히 공부하니 점점 더 멋져져!'],['我们一起继续加油吧！','우리 함께 계속 힘내자!']];
     const phrase=cheers[Math.floor(Math.random()*cheers.length)];$('perfectArt').innerHTML=$('mascot').querySelector('.creature-art').innerHTML;
-    $('perfectChinese').textContent=phrase[0];$('perfectKorean').textContent=phrase[1];$('perfectReward').textContent=`전체 정답 보너스 +${state.perfectXP} XP`+(state.perfectCoins?` · +${state.perfectCoins} 코인`:'');
+    $('perfectChinese').textContent=phrase[0];$('perfectKorean').textContent=phrase[1];$('perfectReward').textContent=`전체 정답 보너스 +${state.perfectXP} 양분`+(state.perfectCoins?` · +${state.perfectCoins} 코인`:'');
     const dialog=$('perfectDialog');dialog.showModal();forestAudio.effect('level');
     let completed=false;const close=()=>{if(completed)return;completed=true;clearTimeout(timer);dialog.close();done();};
     const timer=setTimeout(close,3200);$('closePerfect').onclick=close;dialog.oncancel=e=>{e.preventDefault();close();};
@@ -3026,7 +3027,7 @@
     fence:{name:'바람막이 울타리',zh:'挡风篱笆 dǎngfēng líba',cat:'care',price:70,auto:true,desc:'찬바람을 막아 감기를 예방해요',when:'wind'},
     sprinkler:{name:'미니 스프링클러',zh:'小喷水器 xiǎo pēnshuǐqì',cat:'care',price:90,auto:true,desc:'무더위가 오면 자동으로 시원하게 해 줘요',when:'heat'},
     doraji:{name:'도라지',zh:'桔梗 jiégěng',cat:'med',price:40,desc:'감기를 낫게 하고, 다음 날씨 3번 동안 감기를 막아요'},
-    ginseng:{name:'산삼 뿌리',zh:'人参 rénshēn',cat:'med',price:120,desc:'다음 한 판 동안 기본 정답 경험치가 2배예요'}
+    ginseng:{name:'산삼 뿌리',zh:'人参 rénshēn',cat:'med',price:120,desc:'다음 한 판 동안 기본 정답 양분이 2배예요'}
   };
   const GEAR_ART={
     ladybug:'<ellipse cx="50" cy="58" rx="30" ry="26" fill="#e5534b" stroke="#8a2a24" stroke-width="3"/><path d="M50 32v52" stroke="#3a2a28" stroke-width="3"/><circle cx="50" cy="32" r="13" fill="#3a2a28"/><circle cx="45" cy="30" r="2.5" fill="#fff"/><circle cx="55" cy="30" r="2.5" fill="#fff"/><circle cx="36" cy="52" r="6" fill="#3a2a28"/><circle cx="64" cy="52" r="6" fill="#3a2a28"/><circle cx="38" cy="70" r="5" fill="#3a2a28"/><circle cx="62" cy="70" r="5" fill="#3a2a28"/><path d="M44 20q-6-10-12-8M56 20q6-10 12-8" stroke="#3a2a28" stroke-width="2.5" fill="none"/>',
@@ -3067,7 +3068,7 @@
     if(k==='ginseng'){
       if(g.ginsengReady){showFriendPhrase(['人参的力量已经准备好了！','산삼 기운이 벌써 준비돼 있어! 모험을 떠나자!']);return;}
       g.inventory.ginseng--;g.ginsengReady=true;
-      showFriendPhrase(['人参！我浑身都是力气！','산삼이다! 힘이 불끈! 다음 판 경험치 2배야!'],'below');
+      showFriendPhrase(['人参！我浑身都是力气！','산삼이다! 힘이 불끈! 다음 판 양분 2배야!'],'below');
     }else{
       g.inventory.doraji--;const was=h.sick;h.sick=false;h.illMs=0;h.exposure=0;h.loss=0;h.guard=3;
       showFriendPhrase(was?['桔梗真管用，我好多了！','도라지 덕분에 다 나았어! 한동안 감기 걱정 없어!']:['吃了桔梗，我不怕感冒了！','도라지를 먹었으니 한동안 감기 안 걸릴 거야!'],'below');
@@ -3088,8 +3089,8 @@
   function onWeatherStart(w){
     const g=profile.garden;w.parasol=w.fence=w.sprinkler=w.umbrellaUsed=w.heaterUsed=w.fanUsed=false;
     if(w.kind==='bug'){
-      if(g.gear.lantern>0&&Math.random()<.5){g.gear.lantern--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();friendSay('萤火虫灯把虫子吓跑了！',`반딧불 등불 덕분에 벌레가 오지 않았어! (등불 남은 ${g.gear.lantern}회)`);save();return false;}
-      if(g.gear.ladybug>0){g.gear.ladybug--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();playLadybug();friendSay('瓢虫朋友帮我赶走了虫子！',`무당벌레 친구가 벌레를 쫓아 줬어! (남은 ${g.gear.ladybug}회)`);save();return false;}
+      if(g.gear.lantern>0&&Math.random()<.5){g.gear.lantern--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();friendSay('萤火虫灯把虫子吓跑了！',`반딧불 등불 덕분에 벌레가 오지 않았어!`);if(!g.gear.lantern){packAwayTools(new Set(['반딧불 등불']));announceBroken(['반딧불 등불']);}save();return false;}
+      if(g.gear.ladybug>0){g.gear.ladybug--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();playLadybug();friendSay('瓢虫朋友帮我赶走了虫子！',`무당벌레 친구가 벌레를 쫓아 줬어!`);if(!g.gear.ladybug)setTimeout(()=>announceBroken(['무당벌레 친구']),1600);save();return false;}
     }
     if(isRain(w.kind)&&g.gear.parasol>0)w.parasol=true;
     if(w.kind==='wind'&&g.gear.fence>0)w.fence=true;
@@ -3097,18 +3098,36 @@
     return true;
   }
   // 날씨가 끝날 때: 쓴 도구가 1회씩 닳아요. 다 닳으면 친구가 알려 줘요.
+  // 날씨가 끝나면 우산·난로·파라솔 같은 도구가 스르르 정리돼요.
+  function packAwayTools(broken=new Set()){
+    const sel=[['#mascot .world-umbrella','leave-fold','우산'],['#mascot .gear-parasol-top','leave-fold','파라솔'],['#homeHabitat .placed-heater','leave-sink','난로'],['#homeHabitat .gear-fence','leave-sink','울타리'],['#homeHabitat .gear-sprinkler','leave-sink','스프링클러'],['#homeHabitat .gear-lantern','leave-sink','반딧불 등불']];
+    let any=false;
+    for(const [q,cls0,name] of sel){const el=document.querySelector(q);if(!el||name==='반딧불 등불'&&!broken.has(name))continue;any=true;const cls=broken.has(name)?'leave-break':cls0;
+      const ghost=el.cloneNode(true);ghost.classList.add('tool-leaving',cls);ghost.classList.remove('world-umbrella','gear-parasol-top','placed-heater','gear-scene');
+      const cs=getComputedStyle(el);Object.assign(ghost.style,{position:'absolute',left:el.offsetLeft+'px',top:el.offsetTop+'px',width:el.offsetWidth+'px',height:el.offsetHeight+'px',right:'auto',bottom:'auto',translate:cs.translate,zIndex:cs.zIndex==='auto'?'6':cs.zIndex,margin:'0'});
+      el.parentElement.append(ghost);if(cls==='leave-break'){ghost.insertAdjacentHTML('beforeend','<span class="break-puff">✨</span>');}setTimeout(()=>ghost.remove(),1500);}
+    if(any)forestAudio.effect('dress');
+  }
   function onWeatherEnd(was,w){
     const g=profile.garden,h=g.health,broke=[];
     const wear=(get,set,name)=>{const left=Math.max(0,get()-1);set(left);if(!left)broke.push(name);};
     if(w.parasol)wear(()=>g.gear.parasol,v=>g.gear.parasol=v,'파라솔');
     if(w.fence)wear(()=>g.gear.fence,v=>g.gear.fence=v,'울타리');
     if(w.sprinkler)wear(()=>g.gear.sprinkler,v=>g.gear.sprinkler=v,'스프링클러');
-    if(w.umbrellaUsed&&w.umbrellaOwned)wear(()=>w.umbrellaUses,v=>{w.umbrellaUses=v;if(!v){w.umbrellaOwned=false;w.umbrellaOn=false;}},'우산');
-    if(w.heaterUsed&&h.heater)wear(()=>h.heaterUses,v=>{h.heaterUses=v;if(!v){h.heater=false;h.heaterOn=false;}},'난로');
+    if(w.umbrellaUsed&&w.umbrellaOwned)wear(()=>w.umbrellaUses,v=>{w.umbrellaUses=v;if(!v)w.umbrellaOwned=false;},'우산');
+    if(w.heaterUsed&&h.heater)wear(()=>h.heaterUses,v=>{h.heaterUses=v;if(!v)h.heater=false;},'난로');
     if(w.fanUsed&&h.fan)wear(()=>h.fanUses,v=>{h.fanUses=v;if(!v)h.fan=false;},'부채');
+    // 날씨가 끝나면 도구를 정리해요. 다 닳은 도구는 반짝이며 사라져요.
+    packAwayTools(new Set(broke));w.umbrellaOn=false;h.heaterOn=false;
     if(was!=='bug'&&h.guard>0)h.guard--;
     w.parasol=w.fence=w.sprinkler=w.umbrellaUsed=w.heaterUsed=w.fanUsed=false;
-    if(broke.length)setTimeout(()=>friendSay('用坏了，谢谢你一直保护我！',`${broke.join('·')}${hasBatchim(broke.at(-1))?'이':'가'} 다 닳았어. 그동안 지켜 줘서 고마워! 상점에서 수리하면 다시 쓸 수 있어.`),2500);
+    if(broke.length)announceBroken(broke);
+    return broke.length>0;
+  }
+  function announceBroken(broke){
+    const last=broke.at(-1),mine=broke.some(n=>n!=='무당벌레 친구');
+    setTimeout(()=>friendSay(broke.includes('무당벌레 친구')&&!mine?'瓢虫朋友回家休息了，谢谢它！':'用坏了，谢谢你一直保护我！',
+      `${broke.join('·')}${hasBatchim(last)?'이':'가'} 다 닳아서 사라졌어. 그동안 지켜 줘서 고마워!${mine?' 상점에서 수리하면 다시 쓸 수 있어.':' 상점에서 다시 데려올 수 있어.'}`),900);
   }
   function playLadybug(){
     const stage=$('homeHabitat');const bug=document.createElement('span');bug.className='gear-ladybug-fly';bug.innerHTML=gearSVG('ladybug');bug.setAttribute('aria-hidden','true');stage.append(bug);setTimeout(()=>bug.remove(),2600);forestAudio.effect('correct');
@@ -3157,15 +3176,26 @@
       if(g.owned[k]){if(toolUses(k)===0)repairTool(k);return;}
       const before=g.coins;buy?.call(btn,e);if(g.coins<before){g.owned[k]=true;save();renderShop();}};
   }
+  // 내구도 막대: 남은 횟수를 숫자 대신 네모 칸으로 보여 줘요.
+  function durBar(left,full){
+    const n=Math.max(full,left),ratio=left/full,tone=left===0?'empty':ratio<=.34?'low':ratio<=.67?'mid':'high';
+    return `<span class="dur dur-${tone}" role="img" aria-label="내구도 ${left}/${n}">${Array.from({length:n},(_,i)=>`<i${i<left?' class="on"':''}></i>`).join('')}</span>`;
+  }
   function renderRepair(){
-    const g=profile.garden;
-    for(const [k,id] of Object.entries(TOOL_BTN)){
-      const btn=$(id),stock=$(k+'Stock');if(!btn)continue;const left=toolUses(k);
-      if(g.owned[k]&&left===0){btn.textContent=`🔧 ${REPAIR_PRICE[k]} 코인으로 수리`;btn.disabled=gardenBusy()||g.coins<REPAIR_PRICE[k];btn.classList.add('repair');if(stock)stock.textContent=`다 닳았어요 · 수리하면 다시 ${GEAR_USES[k]}번`;}
-      else if(g.owned[k]){btn.textContent=`보유 중 · 남은 ${left}회`;btn.disabled=true;btn.classList.remove('repair');}
+    const g=profile.garden,w=g.world,h=g.health;
+    const status=k=>k==='umbrella'&&w.umbrellaOn?'씌우는 중':k==='heater'&&h.heaterOn?'놓아 두는 중':GEAR_ITEMS[k]?.auto?'자동 작동':'보유 중';
+    for(const k of [...Object.keys(TOOL_BTN),'ladybug']){
+      const btn=$(TOOL_BTN[k]||'buy-'+k),stock=$(k+'Stock'),left=toolUses(k),full=GEAR_USES[k];if(!btn)continue;
+      const has=k==='ladybug'?left>0:g.owned[k];
+      if(stock){stock.classList.add('dur-stock');stock.innerHTML=has?(left===0?`${durBar(0,full)}<b>다 닳았어요 · 수리가 필요해요</b>`:`${durBar(left,full)}<b>${status(k)}</b>`):`${durBar(full,full)}<b>새 도구 내구도</b>`;}
+      if(k==='ladybug'){btn.textContent=`${GEAR_ITEMS.ladybug.price} 코인으로 ${left?'더 데려오기':'구매'}`;continue;}
+      if(g.owned[k]&&left===0){btn.textContent=`🔧 ${REPAIR_PRICE[k]} 코인으로 수리`;btn.disabled=gardenBusy()||g.coins<REPAIR_PRICE[k];btn.classList.add('repair');}
+      else if(g.owned[k]){btn.textContent='보유 중 · 다 닳으면 수리해요';btn.disabled=true;btn.classList.remove('repair');}
       else{btn.textContent=`${TOOL_PRICE[k]} 코인으로 구매`;btn.disabled=gardenBusy()||g.coins<TOOL_PRICE[k];btn.classList.remove('repair');}
     }
-    document.querySelectorAll('.basket-item').forEach(card=>{const k=card.dataset.item;if(TOOL_BTN[k]&&g.owned[k]&&toolUses(k)===0){const st=card.querySelector('.basket-stock');if(st)st.textContent='다 닳음 · 상점에서 수리';}});
+    document.querySelectorAll('.basket-item').forEach(card=>{const k=card.dataset.item,st=card.querySelector('.basket-stock');if(!st||!(TOOL_BTN[k]||k==='ladybug'))return;
+      const left=toolUses(k),has=k==='ladybug'?left>0:g.owned[k];st.classList.add('dur-stock');
+      st.innerHTML=!has?'미보유':left===0?`${durBar(0,GEAR_USES[k])}<b>상점에서 수리</b>`:durBar(left,GEAR_USES[k]);});
   }
   {const _rs=renderSupplies;renderSupplies=function(){_rs();renderRepair();};}
   {const _rb=renderBasket;renderBasket=function(){_rb();renderRepair();};}
