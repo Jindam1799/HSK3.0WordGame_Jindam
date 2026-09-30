@@ -1142,7 +1142,7 @@
     const world={kind,remainingMs:kind?milliseconds(w?.remainingMs,kind==='bug'?WORLD_RULES.bugMs:WORLD_RULES.rainMs,120000):0,
       nextMs:milliseconds(w?.nextMs,worldGap(),240000),thunderMs:milliseconds(w?.thunderMs,12000+Math.random()*16000,28000),umbrellaOwned:w?.umbrellaOwned===true,umbrellaOn:w?.umbrellaOwned===true&&w?.umbrellaOn===true,
       umbrellaUses:w?.umbrellaOwned===true?(Number.isSafeInteger(w?.umbrellaUses)&&w.umbrellaUses>0?Math.min(w.umbrellaUses,99):2):0,
-      parasol:w?.parasol===true,fence:w?.fence===true,sprinkler:w?.sprinkler===true,umbrellaUsed:w?.umbrellaUsed===true,heaterUsed:w?.heaterUsed===true,fanUsed:w?.fanUsed===true};
+      parasol:w?.parasol===true,fence:w?.fence===true,sprinkler:w?.sprinkler===true,umbrellaUsed:w?.umbrellaUsed===true,heaterUsed:w?.heaterUsed===true,fanUsed:w?.fanUsed===true,ladybug:w?.ladybug===true};
     const h=raw?.health;
     const health={sick:h?.sick===true,medicine:Math.min(999,integer(h?.medicine,999)+(h?.medicineGift===true?0:1)),medicineGift:true,fan:h?.fan===true,heater:h?.heater===true,heaterOn:h?.heater===true&&h?.heaterOn===true,exposure:milliseconds(h?.exposure,0,60000),illMs:milliseconds(h?.illMs,0,120000),heatMs:milliseconds(h?.heatMs,0,45000),coolMs:milliseconds(h?.coolMs,0,45000),loss:integer(h?.loss,5),
       fanUses:h?.fan===true?(Number.isSafeInteger(h?.fanUses)&&h.fanUses>0?Math.min(h.fanUses,99):3):0,heaterUses:h?.heater===true?(Number.isSafeInteger(h?.heaterUses)&&h.heaterUses>0?Math.min(h.heaterUses,99):3):0,guard:integer(h?.guard,9)};
@@ -2496,9 +2496,10 @@
       '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 양분이 조금 줄어요.',
       '돌봄 도구에는 내구도 막대가 있어요. 날씨를 한 번 막을 때마다 한 칸씩 줄고, 다 닳으면 친구가 알려 줘요. 날씨가 끝나면 우산·난로는 알아서 정리돼요. 고급 도구는 날씨가 오면 알아서 작동해요. 도구는 한 번만 사고, 다 닳으면 상점에서 싸게 수리해요(무당벌레 친구는 다시 사요). 도라지는 감기를 낫게 하고 한동안 막아 주고, 산삼은 다음 한 판의 정답 양분을 2배로 해 줘요.',
       '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.'],
-    ['믿고 익히는 HSK 단어 🌱',
-      '게임 속 HSK 단어와 급수는 《HSK考试大纲》의 어휘 목록을 기준으로 확인했어요. 짝꿍어휘는 진담중국어가 말하기 연습을 위해 더했어요.',
-      '출처: 중외언어교류협력센터 《HSK考试大纲》 · 짝꿍어휘: 진담중국어']
+    ['믿고 공부할 수 있는 HSK 단어예요 🌱',
+      '게임 속 HSK 단어와 급수는 중국 교육부 산하 중외언어교류협력센터(中外语言交流合作中心)의 《HSK考试大纲(HSK 시험대강)》 어휘 목록을 기준으로 했어요.',
+      '《HSK考试大纲》은 HSK 시험에서 요구하는 어휘와 학습 범위를 확인할 수 있는 공식 기준 자료예요. 그래서 덩어리숲에서도 이 자료를 기준으로 단어를 정리했어요.',
+      '여기에 단어를 외우는 데서 끝나지 않고 실제로 말할 때 함께 쓸 수 있도록 ‘짝꿍어휘’는 진담중국어가 직접 구성했어요.']
   ];
   if(!STUDENT_BG)GUIDE_PAGES.push(['체험판 안내',
     '체험판은 친구가 Lv.10까지 자라고, 성장 계열은 마음꽃·마음송이 중에서 골라요.',
@@ -2569,13 +2570,26 @@
   }
   $('openAdventure').onclick=()=>{resetFriend();$('adventureBody').append($('setup'));$('adventureDialog').showModal();};
   // 게임 안내: 상단 탭에서 열거나, 숲을 고르면 먼저 보여 줘요. 맨 아래에 HSK 단어 출처가 있어요.
-  function openGuideDialog(){
+  // 게임 안내는 두 쪽이에요. 1쪽: 믿고 공부할 수 있는 HSK 단어 · 2쪽: 게임 방법
+  let guideSourceNode=null,guideStep=1;
+  function renderGuidePage(){
     const list=$('guideList');list.replaceChildren();
-    GUIDE_PAGES.filter(p=>!/HSK 단어/.test(p[0])).forEach(([title,...lines])=>{const sec=document.createElement('section');sec.className='guide-card';const h=document.createElement('h3');h.textContent=title;sec.append(h);lines.forEach(l=>{const p=document.createElement('p');p.textContent=l;sec.append(p);});list.append(sec);});
-    list.scrollTop=0;$('guideDialog').showModal();$('guideOk').focus({preventScroll:true});
+    const src=guideSourceNode||(guideSourceNode=$('guideSource'));
+    if(guideStep===1){if(src)list.append(src);}
+    else GUIDE_PAGES.filter(p=>!/HSK 단어/.test(p[0])).forEach(([title,...lines])=>{const sec=document.createElement('section');sec.className='guide-card';const h=document.createElement('h3');h.textContent=title;sec.append(h);lines.forEach(l=>{const p=document.createElement('p');p.textContent=l;sec.append(p);});list.append(sec);});
+    $('guideDialogTitle').textContent=guideStep===1?'🌱 덩어리숲 단어 이야기':'🌱 게임 방법 안내';
+    $('guidePager').textContent=`${guideStep} / 2`;
+    $('guideBack').hidden=guideStep===1;
+    $('guideOk').textContent=guideStep===1?'다음: 게임 방법 보기 →':'확인';
+    list.scrollTop=0;
+  }
+  function openGuideDialog(){
+    guideStep=1;renderGuidePage();$('guideDialog').showModal();$('guideOk').focus({preventScroll:true});
   }
   $('openGuide').onclick=()=>{resetFriend();openGuideDialog();};
-  $('guideOk').onclick=()=>$('guideDialog').close();$('guideClose').onclick=()=>$('guideDialog').close();
+  $('guideOk').onclick=()=>{if(guideStep===1){guideStep=2;renderGuidePage();$('guideOk').focus({preventScroll:true});}else $('guideDialog').close();};
+  $('guideBack').onclick=()=>{guideStep=1;renderGuidePage();};
+  $('guideClose').onclick=()=>$('guideDialog').close();
   $('openStudy').onclick=()=>{resetFriend();renderStudy();$('studyDialog').showModal();};
   $('openForest').onclick=()=>{resetFriend();$('forestBody').append(movable[0]);$('forestDialog').showModal();};
   ['adventureDialog','settingsDialog'].forEach(id=>$(id).addEventListener('close',()=>{if(!mobileLayout.matches){movable.forEach((node,i)=>{if(i>0){anchors[i].after(node);node.hidden=false;node.open=false;}});}}));
@@ -2756,7 +2770,8 @@
   function showWorldHelp(){
     const w=profile.garden.world;
     if(w.kind==='heat'&&profile.garden.health.heaterOn){playfulReaction('heater');return;}
-    if(w.kind==='bug'){if(!bugBag.length)bugBag=shuffle(BUG_HELP);showFriendPhrase(bugBag.pop());}
+    if(w.kind==='bug'&&w.ladybug)showFriendPhrase(['别怕，瓢虫朋友马上就来！','벌레다! 괜찮아, 무당벌레 친구가 곧 날아올 거야!']);
+    else if(w.kind==='bug'){if(!bugBag.length)bugBag=shuffle(BUG_HELP);showFriendPhrase(bugBag.pop());}
     else if(isRain(w.kind)&&w.parasol)showFriendPhrase(['大阳伞下面一滴雨也没有！','큰 파라솔 아래는 빗방울 하나 없어!']);
     else if(w.kind==='wind'&&w.fence)showFriendPhrase(['有挡风篱笆，一点也不冷！','울타리가 바람을 막아 줘서 하나도 안 추워!']);
     else if(w.kind==='heat'&&w.sprinkler)showFriendPhrase(['喷水器好凉快呀！','스프링클러 덕분에 시원해!']);
@@ -2795,8 +2810,8 @@
     friend.classList.toggle('world-threat',w.kind==='bug'&&!gardenBusy());
     forestAudio.setCrisis(w.kind==='bug'&&!gardenBusy()&&!document.hidden);
     stage.classList.toggle('world-raining',isRain(w.kind));
-    $('worldStatus').textContent=w.kind==='bug'?`벌레가 나타났어요! ${Math.ceil(w.remainingMs/1000)}초 안에 퇴치해 주세요.`:isRain(w.kind)?`${w.kind==='heavyRain'?'폭우':'가랑비'} · ${w.parasol?'큰 파라솔이 비를 막아 줘요.':w.umbrellaOn?(w.kind==='heavyRain'?'우산 안으로도 빗방울이 튀어요.':'우산으로 비를 막고 있어요.'):'우산을 씌워 주세요.'}`:w.kind==='heat'?(w.sprinkler?'무더위 · 스프링클러가 시원하게 해 줘요.':'무더위 · 친구가 땀을 흘리고 있어요.'):w.kind==='wind'?(w.fence?'찬바람 · 울타리가 바람을 막아 줘요.':'찬바람 · 친구가 추워서 떨고 있어요.'):'맑은 숲 · 친구가 쉬고 있어요.';
-    $('worldAction').hidden=!(w.kind==='bug'||isRain(w.kind)&&!w.umbrellaOn&&!w.parasol);
+    $('worldStatus').textContent=w.kind==='bug'&&w.ladybug?'벌레가 나타났어요! 무당벌레 친구가 날아오고 있어요 🐞':w.kind==='bug'?`벌레가 나타났어요! ${Math.ceil(w.remainingMs/1000)}초 안에 퇴치해 주세요.`:isRain(w.kind)?`${w.kind==='heavyRain'?'폭우':'가랑비'} · ${w.parasol?'큰 파라솔이 비를 막아 줘요.':w.umbrellaOn?(w.kind==='heavyRain'?'우산 안으로도 빗방울이 튀어요.':'우산으로 비를 막고 있어요.'):'우산을 씌워 주세요.'}`:w.kind==='heat'?(w.sprinkler?'무더위 · 스프링클러가 시원하게 해 줘요.':'무더위 · 친구가 땀을 흘리고 있어요.'):w.kind==='wind'?(w.fence?'찬바람 · 울타리가 바람을 막아 줘요.':'찬바람 · 친구가 추워서 떨고 있어요.'):'맑은 숲 · 친구가 쉬고 있어요.';
+    $('worldAction').hidden=!(w.kind==='bug'&&!w.ladybug||isRain(w.kind)&&!w.umbrellaOn&&!w.parasol);
     $('worldAction').disabled=gardenBusy();
     $('worldAction').textContent=w.kind==='bug'?(g.inventory.spray?`살충제 뿌리기 · ${g.inventory.spray}개`:'살충제 사러 가기'):(w.umbrellaOwned?'우산 씌우기':'우산 사러 가기');
     renderHealth();
@@ -2807,6 +2822,7 @@
     const rect=$('homeHabitat').getBoundingClientRect();
     return rect.bottom>60&&rect.top<window.innerHeight-60;
   }
+  let ladybugPending=false;
   function worldTick(now=performance.now()){
     const dt=Math.max(0,Math.min(1500,now-worldLast));worldLast=now;
     forestAudio.setCrisis(profile.garden.world.kind==='bug'&&!gardenBusy()&&!document.hidden);
@@ -2830,6 +2846,7 @@
         }else{if(!brokeAny){friendSay('天晴了！','날씨가 다시 맑아졌어!');hideBubble();}clearThunder();}
       }else if(helpElapsed>=20000){helpElapsed=0;showWorldHelp();}
     }
+    if(w.kind==='bug'&&w.ladybug&&!ladybugPending){ladybugPending=true;setTimeout(()=>{ladybugPending=false;ladybugRescue();},2600);}
     if(w.kind==='bug'){buzzElapsed+=dt;if(buzzElapsed>=1100){buzzElapsed=0;forestAudio.effect('buzz');}if(Math.random()<.2)$('mascot').classList.toggle('escape-jump');}
     save();renderWorld();
   }
@@ -3087,10 +3104,11 @@
   }
   // 날씨가 시작될 때: 자동 도구가 작동해요. false를 돌려주면 그 날씨는 오지 않아요.
   function onWeatherStart(w){
-    const g=profile.garden;w.parasol=w.fence=w.sprinkler=w.umbrellaUsed=w.heaterUsed=w.fanUsed=false;
+    const g=profile.garden;w.parasol=w.fence=w.sprinkler=w.umbrellaUsed=w.heaterUsed=w.fanUsed=w.ladybug=false;
     if(w.kind==='bug'){
-      if(g.gear.lantern>0&&Math.random()<.5){g.gear.lantern--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();friendSay('萤火虫灯把虫子吓跑了！',`반딧불 등불 덕분에 벌레가 오지 않았어!`);if(!g.gear.lantern){packAwayTools(new Set(['반딧불 등불']));announceBroken(['반딧불 등불']);}save();return false;}
-      if(g.gear.ladybug>0){g.gear.ladybug--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();playLadybug();friendSay('瓢虫朋友帮我赶走了虫子！',`무당벌레 친구가 벌레를 쫓아 줬어!`);if(!g.gear.ladybug)setTimeout(()=>announceBroken(['무당벌레 친구']),1600);save();return false;}
+      if(g.gear.lantern>0&&Math.random()<.5){g.gear.lantern--;w.kind=null;w.remainingMs=0;w.nextMs=worldGap();playLantern();friendSay('萤火虫灯把虫子吓跑了！',`반딧불 등불이 반짝! 벌레가 무서워서 오지 않았어!`);if(!g.gear.lantern){lanternHold=Date.now()+2400;setTimeout(()=>{packAwayTools(new Set(['반딧불 등불']));renderWorld();},2500);setTimeout(()=>announceBroken(['반딧불 등불']),3200);}save();return false;}
+      // 무당벌레 친구: 벌레가 나타나고 잠시 뒤 날아와서 벌레를 쫓아내요.
+      if(g.gear.ladybug>0)w.ladybug=true;
     }
     if(isRain(w.kind)&&g.gear.parasol>0)w.parasol=true;
     if(w.kind==='wind'&&g.gear.fence>0)w.fence=true;
@@ -3127,12 +3145,31 @@
   function announceBroken(broke){
     const last=broke.at(-1),mine=broke.some(n=>n!=='무당벌레 친구');
     setTimeout(()=>friendSay(broke.includes('무당벌레 친구')&&!mine?'瓢虫朋友回家休息了，谢谢它！':'用坏了，谢谢你一直保护我！',
-      `${broke.join('·')}${hasBatchim(last)?'이':'가'} 다 닳아서 사라졌어. 그동안 지켜 줘서 고마워!${mine?' 상점에서 수리하면 다시 쓸 수 있어.':' 상점에서 다시 데려올 수 있어.'}`),900);
+      mine?`${broke.join('·')}${hasBatchim(last)?'이':'가'} 다 닳아서 사라졌어. 그동안 지켜 줘서 고마워! 상점에서 수리하면 다시 쓸 수 있어.`:'무당벌레 친구가 할 일을 다 하고 집으로 돌아갔어. 고마워! 상점에서 다시 데려올 수 있어.'),900);
+  }
+  function ladybugRescue(){
+    const g=profile.garden,w=g.world;if(w.kind!=='bug'||!w.ladybug||g.gear.ladybug<1)return;
+    if(gardenBusy()||document.hidden){setTimeout(ladybugRescue,1500);return;}
+    g.gear.ladybug--;w.ladybug=false;w.remainingMs=Math.max(w.remainingMs,5000);save();
+    playLadybug();
+    // 무당벌레가 친구 곁에 닿는 순간 벌레들이 흩어져요.
+    setTimeout(()=>{const fleeing=$('homeHabitat').querySelector('.world-layer')?.cloneNode(true);
+      w.kind=null;w.remainingMs=0;w.nextMs=worldGap();save();renderWorld();renderCare();
+      if(fleeing){fleeing.className='care-tool swarm-dispersal';$('homeHabitat').append(fleeing);setTimeout(()=>fleeing.remove(),1600);}
+      showFriendPhrase(['瓢虫朋友帮我赶走了虫子！','무당벌레 친구가 날아와서 벌레를 쫓아 줬어!'],'below');},950);
+    if(!g.gear.ladybug)setTimeout(()=>announceBroken(['무당벌레 친구']),3600);
+  }
+  function playLantern(){
+    const stage=$('homeHabitat'),lamp=stage.querySelector('.gear-lantern');lamp?.classList.remove('lantern-flash');void lamp?.offsetWidth;lamp?.classList.add('lantern-flash');
+    const fx=document.createElement('div');fx.className='firefly-burst';fx.setAttribute('aria-hidden','true');
+    fx.innerHTML=Array.from({length:10},(_,i)=>`<i style="--dx:${Math.round(Math.cos(i*.63)*140)}px;--dy:${Math.round(-40-Math.abs(Math.sin(i*.9))*160)}px;animation-delay:${i*.07}s"></i>`).join('');
+    stage.append(fx);setTimeout(()=>{fx.remove();lamp?.classList.remove('lantern-flash');},2600);forestAudio.effect('correct',.5);
   }
   function playLadybug(){
     const stage=$('homeHabitat');const bug=document.createElement('span');bug.className='gear-ladybug-fly';bug.innerHTML=gearSVG('ladybug');bug.setAttribute('aria-hidden','true');stage.append(bug);setTimeout(()=>bug.remove(),2600);forestAudio.effect('correct');
   }
   // 로비에 보이는 도구 그림
+  let lanternHold=0;
   function renderGearScene(){
     const g=profile.garden,w=g.world,stage=$('homeHabitat');if(!stage)return;
     const show=(cls,on,k)=>{let el=stage.querySelector('.'+cls);if(on&&!el){el=document.createElement('span');el.className='gear-scene '+cls;el.setAttribute('aria-hidden','true');el.innerHTML=gearSVG(k);stage.append(el);}if(!on)el?.remove();};
@@ -3140,7 +3177,7 @@
     if(isRain(w.kind)&&w.parasol){if(!para){para=document.createElement('div');para.className='gear-parasol-top';para.setAttribute('aria-hidden','true');para.innerHTML='<svg viewBox="0 0 100 60"><path d="M50 12v42" stroke="#8a6a52" stroke-width="3" stroke-linecap="round"/><path d="M3 42Q50-6 97 42Z" fill="#6fb0d8" stroke="#3f7aa0" stroke-width="2.5"/><path d="M3 42Q15 33 21 42Q30 33 38 42Q44 33 50 42Q56 33 62 42Q70 33 79 42Q85 33 97 42" fill="#fff" opacity=".9"/><path d="M21 42L50 9M38 42L50 9M62 42L50 9M79 42L50 9" stroke="#3f7aa0" stroke-width="1.6" opacity=".8"/><circle cx="50" cy="8" r="3" fill="#3f7aa0"/></svg>';$('mascot').append(para);}
       const route=routeFor(profile.look.pet,profile.routes),pg=plantGeometry(profile.look.pet,route?.id,profile.level);para.style.top=((197*(1-pg.scale)+pg.head[1]*pg.scale)/210*100)+'%';}
     else para?.remove();
-    const fence=stage.querySelector('.gear-fence');if(w.kind==='wind'&&w.fence){if(!fence){const f=document.createElement('span');f.className='gear-scene gear-fence';f.setAttribute('aria-hidden','true');f.innerHTML=gearSVG('fence')+gearSVG('fence')+gearSVG('fence');stage.append(f);}}else fence?.remove();show('gear-sprinkler',w.kind==='heat'&&w.sprinkler,'sprinkler');show('gear-lantern',g.gear.lantern>0,'lantern');
+    const fence=stage.querySelector('.gear-fence');if(w.kind==='wind'&&w.fence){if(!fence){const f=document.createElement('span');f.className='gear-scene gear-fence';f.setAttribute('aria-hidden','true');f.innerHTML=gearSVG('fence')+gearSVG('fence')+gearSVG('fence');stage.append(f);}}else fence?.remove();show('gear-sprinkler',w.kind==='heat'&&w.sprinkler,'sprinkler');show('gear-lantern',g.gear.lantern>0||Date.now()<lanternHold,'lantern');
     const st=$('worldStatus');
     if(g.health.guard>0&&st&&!st.textContent.includes('도라지'))st.textContent+=` · 도라지 감기 예방 ${g.health.guard}회`;
   }
