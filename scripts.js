@@ -1760,11 +1760,18 @@
   function openIntro(){
     const v=$('introVideo');
     v.src=`https://www.youtube.com/embed/${INTRO_VIDEO}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
-    forestAudio.allowMusic(false);$('introUnmute').hidden=false;$('introDialog').showModal();$('introGo').focus({preventScroll:true});
+    introStep=1;renderIntroPage();forestAudio.allowMusic(false);$('introUnmute').hidden=false;$('introDialog').showModal();$('introGo').focus({preventScroll:true});
   }
   function closeIntro(){videoCmd('pauseVideo');$('introVideo').src='about:blank';if($('introDialog').open)$('introDialog').close();}
   $('introUnmute').onclick=()=>{videoCmd('unMute');videoCmd('setVolume',[100]);videoCmd('playVideo');$('introUnmute').hidden=true;};
-  $('introGo').onclick=()=>{closeIntro();openForestChoice();};
+  let introStep=1;
+  function renderIntroPage(){
+    $('introPage1').hidden=introStep!==1;$('introPage2').hidden=introStep!==2;$('introBack').hidden=introStep===1;
+    $('introPager').textContent=`${introStep} / 2`;$('introGo').textContent=introStep===1?'다음: 챌린지·단톡방 보기 →':'숲으로 출발!';
+    $('introDialog').scrollTop=0;
+  }
+  $('introGo').onclick=()=>{if(introStep===1){introStep=2;videoCmd('pauseVideo');renderIntroPage();return;}closeIntro();openForestChoice();};
+  $('introBack').onclick=()=>{introStep=1;renderIntroPage();videoCmd('playVideo');};
   $('introDialog').addEventListener('cancel',e=>{e.preventDefault();closeIntro();openForestChoice();});
   $('enterLobby').onclick=()=>openIntro();
   function openForestChoice(){
@@ -1865,7 +1872,7 @@
   // Edit these messages to change the free edition's promotional popups.
   const PROMOTIONS={
     start:{title:'덩어리로 익히면 중국어가 툭! 🌟',body:'진담중국어는 단어를 따로 외우지 않고 덩어리로 익혀요. 머릿속에만 남지 않고 내 말로 나오도록!',note:'진심을 담은 중국어 · 진담중국어',button:'학습 시작하기'},
-    finish:{title:'오늘 배운 덩어리, 내 말로 툭!',body:'게임으로 익힌 단어와 짝꿍어휘를 진담중국어 4단계 덩어리훈련으로 내 문장까지 이어 가요.',note:'진심을 담은 중국어 · 진담중국어',button:'학습 결과 확인하기'}
+    finish:{title:'🎉 오늘의 덩어리 훈련 끝!',body:'내일도 덩어리숲에서 만나요 🌱',note:'',button:'닫기',event:true}
   };
   let promotionDone=null,promotionRemaining=0,promotionClock=null,promotionLast=0;
   function updatePromotionTimer(){
@@ -1885,6 +1892,8 @@
     if(STUDENT_BG){done();return;}
     if($('promotionDialog').open)return;
     const copy=PROMOTIONS[stage];
+    $('promoSummary').hidden=Boolean(copy.event);$('promoFinish').hidden=!copy.event;$('promotionDialog').classList.toggle('promo-event',Boolean(copy.event));
+    if(copy.event&&!$('promoFinish').querySelector('.event-block')){const ev=$('eventBlock').cloneNode(true);ev.removeAttribute('id');$('promoFinish').querySelector('.promo-event-slot').append(ev);}
     $('promotionTitle').textContent=copy.title;$('promotionBody').textContent=copy.body;$('promotionNote').textContent=copy.note;$('promotionContinue').textContent=copy.button;
     promotionDone=done;promotionRemaining=PROMO_MS;promotionLast=performance.now();updatePromotionTimer();$('promotionDialog').showModal();$('promotionTimer').focus();promotionClock=setInterval(updatePromotionTimer,100);
   }

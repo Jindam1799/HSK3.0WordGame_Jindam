@@ -1110,12 +1110,15 @@ button.repair{background:#c77b3a;border-color:#c77b3a}
 }
 /* 넓은 화면: 왼쪽 영상·소개, 오른쪽 4단계·도서 */
 @media(min-width:900px){
- .intro-sheet{max-width:1000px;display:grid;grid-template-columns:1.15fr 1fr;column-gap:22px;align-items:start}
- .intro-sheet>h2,.intro-sheet>.intro-go{grid-column:1/-1}
+ dialog#introDialog.intro-sheet{max-width:1000px}
+ #introPage1:not([hidden]){display:grid;grid-template-columns:1.15fr 1fr;column-gap:22px;align-items:start}
+ #introPage1>h2{grid-column:1/-1}
  .intro-left .intro-video{width:100%}
  .intro-steps li{padding:8px 8px 8px 34px;text-align:left}.intro-steps li::before{left:8px;translate:none}
  .intro-right .intro-steps{grid-template-columns:1fr 1fr}
  .intro-punch{margin-top:2px}
+ .event-block{grid-template-columns:1fr 1fr}
+}
 }
 dialog#introDialog.intro-sheet{max-width:min(1000px,calc((100vw - 16px) / var(--app-zoom,1)));width:calc((100vw - 16px) / var(--app-zoom,1));max-height:calc((100dvh - 16px) / var(--app-zoom,1))!important}
 @media(min-width:621px) and (max-width:899px){dialog#introDialog.intro-sheet{max-width:min(720px,calc((100vw - 16px) / var(--app-zoom,1)))}}
@@ -1147,3 +1150,28 @@ dialog#introDialog.intro-sheet{max-width:min(1000px,calc((100vw - 16px) / var(--
 @media(max-width:600px){.intro-caption-chip{font-size:10.5px;padding:3px 7px;left:6px;top:6px}.intro-sheet h2{margin-bottom:5px}dialog#introDialog.intro-sheet{padding:12px 12px 8px}.intro-lead{margin-top:6px}}
 .intro-book-card .book-cover{width:70px;height:98px;background:#eee}
 @media(max-width:600px){.intro-book-card .book-cover{width:42px;height:58px}}
+
+/* 환영 안내 2쪽 + 소식(챌린지·단톡방) */
+dialog#introDialog:not([open]){display:none!important}
+.intro-nav{position:sticky;bottom:-12px;display:flex;align-items:center;gap:8px;padding-top:8px;background:var(--paper,#fbfaf3);box-shadow:0 -10px 14px var(--paper,#fbfaf3)}
+.intro-nav .intro-go{flex:1;width:auto;margin:0;position:static;box-shadow:none}.intro-nav #introBack{flex:none;margin:0;padding-inline:14px}
+#introPage2 h2{margin:0 0 10px}
+.event-block{display:grid;gap:10px;text-align:left}
+.event-card{border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.event-card h3{margin:0;font-size:16px}.event-card p{margin:0;font-size:13px;line-height:1.5;word-break:keep-all}
+.challenge-card{background:linear-gradient(160deg,#fff6dc,#ffe9b8);border:1.5px solid #f2cf7a}
+.challenge-card h3{color:#8a5a00}
+.challenge-prize{padding:8px 10px;border-radius:12px;background:#fffdf5;color:#5b4300}.challenge-prize b{color:#c0392b}.challenge-prize small{color:#8a7a5a}
+.kakao-card{background:#fffbe0;border:1.5px solid #f1e27a}
+.kakao-card h3{color:#3c1e1e}
+.kakao-list{list-style:none;margin:2px 0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:3px 8px;font-size:12px;color:#4a3b2a}
+.kakao-list li::before{content:'✔ ';color:#2f8f4e;font-weight:800}
+.event-btn{display:block;margin-top:auto;text-align:center;padding:11px 10px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none}
+.challenge-btn{background:#e0892b;color:#fff;box-shadow:0 3px 0 #b86a1a}
+.kakao-btn{background:#fee500;color:#3c1e1e;box-shadow:0 3px 0 #d8c200}
+@media(max-width:600px){.event-card{padding:11px}.event-card h3{font-size:15px}.kakao-list{font-size:11.5px}}
+/* 체험판 마무리 광고 */
+.promotion.promo-event .promotion-mark{display:none}
+.promotion.promo-event #promotionTitle{margin-top:6px}
+.promo-finish .event-block{margin:10px 0 6px}
+.promo-book{display:block;font-size:11px;line-height:1.5;color:#6b7b72;margin:4px 0}.promo-book a{color:var(--green,#2f6b52);font-weight:800;white-space:nowrap}
