@@ -1739,8 +1739,7 @@
   // 환영 안내: 숲에 들어가기 전에 진담쌤 소개 영상과 덩어리 학습법을 보여 줘요.
   // 브라우저 규칙상 소리 있는 자동재생은 막혀 있어서, 소리 없이 자동재생하고 '소리 켜기'로 소리를 켜요.
   const INTRO_VIDEO='Y246QPZxLaI';
-  const BOOK_URL='https://search.shopping.naver.com/book/search?query='+encodeURIComponent('덩어리로 중국어문장 만들기 훈련 조동사 100문장편');
-  $('introBook').href=BOOK_URL;
+  // 도서 링크(교보문고)는 index.html의 intro-books 부분에서 바꿀 수 있어요.
   const videoCmd=(func,args=[])=>{try{$('introVideo').contentWindow?.postMessage(JSON.stringify({event:'command',func,args}),'*');}catch(e){}};
   function openIntro(){
     const v=$('introVideo');
