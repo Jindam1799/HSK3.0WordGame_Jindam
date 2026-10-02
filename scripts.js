@@ -1666,7 +1666,7 @@
     function setForest(index){stopMusic();TRACKS=MUSIC_BANKS[index];bag=[];trackIndex=-1;chooseTrack();startMusic();}
     // 배경음은 친구 창(로비)에 들어간 뒤에만 재생해요. 환영 영상·게임 안내 중에는 조용해요.
     let musicAllowed=false;
-    function allowMusic(){musicAllowed=true;startMusic();}
+    function allowMusic(on=true){musicAllowed=on;if(on)startMusic();else stopMusic();}
     function startMusic(){if(!musicAllowed||!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status(crisis?'파리떼가 나타났어요! 위기 BGM':`♪ ${FORESTS[activeForest].name} · 오리지널 5곡 무작위 재생`);}
     async function unlock(){
       active=true;
@@ -1735,7 +1735,19 @@
     window.addEventListener('pagehide',pause);window.addEventListener('pageshow',()=>{if(active&&!document.hidden)unlock();});
     document.addEventListener('pointerdown',()=>{if(active&&ctx&&ctx.state!=='running'&&!document.hidden)unlock();},{passive:true});
     status('게임 시작 또는 소리 듣기를 누르면 재생돼요.');
-    return {unlock,effect,duck,setForest,setCrisis,setRain,allowMusic};
+    return {unlock,effect,duck,setForest,setCrisis,setRain,allowMusic,debug:()=>({allowed:musicAllowed,active,ctx:ctx?.state||null,playing:clock!==null,music:settings.music})};
+  })();
+  window.__audioState=()=>forestAudio.debug();
+  // 새 버전 자동 확인: 휴대폰이 예전 화면을 기억하고 있으면 최신 화면으로 한 번 새로고침해요. (학습 기록은 그대로)
+  (()=>{
+    if(!/^https?:$/.test(location.protocol))return;
+    const mine=(document.querySelector('script[src*="scripts.js"]')?.getAttribute('src')||'').split('v=')[1]||'';
+    fetch(location.pathname+'?vcheck='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'').then(html=>{
+      const latest=(/scripts\.js\?v=([^"'&]+)/.exec(html)||[])[1];
+      if(!latest||!mine||latest===mine)return;
+      try{if(sessionStorage.getItem('forest-reloaded')===latest)return;sessionStorage.setItem('forest-reloaded',latest);}catch(e){}
+      if(!$('welcomeScreen')||!$('welcomeScreen').hidden&&!document.querySelector('dialog[open]')){save?.();const url=new URL(location.href);url.searchParams.set('_refresh',Date.now());location.replace(url.href);}
+    }).catch(()=>{});
   })();
   $('welcomeFriends').innerHTML=['mushroom','petal','succulent'].map(p=>'<span>'+creatureSVG(p,null,3)+'</span>').join('');
   let choosingEntryForest=false;
@@ -1748,7 +1760,7 @@
   function openIntro(){
     const v=$('introVideo');
     v.src=`https://www.youtube.com/embed/${INTRO_VIDEO}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
-    $('introUnmute').hidden=false;$('introDialog').showModal();$('introGo').focus({preventScroll:true});
+    forestAudio.allowMusic(false);$('introUnmute').hidden=false;$('introDialog').showModal();$('introGo').focus({preventScroll:true});
   }
   function closeIntro(){videoCmd('pauseVideo');$('introVideo').src='about:blank';if($('introDialog').open)$('introDialog').close();}
   $('introUnmute').onclick=()=>{videoCmd('unMute');videoCmd('setVolume',[100]);videoCmd('playVideo');$('introUnmute').hidden=true;};
