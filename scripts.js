@@ -1664,7 +1664,10 @@
       source.connect(amp);amp.connect(out);out.connect(effectGain);const voice={oscillator:source,amp,out,bus:'effect'};voices.add(voice);source.onended=()=>{voices.delete(voice);source.disconnect();amp.disconnect();out.disconnect();};source.start(t);source.stop(t+.7);
     }
     function setForest(index){stopMusic();TRACKS=MUSIC_BANKS[index];bag=[];trackIndex=-1;chooseTrack();startMusic();}
-    function startMusic(){if(!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status(crisis?'파리떼가 나타났어요! 위기 BGM':`♪ ${FORESTS[activeForest].name} · 오리지널 5곡 무작위 재생`);}
+    // 배경음은 친구 창(로비)에 들어간 뒤에만 재생해요. 환영 영상·게임 안내 중에는 조용해요.
+    let musicAllowed=false;
+    function allowMusic(){musicAllowed=true;startMusic();}
+    function startMusic(){if(!musicAllowed||!ctx||!active||!settings.music||document.hidden||clock!==null||ctx.state!=='running')return;nextTime=ctx.currentTime+.06;schedule();clock=setInterval(schedule,120);status(crisis?'파리떼가 나타났어요! 위기 BGM':`♪ ${FORESTS[activeForest].name} · 오리지널 5곡 무작위 재생`);}
     async function unlock(){
       active=true;
       try{
@@ -1732,7 +1735,7 @@
     window.addEventListener('pagehide',pause);window.addEventListener('pageshow',()=>{if(active&&!document.hidden)unlock();});
     document.addEventListener('pointerdown',()=>{if(active&&ctx&&ctx.state!=='running'&&!document.hidden)unlock();},{passive:true});
     status('게임 시작 또는 소리 듣기를 누르면 재생돼요.');
-    return {unlock,effect,duck,setForest,setCrisis,setRain};
+    return {unlock,effect,duck,setForest,setCrisis,setRain,allowMusic};
   })();
   $('welcomeFriends').innerHTML=['mushroom','petal','succulent'].map(p=>'<span>'+creatureSVG(p,null,3)+'</span>').join('');
   let choosingEntryForest=false;
@@ -1741,6 +1744,7 @@
   const INTRO_VIDEO='Y246QPZxLaI';
   // 도서 링크(교보문고)는 index.html의 intro-books 부분에서 바꿀 수 있어요.
   const videoCmd=(func,args=[])=>{try{$('introVideo').contentWindow?.postMessage(JSON.stringify({event:'command',func,args}),'*');}catch(e){}};
+  $('guideDialog').addEventListener('close',()=>{if(!$('gameApp').hidden)forestAudio.unlock().then(()=>forestAudio.allowMusic());});
   function openIntro(){
     const v=$('introVideo');
     v.src=`https://www.youtube.com/embed/${INTRO_VIDEO}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
