@@ -73,7 +73,19 @@
   const levelWaiters = {};
   let loadChain = Promise.resolve();
   const levelReady = level => levelState[level]==='ready';
-  const levelWords = level => data.filter(w=>w.level===level);
+  // 체험판: HSK 4·5급 단어 중 30%는 수강생판 전용으로 잠가요. 단어마다 항상 같은 단어가 잠겨요.
+  const LOCK_LEVELS=EDITION==='free'?[4,5]:[],LOCK_RATE=.3,lockCache=new Map();
+  const wordHash=t=>{let h=2166136261;for(const c of String(t)){h^=c.codePointAt(0);h=Math.imul(h,16777619);}return h>>>0;};
+  function lockedSet(level){
+    if(!LOCK_LEVELS.includes(level))return null;
+    const words=data.filter(w=>w.level===level);
+    let c=lockCache.get(level);if(c&&c.n===words.length)return c.set;
+    const keys=[...new Set(words.map(w=>w.hanzi))].sort((a,b)=>wordHash(a)-wordHash(b)||(a<b?-1:1));
+    const set=new Set(keys.slice(0,Math.round(keys.length*LOCK_RATE)));lockCache.set(level,{n:words.length,set});return set;
+  }
+  const isLockedWord=w=>Boolean(lockedSet(w.level)?.has(w.hanzi));
+  const lockedCount=level=>lockedSet(level)?.size||0;
+  const levelWords = level => data.filter(w=>w.level===level&&!isLockedWord(w));
   function loadLevel(level){
     level=Number(level);
     if(!DATA_LEVELS.includes(level)){levelState[level]='failed';return Promise.resolve(false);}
@@ -185,7 +197,7 @@
     $('studyRows').replaceChildren();
     const now=Date.now();
     for(const level of levels){
-      const words=[...new Map(data.filter(w=>w.level===level).map(w=>[studyId(w),w])).values()];
+      const words=[...new Map(data.filter(w=>w.level===level&&!isLockedWord(w)).map(w=>[studyId(w),w])).values()];
       const count=words.filter(w=>studied.has(studyId(w))).length,total=words.length,percent=total?Math.floor(count/total*100):0;
       const known=words.filter(w=>(memoryOf(w)?.s||0)>=3).length,due=words.filter(w=>isDue(memoryOf(w),now)).length;
       const row=document.createElement('section');row.className='study-row';
@@ -195,6 +207,7 @@
       const amount=document.createElement('span');amount.textContent=total?`${count.toLocaleString()} / ${total.toLocaleString()} 단어`:'어휘 준비 중';
       const ratio=document.createElement('strong');ratio.textContent=total?`${percent}%`:'—';detail.append(amount,ratio);row.append(heading,bar,detail);
       if(total){const memo=document.createElement('p');memo.className='study-memory';memo.innerHTML=`<span>오래 기억하는 단어 <b>${known}</b></span><span>오늘 복습할 단어 <b>${due}</b></span>`;row.append(memo);}
+      if(lockedCount(level)){const lk=document.createElement('p');lk.className='lock-note';lk.textContent=`🔒 ${lockedCount(level).toLocaleString()}단어(30%)는 수강생판 전용이에요. 진담중국어 수강생이 되면 모두 열려요!`;row.append(lk);}
       $('studyRows').append(row);
     }
     $('studyNote').textContent=studyStorageOK&&memoryStorageOK?'답을 확인한 기본 단어를 기록해요. 같은 단어는 한 번만 세고 짝꿍어휘는 제외해요. ‘오래 기억하는 단어’는 간격을 두고 세 번 이상 연달아 맞힌 단어예요. 틀린 단어는 다음 판에 먼저 다시 나와요.':'현재 브라우저에 기록을 저장할 수 없어요. 이번 접속 중의 기록만 표시되며, 새로고침하면 사라질 수 있어요.';
@@ -1723,7 +1736,23 @@
   })();
   $('welcomeFriends').innerHTML=['mushroom','petal','succulent'].map(p=>'<span>'+creatureSVG(p,null,3)+'</span>').join('');
   let choosingEntryForest=false;
-  $('enterLobby').onclick=()=>{
+  // 환영 안내: 숲에 들어가기 전에 진담쌤 소개 영상과 덩어리 학습법을 보여 줘요.
+  // 브라우저 규칙상 소리 있는 자동재생은 막혀 있어서, 소리 없이 자동재생하고 '소리 켜기'로 소리를 켜요.
+  const INTRO_VIDEO='Y246QPZxLaI';
+  const BOOK_URL='https://search.shopping.naver.com/book/search?query='+encodeURIComponent('덩어리로 중국어문장 만들기 훈련 조동사 100문장편');
+  $('introBook').href=BOOK_URL;
+  const videoCmd=(func,args=[])=>{try{$('introVideo').contentWindow?.postMessage(JSON.stringify({event:'command',func,args}),'*');}catch(e){}};
+  function openIntro(){
+    const v=$('introVideo');
+    v.src=`https://www.youtube.com/embed/${INTRO_VIDEO}?autoplay=1&mute=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1`;
+    $('introUnmute').hidden=false;$('introDialog').showModal();$('introGo').focus({preventScroll:true});
+  }
+  function closeIntro(){videoCmd('pauseVideo');$('introVideo').src='about:blank';if($('introDialog').open)$('introDialog').close();}
+  $('introUnmute').onclick=()=>{videoCmd('unMute');videoCmd('setVolume',[100]);videoCmd('playVideo');$('introUnmute').hidden=true;};
+  $('introGo').onclick=()=>{closeIntro();openForestChoice();};
+  $('introDialog').addEventListener('cancel',e=>{e.preventDefault();closeIntro();openForestChoice();});
+  $('enterLobby').onclick=()=>openIntro();
+  function openForestChoice(){
     choosingEntryForest=true;arrangeLobby();
     $('forestDialog').showModal();
     $('forestTabs').querySelector('[aria-pressed="true"]')?.focus({preventScroll:true});
@@ -1820,8 +1849,8 @@
   }
   // Edit these messages to change the free edition's promotional popups.
   const PROMOTIONS={
-    start:{title:'덩어리로 익히면, 중국어가 툭!',body:'단어를 아는 것에서 한 걸음 더. 진담중국어에서는 짝꿍어휘를 익히고, 내 문장으로 바꾸고, 질문에 바로 답하는 연습을 함께해요.',note:'오늘 숲에서 배운 표현 하나, 직접 소리 내어 말해 볼까요?',button:'학습 시작하기'},
-    finish:{title:'오늘 배운 중국어, 내 이야기로 말해요.',body:'게임으로 익힌 단어와 짝꿍어휘를 나의 일상에 연결해 보세요. 진담중국어 덩어리훈련은 표현을 입에 붙이고 실제 대화로 이어 가는 연습입니다.',note:'진심을 담은 중국어 · 진담중국어',button:'학습 결과 확인하기'}
+    start:{title:'덩어리로 익히면 중국어가 툭! 🌟',body:'진담중국어는 단어를 따로 외우지 않고 덩어리로 익혀요. 머릿속에만 남지 않고 내 말로 나오도록!',note:'진심을 담은 중국어 · 진담중국어',button:'학습 시작하기'},
+    finish:{title:'오늘 배운 덩어리, 내 말로 툭!',body:'게임으로 익힌 단어와 짝꿍어휘를 진담중국어 4단계 덩어리훈련으로 내 문장까지 이어 가요.',note:'진심을 담은 중국어 · 진담중국어',button:'학습 결과 확인하기'}
   };
   let promotionDone=null,promotionRemaining=0,promotionClock=null,promotionLast=0;
   function updatePromotionTimer(){
@@ -2269,9 +2298,30 @@
     return (br&&PLANT_INTROS[br.id+(level>=20?':20':'')])||(level>=10&&route&&PLANT_INTROS[route.id])||PLANT_INTROS[pet];
   }
   let tipBag=[],chatCount=0;
+  // 체험판: 친구가 진담중국어 홍보 말풍선을 틈틈이 들려줘요. (문구는 여기서 바꿀 수 있어요)
+  const PROMO_PHRASES=[
+    ['你最棒！','진담중국어 최고! 👍'],
+    ['我们一起学中文吧！','중국어는 진담중국어와 함께! 🌱'],
+    ['一块一块地说，就说出来了！','덩어리로 익히면 중국어가 툭! 🌟'],
+    ['还有很多单词在等你！','HSK 4·5급 단어 30%는 🔒 수강생 전용이야. 진담중국어에서 모두 열어 보자!'],
+    ['我想长成传说中的植物！','진담중국어 수강생판에서는 Lv.20 전설의 식물까지 자랄 수 있어!'],
+    ['搭配词一起记，记得更久！','짝꿍어휘로 묶어 익히면 오래 기억나! 진담중국어 짝꿍어휘 훈련'],
+    ['用学过的词说我的句子！','배운 덩어리로 나만의 문장 만들기! 진담중국어에서 해 보자'],
+    ['一秒就能回答！','질문을 보고 1초 만에 툭! 진담중국어 1초 반응 훈련 ⚡'],
+    ['真心学中文！','진심을 담은 중국어, 진담중국어 💚'],
+    ['跟老师一起说中文吧！','진담쌤이랑 함께하면 중국어가 내 말로 나와!']
+  ];
+  let promoBag=[],promoIdle=23;
+  const promoPhrase=()=>{if(!promoBag.length)promoBag=shuffle(PROMO_PHRASES);return promoBag.pop();};
+  if(EDITION==='free')setInterval(()=>{
+    const calm=!$('gameApp').hidden&&document.body.dataset.screen==='setup'&&!document.querySelector('dialog[open]')&&!document.hidden&&!gardenBusy()&&!profile.garden.world.kind&&bubble.hidden;
+    if(calm)promoIdle++;
+    if(promoIdle>=35){promoIdle=0;showFriendPhrase(promoPhrase());}
+  },1000);
   function chatWithFriend(){
     if(profile.garden.world.kind){showWorldHelp();return;}
     chatCount++;
+    if(EDITION==='free'&&chatCount%3===0){promoIdle=0;showFriendPhrase(promoPhrase());return;}
     // 1번째·4번째… 톡: 나를 소개해요
     if(chatCount%3===1){showFriendPhrase(plantIntro());return;}
     const due=dueCount(forestLevels());
@@ -2432,18 +2482,20 @@
     const pool=levelWords(level),count=pool.length;
     if(levelState[level]==='failed'){$('wordCount').textContent='단어 파일을 불러오지 못했어요';$('startBtn').disabled=true;$('ruleBox').textContent=`data/hsk${level}.js 파일을 불러오지 못했어요. 인터넷 연결과 파일 위치를 확인해 주세요.`;return;}
     const due=pool.filter(w=>isDue(memoryOf(w))).length,fresh=pool.filter(w=>!memoryOf(w)).length;
-    $('wordCount').textContent=count?`${count}개의 단어`+(due?` · 복습 ${due}`:'')+(fresh<count?` · 새 단어 ${fresh}`:''):'어휘 준비 중';$('startBtn').disabled=count<4;
+    $('wordCount').textContent=count?`${count}개의 단어`+(due?` · 복습 ${due}`:'')+(fresh<count?` · 새 단어 ${fresh}`:'')+(lockedCount(level)?` · 🔒 ${lockedCount(level)}개 수강생 전용`:''):'어휘 준비 중';$('startBtn').disabled=count<4;
+    if(lockedCount(level)&&lockNoticeShown!==level){lockNoticeShown=level;friendSay(`${level}级有些单词被锁住了！`,`HSK ${level}급 단어 30%는 🔒 수강생 전용이야! 진담중국어 수강생판에서는 모든 단어를 만날 수 있어.`);}
     const note=$('startBtn').nextElementSibling;
     if(document.querySelector('input[name="mode"]:checked').value==='main')note.textContent=due?`복습할 단어가 먼저 섞여 나와요 (최대 절반) · 나머지는 새 단어예요.`:'기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
     renderStartCard();
   }
+  let lockNoticeShown=0;
   function populateGrades(preferred){
     $('levelSelect').replaceChildren();
     const first=FORESTS[activeForest].start;
     for(let level=first;level<first+3;level++){
       const ready=DATA_LEVELS.includes(level);
       const option=document.createElement('option');option.value=String(level);option.disabled=!ready;
-      option.textContent=`HSK ${level}급${ready?'':' · 준비 중'}`;$('levelSelect').append(option);
+      option.textContent=`HSK ${level}급${ready?(LOCK_LEVELS.includes(level)?' · 🔒30% 수강생 전용':''):' · 준비 중'}`;$('levelSelect').append(option);
     }
     const available=[...$('levelSelect').options].filter(o=>!o.disabled);
     $('levelSelect').value=available.find(o=>o.value===String(preferred))?.value||available[0]?.value||String(first);
@@ -2503,7 +2555,8 @@
   ];
   if(!STUDENT_BG)GUIDE_PAGES.push(['체험판 안내',
     '체험판은 친구가 Lv.10까지 자라고, 성장 계열은 마음꽃·마음송이 중에서 골라요.',
-    '한 판을 마치면 진담중국어 소식이 5초 동안 나와요. 더 많은 식물과 Lv.20 전설의 식물은 수강생판에서 만나요.']);
+    '한 판을 마치면 진담중국어 소식이 5초 동안 나와요. 더 많은 식물과 Lv.20 전설의 식물은 수강생판에서 만나요.',
+    '🔒 HSK 4·5급 단어의 30%는 수강생판 전용이에요. 진담중국어 수강생이 되면 모든 단어가 열려요.']);
   let guidePage=0;
   function renderGuide(){
     const page=GUIDE_PAGES[guidePage];$('guideTitle').textContent=page[0];$('guideCopy').replaceChildren();

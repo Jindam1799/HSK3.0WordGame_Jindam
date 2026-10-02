@@ -1046,3 +1046,30 @@ button.repair{background:#c77b3a;border-color:#c77b3a}
 .guide-nav{display:flex;align-items:center;gap:10px;margin-top:12px}.guide-nav #guideOk{flex:1;margin:0}.guide-nav #guideBack{flex:0 0 auto;margin:0;padding-inline:14px}
 .guide-pager{font-size:13px;color:var(--muted,#6b7b72);font-weight:600;min-width:38px;text-align:center}
 #guideList .source-big{margin:0}
+/* 환영 안내 (진담쌤 소개 영상) */
+.intro-sheet{max-width:520px;width:calc(100% - 24px);max-height:calc(100dvh - 24px);overflow:auto;padding:18px 18px 14px;text-align:center;background:var(--paper,#fbfaf3)}
+.intro-sheet h2{margin:0 0 10px;font-size:clamp(19px,5.4vw,24px);color:var(--green-dark,#2f5e4b)}
+.intro-video{position:relative;width:100%;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#1d2a24 url('https://img.youtube.com/vi/Y246QPZxLaI/hqdefault.jpg') center/cover;box-shadow:0 6px 18px #23473b33}
+.intro-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.intro-unmute{position:absolute;right:8px;bottom:8px;z-index:2;border:0;border-radius:999px;padding:7px 12px;font-size:13px;font-weight:700;background:#ffffffee;color:#23473b;box-shadow:0 2px 8px #0003;cursor:pointer}
+.intro-caption{margin:8px 0 6px;font-size:13px;font-weight:700;color:var(--green-dark,#2f5e4b)}
+.intro-lead{margin:0 0 8px;font-size:13.5px;line-height:1.65;word-break:keep-all;text-align:left}
+.intro-steps{list-style:none;counter-reset:st;margin:0 0 8px;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:6px;text-align:left}
+.intro-steps li{counter-increment:st;position:relative;padding:8px 8px 8px 34px;border-radius:12px;background:#eef4ea;font-size:12px;line-height:1.4}
+.intro-steps li::before{content:counter(st);position:absolute;left:8px;top:8px;width:20px;height:20px;border-radius:50%;background:var(--green,#2f6b52);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.intro-steps b{display:block;font-size:12.5px;color:#23473b}.intro-steps span{color:#5d6d64;word-break:keep-all}
+.intro-punch{margin:4px 0 10px;font-size:16px;font-weight:800;color:#c77b3a}
+.intro-go{width:100%;font-size:17px;padding:13px}
+.intro-book{display:block;margin-top:9px;font-size:11px;line-height:1.5;color:#6b7b72;word-break:keep-all}.intro-book a{color:var(--green,#2f6b52);font-weight:700;white-space:nowrap}
+@media(max-height:700px){.intro-lead{font-size:12.5px;line-height:1.5}.intro-steps li{padding:6px 6px 6px 32px}.intro-sheet{padding:14px 14px 10px}}
+/* 체험판 홍보 요약 */
+.promo-steps{list-style:none;counter-reset:ps;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 8px;padding:0}
+.promo-steps li{counter-increment:ps;font-size:12px;padding:6px 8px;border-radius:10px;background:#eef4ea;text-align:left}.promo-steps li::before{content:counter(ps)". ";font-weight:700;color:var(--green,#2f6b52)}
+.promotion .promo-lock{margin:6px 0;padding:8px 10px;border-radius:12px;background:#fff4e2;color:#8a5a22;font-weight:600;line-height:1.55}
+.promo-video{display:inline-block;margin:2px 0 6px;font-size:12px;font-weight:700;color:var(--green,#2f6b52)}
+.lock-note{margin:6px 0 0;font-size:12px;color:#8a5a22;background:#fff4e2;border-radius:10px;padding:6px 9px}
+.intro-video{width:min(100%,calc(34dvh*16/9));margin:0 auto}
+@media(min-width:700px){.intro-sheet{max-width:680px}.intro-steps{grid-template-columns:repeat(4,1fr)}.intro-steps li{padding:30px 8px 8px;text-align:center}.intro-steps li::before{left:50%;translate:-50% 0}}
+@media(min-width:700px){.intro-video{width:min(100%,calc(27dvh*16/9))}.intro-steps b{word-break:keep-all}}
+@media(max-height:660px){.intro-video{width:min(100%,calc(30dvh*16/9))}.intro-lead{font-size:12px}.intro-steps{gap:4px}}
+.promotion-mark.promotion-icon{background:none;padding:0;width:72px;height:72px;border-radius:20px;overflow:hidden;box-shadow:0 4px 12px #23473b33}.promotion-icon svg{display:block;width:100%;height:100%}
