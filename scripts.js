@@ -1155,7 +1155,7 @@
     const world={kind,remainingMs:kind?milliseconds(w?.remainingMs,kind==='bug'?WORLD_RULES.bugMs:WORLD_RULES.rainMs,120000):0,
       nextMs:milliseconds(w?.nextMs,worldGap(),240000),thunderMs:milliseconds(w?.thunderMs,12000+Math.random()*16000,28000),umbrellaOwned:w?.umbrellaOwned===true,umbrellaOn:w?.umbrellaOwned===true&&w?.umbrellaOn===true,
       umbrellaUses:w?.umbrellaOwned===true?(Number.isSafeInteger(w?.umbrellaUses)&&w.umbrellaUses>0?Math.min(w.umbrellaUses,99):2):0,
-      parasol:w?.parasol===true,fence:w?.fence===true,sprinkler:w?.sprinkler===true,umbrellaUsed:w?.umbrellaUsed===true,heaterUsed:w?.heaterUsed===true,fanUsed:w?.fanUsed===true,ladybug:w?.ladybug===true};
+      parasol:w?.parasol===true,fence:w?.fence===true,sprinkler:w?.sprinkler===true,umbrellaUsed:w?.umbrellaUsed===true,heaterUsed:w?.heaterUsed===true,fanUsed:w?.fanUsed===true,ladybug:w?.ladybug===true,rhino:w?.rhino===true,hedgehog:w?.hedgehog===true};
     const h=raw?.health;
     const health={sick:h?.sick===true,medicine:Math.min(999,integer(h?.medicine,999)+(h?.medicineGift===true?0:1)),medicineGift:true,fan:h?.fan===true,heater:h?.heater===true,heaterOn:h?.heater===true&&h?.heaterOn===true,exposure:milliseconds(h?.exposure,0,60000),illMs:milliseconds(h?.illMs,0,120000),heatMs:milliseconds(h?.heatMs,0,45000),coolMs:milliseconds(h?.coolMs,0,45000),loss:integer(h?.loss,5),
       fanUses:h?.fan===true?(Number.isSafeInteger(h?.fanUses)&&h.fanUses>0?Math.min(h.fanUses,99):3):0,heaterUses:h?.heater===true?(Number.isSafeInteger(h?.heaterUses)&&h.heaterUses>0?Math.min(h.heaterUses,99):3):0,guard:integer(h?.guard,9)};
@@ -1165,7 +1165,8 @@
       owned:Object.fromEntries(['umbrella','fan','heater','lantern','parasol','fence','sprinkler'].map(k=>[k,raw?.owned?.[k]===true||(k==='umbrella'?w?.umbrellaOwned===true:k==='fan'||k==='heater'?h?.[k]===true:integer(raw?.gear?.[k],999)>0)])),
       lastWatered,penaltySteps:integer(raw?.penaltySteps,GARDEN_RULES.maxPenaltySteps),
       // 물뿌리개: 한 판을 모두 맞히면 가득(canFull). 틀린 단어(retry)를 다시 다 맞혀도 가득 차요.
-      canFull:raw?.canFull===true,can:Number.isFinite(raw?.can)?Math.min(1,Math.max(0,raw.can)):0,retry:Array.isArray(raw?.retry)?raw.retry.filter(x=>typeof x==='string').slice(0,60):[],
+      pets:raw?.pets&&typeof raw.pets==='object'&&!Array.isArray(raw.pets)?raw.pets:{},dexDone:raw?.dexDone===true,tank:integer(raw?.tank,3),tankCap:integer(raw?.tankCap,3),moist:raw?.moist===true,coinWaterDay:typeof raw?.coinWaterDay==='string'?raw.coinWaterDay:'',
+      canFull:raw?.canFull===true,can:Number.isFinite(raw?.can)?Math.min(1,Math.max(0,raw.can)):0,retry:Array.isArray(raw?.retry)?raw.retry.filter(x=>typeof x==='string').slice(0,80):[],
       neglectLoss:integer(raw?.neglectLoss,integer(raw?.penaltySteps,GARDEN_RULES.maxPenaltySteps)*GARDEN_RULES.penaltyXP),
       active:active&&Object.hasOwn(FERTILIZERS,active.kind)&&Number.isInteger(active.remaining)&&active.remaining>0
         ?{kind:active.kind,remaining:Math.min(active.remaining,FERTILIZERS[active.kind].uses)}:null};
@@ -1216,6 +1217,7 @@
     renderLook($('mascot'),$('homeHabitat'),profile.look);renderUnlockHint();renderForestTabs();renderCare();
   }
   const gardenBusy=()=>!!state&&['basic','bonus','feedback'].includes(state.phase);
+  const moistureNow=()=>Math.max(0,Math.ceil(100*(1-Math.max(0,Date.now()-profile.garden.lastWatered)/HOUR/GARDEN_RULES.graceHours)));
   function renderWaterCountdown(){
     const seconds=Math.max(0,Math.ceil((profile.garden.lastWatered+GARDEN_RULES.graceHours*HOUR-Date.now())/1000));
     const moisture=Math.ceil(seconds/(GARDEN_RULES.graceHours*3600)*100);
@@ -1233,12 +1235,13 @@
     $('waterBar').value=moisture;$('waterBar').setAttribute('aria-valuetext',`수분 ${moisture}%`);
     $('waterState').textContent=hours>=48?'목이 말라요':hours>=24?'물을 주면 좋아요':'촉촉해요';
     $('carePanel').dataset.dry=String(hours>=48);
+    {const t=$('tankState');if(t){t.hidden=!g.tankCap;t.textContent=g.tankCap?`물통 ${'💧'.repeat(g.tank)}${'○'.repeat(g.tankCap-g.tank)}`:'';t.setAttribute('aria-label',`물통 ${g.tank}/${g.tankCap}`);}}
     $('waterPlant').disabled=gardenBusy();$('openShop').disabled=gardenBusy();
     // 물뿌리개: 한 판을 모두 맞히면 가득 차요. 틀렸다면 틀린 단어를 다시 풀어 다 맞혀야 가득 차요.
     const retry=g.retry.length,full=g.canFull,fill=full?1:g.can||0;
     const can=$('canWater');if(can){const h=11*fill;can.setAttribute('y',String(24-h));can.setAttribute('height',String(h));}
     $('waterPlant').classList.toggle('review-water',full);$('waterPlant').classList.toggle('can-filling',!full);$('waterPlant').classList.toggle('can-retry',!full&&retry>0);
-    $('waterPlant').querySelector('span').innerHTML=full?'물주기!<small>물뿌리개가 가득 찼어요</small>':retry?`틀린 단어 다시 풀기<small>${retry}개를 맞히면 물이 가득</small>`:'물 모으는 중<small>한 판을 모두 맞히면 가득</small>';
+    $('waterPlant').querySelector('span').innerHTML=full?'물주기!<small>물뿌리개가 가득 찼어요</small>':retry?`틀린 문제 다시 풀기<small>${retry}개를 꼭 다시 풀어요</small>`:'물 모으는 중<small>한 판을 모두 맞히면 가득</small>';
     $('waterPlant').setAttribute('aria-label',full?'물뿌리개가 가득 찼어요. 친구에게 물 주기':retry?`틀린 단어 ${retry}개를 다시 풀어 물뿌리개 채우기`:'물뿌리개가 비어 있어요. 한 판을 모두 맞히면 가득 차요');
     renderStartCard();
     const active=g.active,remaining=active?.remaining||0;
@@ -1263,9 +1266,15 @@
   function waterPlant(){
     if(gardenBusy())return;
     refreshGarden();
-    const g=profile.garden;if(!g.canFull)return;g.canFull=false;g.can=0;g.lastWatered=Date.now();g.penaltySteps=0;g.neglectLoss=0;
+    const g=profile.garden;if(!g.canFull)return;
+    // 아직 촉촉하면(90% 이상) 물을 아껴 둬요.
+    if(moistureNow()>=90){showFriendPhrase(['我还很湿润呢！水先留着吧。','아직 촉촉해! 물은 아껴 두자. 조금 마르면 그때 줘.']);return;}
+    g.canFull=false;g.can=0;g.lastWatered=Date.now();g.penaltySteps=0;g.neglectLoss=0;g.moist=true;
+    // 물통에 물이 있으면 물뿌리개를 다시 채워요.
+    let fromTank=false;if(g.tank>0){g.tank--;g.canFull=true;g.can=1;fromTank=true;}
     save();renderCare();
     playCareAnimation('water');
+    setTimeout(()=>friendSay('好舒服！下一轮答对的时候多得养分哦！',`촉촉해졌어! 다음 한 판은 정답마다 양분 +1이야 💧${fromTank?` 물통에서 물뿌리개를 다시 채웠어 (물통 ${g.tank}/${g.tankCap})`:''}`),2600);
     forestAudio.effect('dress');
   }
   function renderShop(){
@@ -1905,7 +1914,15 @@
   $('promotionDialog').addEventListener('cancel',e=>{e.preventDefault();closePromotion();});
 
   // kind: 'normal' | 'refill'(틀린 단어 다시 풀어 물뿌리개 채우기) | 'due'(오늘의 복습)
+  // 틀린 단어·짝꿍어휘 복습 목록: 단어 id 또는 짝꿍어휘 id가 섞여 있어요.
+  function retryItems(ids){
+    const words=data.filter(w=>ids.includes(w.id));
+    const phrases=allPhrases.filter(p=>ids.includes(p.id)&&!words.some(w=>w.id===p.id)).map(p=>({...p,isPhrase:true,collocations:[]}));
+    return [...words,...phrases];
+  }
   function start(reviewIds=null,kind=reviewIds?'refill':'normal') {
+    // 틀린 문제 복습은 꼭 해야 해요. 남아 있으면 새 모험 대신 복습부터 열어요.
+    if(kind!=='refill'&&profile.garden.retry.length&&openRetryStudy()){friendSay('先复习做错的题吧！','틀린 문제부터 다시 풀자! 복습을 끝내면 새 모험을 떠날 수 있어.');return;}
     closeEvolution(false);
     forestAudio.unlock();
     refreshGarden();
@@ -1923,7 +1940,7 @@
       const size=roundChoice==='all'?pool.length:Number(roundChoice);
       ({queue,reviews}=buildQueue(pool,size));
     }else if(kind==='refill'){
-      queue=shuffle(data.filter(w=>reviewIds.includes(w.id)));
+      queue=shuffle(retryItems(reviewIds));
     }else{
       const size=roundChoice==='20'?20:10;
       queue=shuffle(dueWords(forestLevels()).slice(0,size));reviews=queue.length;
@@ -1936,6 +1953,8 @@
       streak:0,bestStreak:0,streakXP:0,ginseng:false,
       mistakes:new Map(),startLevel:profile.level,startAppearance:$('mascot').innerHTML,growthEventPlayed:false};
     if(state.mode==='main'&&kind!=='refill'&&profile.garden.ginsengReady){state.ginseng=true;profile.garden.ginsengReady=false;save();}
+    // 촉촉 보너스: 물을 준 다음 한 판은 기본 정답마다 양분 +1
+    if(state.mode==='main'&&kind!=='refill'&&profile.garden.moist){state.moist=true;profile.garden.moist=false;save();}
     screen('game');showQuestion(false);
   }
   // 제한 시간은 급수와 상관없이 모드로 정해요: 쉬운 모드 12초, 어려운 모드 7초 (짝꿍어휘 보너스는 +2초).
@@ -1960,25 +1979,26 @@
     // A bonus inherits its basic question direction, including mixed mode.
     if(!bonus)state.directionNow=state.direction==='mixed'?(Math.random()<.5?'zh-ko':'ko-zh'):state.direction;
     state.entry=bonus?shuffle(word.collocations)[0]:word;
-    const e=state.entry;
-    const candidates=bonus
+    const e=state.entry,phraseQ=bonus||!!word.isPhrase,home=word.isPhrase?word.parent:word.id;
+    const candidates=phraseQ
       ? allPhrases.filter(p=>p.level===word.level&&p.id!==e.id&&p.meaning!==e.meaning&&canon(p.hanzi)!==canon(e.hanzi))
       : levelWords(word.level).filter(p=>compatible(e,p));
     const label=x=>cleanQuizText(state.directionNow==='zh-ko'?x.meaning:x.hanzi);
     const seen=new Set([label(e)]), wrong=[];
     // Prefer other phrases of this word for a meaningful bonus, then fill from the pool.
-    const ordered=bonus?[...shuffle(candidates.filter(p=>p.parent===word.id)),...shuffle(candidates.filter(p=>p.parent!==word.id))]:shuffle(candidates);
+    const ordered=phraseQ?[...shuffle(candidates.filter(p=>p.parent===home)),...shuffle(candidates.filter(p=>p.parent!==home))]:shuffle(candidates);
     for(const candidate of ordered){if(label(candidate)&&!seen.has(label(candidate))){wrong.push(candidate);seen.add(label(candidate));}if(wrong.length===3)break;}
     if(wrong.length!==3) {finish();$('resultSubtitle').textContent='서로 다른 보기가 부족해 종료했어요. data.js 내용을 확인해 주세요.';return;}
     state.options=shuffle([e,...wrong]);
-    $('gameMode').textContent=state.kind==='refill'?'💧 틀린 단어 다시 풀기':state.mode==='practice'?'☘ 틀린 단어 연습':(state.easy?'🌱 쉬운 모드':'🔥 어려운 모드')+(state.ginseng?' · 🌱산삼 2배':'');
+    $('quitBtn').hidden=state.kind==='refill';
+    $('gameMode').textContent=state.kind==='refill'?'💧 틀린 문제 다시 풀기':state.mode==='practice'?'☘ 틀린 단어 연습':(state.easy?'🌱 쉬운 모드':'🔥 어려운 모드')+(state.ginseng?' · 🌱산삼 2배':'')+(state.moist?' · 💧촉촉 +1':'');
     $('questionNumber').textContent=`${state.index+1} / ${state.queue.length} 단어`;
     $('roundProgress').max=state.queue.length;$('roundProgress').value=state.index;
     $('sessionXp').textContent=state.mode==='practice'?'양분·코인 없음':`${state.netXP>=0?'+':''}${state.netXP} 양분 · ${state.earnedCoins} 코인`;
     const fertilizerBoost=state.mode==='main'&&profile.garden.active?FERTILIZERS[profile.garden.active.kind].boost:0;
     const reviewing=!bonus&&memoryOf(word)&&(state.kind==='due'||isDue(memoryOf(word)));
-    $('questionKind').textContent=bonus?`✦ 짝꿍어휘 보너스 · +${state.easy?EASY_RULES.bonusXP:RULES.bonusXP} 양분`:(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?(()=>{const f=profile.garden.active&&FERTILIZERS[profile.garden.active.kind],b=Math.floor((state.easy?EASY_RULES.baseXP:RULES.baseXP)*(state.ginseng?2:1)*(f?.xpRate??1));return `+${b} 양분${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}${f?.coins?` · 코인 +${f.coins}`:''}`;})():'천천히 풀어요');
-    $('questionInstruction').textContent=bonus?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
+    $('questionKind').textContent=word.isPhrase?'↺ 짝꿍어휘 복습':bonus?`✦ 짝꿍어휘 보너스 · +${state.easy?EASY_RULES.bonusXP:RULES.bonusXP} 양분`:(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?(()=>{const f=profile.garden.active&&FERTILIZERS[profile.garden.active.kind],b=Math.floor((state.easy?EASY_RULES.baseXP:RULES.baseXP)*(state.ginseng?2:1)*(f?.xpRate??1))+(state.moist?1:0);return `+${b} 양분${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}${f?.coins?` · 코인 +${f.coins}`:''}`;})():'천천히 풀어요');
+    $('questionInstruction').textContent=phraseQ?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
     $('questionText').replaceChildren();
     if(state.directionNow==='zh-ko')$('questionText').append(pinyinToggle(e.hanzi,e.pinyin,'promptPinyin'));else $('questionText').textContent=e.meaning;
     $('quizHint').textContent=state.easy?'병음이 함께 보여요 · 보기를 누르거나 키보드 1–4':state.directionNow==='ko-zh'?'보기를 누르면 바로 답해요 · 병음은 ‘보기 병음 보기’로 열어요':'문제의 한자를 누르면 병음 · 보기를 누르거나 키보드 1–4';
@@ -2034,8 +2054,9 @@
     });
     $('answers').classList.add('answered');
     if(bonus){state.bonusAnswered++;if(correct)state.bonusCorrect++;}
-    else{state.answered++;if(correct)state.correct++;recordStudy(state.word);rememberAnswer(state.word,correct);}
-    if(!correct) state.mistakes.set(state.entry.id,{...state.entry,parent:state.word.id,bonus});
+    else{state.answered++;if(correct)state.correct++;if(!state.word.isPhrase){recordStudy(state.word);rememberAnswer(state.word,correct);}}
+    // 짝꿍어휘(보너스·복습)는 phrase로 기록해 다음 복습에 짝꿍어휘 그대로 다시 나와요.
+    if(!correct) state.mistakes.set(state.entry.id,{...state.entry,parent:state.word.isPhrase?state.word.parent:state.word.id,bonus,phrase:bonus||!!state.word.isPhrase});
     const previousLevel=profile.level;
     const reward=gardenReward(correct,bonus);
     // Streak: every RULES.streakEvery basic answers in a row earns a small bonus. Mistakes cost nothing.
@@ -2045,7 +2066,7 @@
       if(correct&&state.streak%RULES.streakEvery===0)streakBonus=state.easy?EASY_RULES.streakXP:RULES.streakXP;
     }
     const R=state.easy?EASY_RULES:RULES;
-    const delta=changeXP(correct?(bonus?R.bonusXP:Math.floor(R.baseXP*(state.ginseng?2:1)*(reward.rate??1))+reward.boost+streakBonus):(bonus?0:-RULES.penalty));
+    const delta=changeXP(correct?(bonus?R.bonusXP:Math.floor(R.baseXP*(state.ginseng?2:1)*(reward.rate??1))+reward.boost+streakBonus+(state.moist?1:0)):(bonus?0:-RULES.penalty));
     state.earnedCoins+=reward.coins;state.fertilizerXP+=reward.boost;state.streakXP+=streakBonus;
     state.netXP+=delta;
     state.offerBonus=!bonus&&correct&&state.mode==='main'&&state.word.collocations.length>0;
@@ -2053,7 +2074,7 @@
     $('feedback').dataset.result=correct?'correct':'wrong';
     $('feedbackTitle').textContent=correct?(streakBonus?`${state.streak}개 연속 정답!`:'정답이에요!'):id===null?'시간이 다 됐어요':'다시 익히면 괜찮아요';
     $('rewardText').textContent=correct?(state.mode==='practice'?'부담 없이 익히는 중':''):bonus?'보너스는 틀려도 괜찮아요':'다음 판에 다시 나와요';
-    if(state.mode==='main'&&correct)$('rewardText').textContent=`+${delta} 양분${reward.boost?` (비료 +${reward.boost})`:''}${streakBonus?` (연속 보너스 +${streakBonus})`:''} · +${reward.coins} 코인${reward.extra?` (비료 +${reward.extra})`:''}`;
+    if(state.mode==='main'&&correct)$('rewardText').textContent=`+${delta} 양분${reward.boost?` (비료 +${reward.boost})`:''}${streakBonus?` (연속 보너스 +${streakBonus})`:''}${state.moist&&!bonus?' (촉촉 +1)':''} · +${reward.coins} 코인${reward.extra?` (비료 +${reward.extra})`:''}`;
     const koreanPrompt=state.directionNow==='ko-zh';
     $('answerHanzi').textContent=koreanPrompt?state.entry.meaning:state.entry.hanzi;
     $('answerHanzi').lang=koreanPrompt?'ko':'zh-CN';
@@ -2108,11 +2129,20 @@
     if($('feedback').open)$('feedback').close();
     $('resultSubtitle').textContent=`${state.answered}개의 기본 문제를 풀었어요.`+(state.perfectXP?` 전체 정답 보너스 +${state.perfectXP} 양분!`:'')+(profile.level>state.startLevel?` 레벨 ${profile.level} 달성!`:'');
     // 물뿌리개 채우기
-    const g=profile.garden,wrong=[...new Set([...state.mistakes.values()].filter(m=>!m.bonus).map(m=>m.parent))];
+    // 틀린 기본 단어는 단어 id, 틀린 짝꿍어휘는 짝꿍어휘 id로 복습 목록에 넣어요.
+    const g=profile.garden,wrong=[...new Set([...state.mistakes.values()].map(m=>m.phrase?m.id:m.parent))];
     const finished=state.index>=state.queue.length&&state.answered>0,before=g.canFull?1:g.can||0;let canLine='';
-    if(finished&&(state.kind==='refill'||state.mode==='main')&&!g.canFull){
-      if(!wrong.length){g.canFull=true;g.can=1;g.retry=[];canLine='가득 찼어요! 로비에서 물을 주세요 💧';}
-      else{g.retry=wrong;g.can=Math.max(g.can||0,Math.min(.85,state.correct/state.answered));canLine='틀린 단어를 다시 풀면 가득 차요';}
+    const played=state.kind==='refill'||state.mode==='main';
+    if(played&&wrong.length){
+      // 끝까지 풀지 않았어도 틀린 문제는 꼭 복습해요.
+      g.retry=state.kind==='refill'?wrong:[...new Set([...g.retry,...wrong])].slice(0,80);
+      if(!g.canFull&&state.answered)g.can=Math.max(g.can||0,Math.min(.85,state.correct/state.answered));
+      canLine=g.canFull?'물뿌리개는 가득! 틀린 문제를 먼저 다시 풀어요':'틀린 문제를 다시 풀면 가득 차요';save();
+    }else if(played&&finished){
+      if(state.kind==='refill')g.retry=[];
+      if(!g.canFull){g.canFull=true;g.can=1;canLine='가득 찼어요! 로비에서 물을 주세요 💧';}
+      else if(g.tank<g.tankCap){g.tank++;state.tankAdded=true;canLine=`물통에 물을 모았어요! (물통 ${g.tank}/${g.tankCap})`;}
+      else canLine=g.tankCap?'물뿌리개와 물통이 모두 가득 찼어요 💧':'물뿌리개가 가득! 상점에서 물통을 사면 남는 물을 모아 둘 수 있어요';
       save();
     }else if(g.canFull)canLine='가득 찼어요! 로비에서 물을 주세요 💧';
     state.canJustFilled=g.canFull&&before<1;
@@ -2140,9 +2170,11 @@
       const btn=document.createElement('button');btn.className='secondary';btn.textContent='🔊';btn.setAttribute('aria-label',`${entry.hanzi} 발음 듣기`);btn.onclick=()=>speak(entry);row.append(copy,btn);$('reviewList').append(row);
     });
     if(!state.mistakes.size){const p=document.createElement('p');p.className='subtle';p.textContent=state.answered?'모두 잘했어요! 다음 모험에서 만나요.':'아직 푼 문제가 없어요.';$('reviewList').append(p);}
-    $('reviewBtn').hidden=g.canFull||!g.retry.length;
-    $('reviewBtn').textContent=`💧 틀린 단어 ${g.retry.length}개 다시 풀고 물 채우기`;
-    $('homeBtn').focus({preventScroll:true});
+    // 틀린 문제가 남아 있으면 '돌아가기' 없이 다시 풀기만 할 수 있어요.
+    const mustReview=g.retry.length>0;
+    $('reviewBtn').hidden=!mustReview;$('homeBtn').hidden=mustReview;
+    $('reviewBtn').textContent=g.canFull?`📌 틀린 문제 ${g.retry.length}개 다시 풀기`:`💧 틀린 문제 ${g.retry.length}개 다시 풀고 물 채우기`;
+    (mustReview?$('reviewBtn'):$('homeBtn')).focus({preventScroll:true});
     const evolve=()=>{if(celebrate){state.growthEventPlayed=true;showEvolution();}};
     showPromotion('finish',()=>{if(state.perfectXP)showPerfect(evolve);else evolve();});
   }
@@ -2157,7 +2189,7 @@
     $('startBtn').nextElementSibling.textContent='기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
     if(levelReady(Number($('levelSelect').value)))updateCount();else renderStartCard();
   }
-  document.querySelector('.brand').addEventListener('click',e=>{e.preventDefault();clearTimer();stopSound();state=null;screen('setup');refreshGarden();});
+  document.querySelector('.brand').addEventListener('click',e=>{e.preventDefault();if(state&&(state.phase==='result'&&profile.garden.retry.length||state.kind==='refill'))return;clearTimer();stopSound();state=null;screen('setup');refreshGarden();});
   $('startBtn').onclick=()=>start();$('continueBtn').onclick=()=>advance();$('skipBonus').onclick=()=>advance(true);
   $('feedback').addEventListener('cancel',e=>e.preventDefault());
   $('replayBtn').onclick=()=>{if(state)speak(state.entry);};
@@ -2566,8 +2598,9 @@
       '정답을 맞히면 어려운 모드는 +5 양분·2코인, 쉬운 모드는 +3 양분·1코인. 5개 연속 정답과 한 판 전체 정답에는 보너스가 있어요. 20문제를 모두 맞히면 가장 큰 보너스(어려운 +40 양분·10코인, 쉬운 +20 양분·5코인)를 받아요.',
       '틀려도 양분은 줄지 않아요. 틀린 단어는 다음 판에 먼저, 맞힌 단어는 며칠 뒤 복습으로 다시 나와요.'],
     ['💧 물주기',
-      '한 판을 모두 맞히면 물뿌리개가 가득 차요. 틀린 단어가 있으면 한 번 더 보고 다시 풀어서 다 맞히면 가득 차요.',
-      '가득 차면 친구 창 오른쪽의 물주기 버튼으로 물을 줘요.',
+      '한 판을 모두 맞히면 물뿌리개가 가득 차요. 틀린 단어·짝꿍어휘가 있으면 꼭 다시 풀어야 해요. 다 맞히면 물뿌리개가 가득 차고 새 모험을 떠날 수 있어요.',
+      '가득 차면 물주기 버튼으로 물을 줘요. 물을 준 다음 한 판은 정답마다 양분 +1(촉촉 보너스)! 수분이 90% 이상이면 물을 아껴 둬요.',
+      '상점에서 물통 칸을 사면 남는 물을 모아 둘 수 있어요. 수분이 25% 이하로 떨어지면 하루 한 번 비상 물(50코인)을 살 수 있어요.',
       '48시간 동안 물을 주지 않으면 양분이 조금씩 줄어요. (최대 −20 양분, 레벨은 그대로)'],
     ['친구 키우기와 꾸미기',
       'Lv.3에 성장 계열, Lv.10에 세 갈래, Lv.15에 두 갈래를 골라요. Lv.20에는 전설의 식물로 최종 진화해요.',
@@ -2576,6 +2609,7 @@
       '코인으로 상점에서 비료와 돌봄 도구를 사고, 바구니에서 사용해요. 햇살·든든·반짝 비료는 양분을, 알뜰·황금 비료는 코인을 더 모아 줘요.',
       '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 양분이 조금 줄어요.',
       '돌봄 도구에는 내구도 막대가 있어요. 날씨를 한 번 막을 때마다 한 칸씩 줄고, 다 닳으면 친구가 알려 줘요. 날씨가 끝나면 우산·난로는 알아서 정리돼요. 고급 도구는 날씨가 오면 알아서 작동해요. 도구는 한 번만 사고, 다 닳으면 상점에서 싸게 수리해요(무당벌레 친구는 다시 사요). 도라지는 감기를 낫게 하고 한동안 막아 주고, 산삼은 다음 한 판의 정답 양분을 2배로 해 줘요.',
+      '🐾 상점에서 펫(두더지·개구리·장수풍뎅이·나비·아기 판다·고슴도치·다람쥐)을 500코인에 데려와요. 펫마다 능력이 있고, 쓰다듬고 함께 공부하면 친밀도 하트가 쌓여요. 펫 도감에서 이름을 지어 줘요.',
       '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.'],
     ['믿고 공부할 수 있는 HSK 단어예요 🌱',
       '게임 속 HSK 단어와 급수는 중국 교육부 산하 중외언어교류협력센터(中外语言交流合作中心)의 《HSK考试大纲(HSK 시험대강)》 어휘 목록을 기준으로 했어요.',
@@ -2852,9 +2886,11 @@
   function showWorldHelp(){
     const w=profile.garden.world;
     if(w.kind==='heat'&&profile.garden.health.heaterOn){playfulReaction('heater');return;}
-    if(w.kind==='bug'&&w.ladybug)showFriendPhrase(['别怕，瓢虫朋友马上就来！','벌레다! 괜찮아, 무당벌레 친구가 곧 날아올 거야!']);
+    if(w.kind==='bug'&&w.rhino)showFriendPhrase(['将军，救救我！','벌레다! 장군아, 도와줘!']);
+    else if(w.kind==='bug'&&w.ladybug)showFriendPhrase(['别怕，瓢虫朋友马上就来！','벌레다! 괜찮아, 무당벌레 친구가 곧 날아올 거야!']);
     else if(w.kind==='bug'){if(!bugBag.length)bugBag=shuffle(BUG_HELP);showFriendPhrase(bugBag.pop());}
     else if(isRain(w.kind)&&w.parasol)showFriendPhrase(['大阳伞下面一滴雨也没有！','큰 파라솔 아래는 빗방울 하나 없어!']);
+    else if(w.kind==='wind'&&w.hedgehog)showFriendPhrase(['刺猬靠着我，好暖和！','고슴도치가 꼭 붙어 있어서 하나도 안 추워!']);
     else if(w.kind==='wind'&&w.fence)showFriendPhrase(['有挡风篱笆，一点也不冷！','울타리가 바람을 막아 줘서 하나도 안 추워!']);
     else if(w.kind==='heat'&&w.sprinkler)showFriendPhrase(['喷水器好凉快呀！','스프링클러 덕분에 시원해!']);
     else if(WEATHER_PHRASES[w.kind])weatherPhrase(isRain(w.kind)&&(w.umbrellaOn||w.parasol)?(w.kind==='heavyRain'?'heavySheltered':'sheltered'):w.kind);
@@ -2892,8 +2928,8 @@
     friend.classList.toggle('world-threat',w.kind==='bug'&&!gardenBusy());
     forestAudio.setCrisis(w.kind==='bug'&&!gardenBusy()&&!document.hidden);
     stage.classList.toggle('world-raining',isRain(w.kind));
-    $('worldStatus').textContent=w.kind==='bug'&&w.ladybug?'벌레가 나타났어요! 무당벌레 친구가 날아오고 있어요 🐞':w.kind==='bug'?`벌레가 나타났어요! ${Math.ceil(w.remainingMs/1000)}초 안에 퇴치해 주세요.`:isRain(w.kind)?`${w.kind==='heavyRain'?'폭우':'가랑비'} · ${w.parasol?'큰 파라솔이 비를 막아 줘요.':w.umbrellaOn?(w.kind==='heavyRain'?'우산 안으로도 빗방울이 튀어요.':'우산으로 비를 막고 있어요.'):'우산을 씌워 주세요.'}`:w.kind==='heat'?(w.sprinkler?'무더위 · 스프링클러가 시원하게 해 줘요.':'무더위 · 친구가 땀을 흘리고 있어요.'):w.kind==='wind'?(w.fence?'찬바람 · 울타리가 바람을 막아 줘요.':'찬바람 · 친구가 추워서 떨고 있어요.'):'맑은 숲 · 친구가 쉬고 있어요.';
-    $('worldAction').hidden=!(w.kind==='bug'&&!w.ladybug||isRain(w.kind)&&!w.umbrellaOn&&!w.parasol);
+    $('worldStatus').textContent=w.kind==='bug'&&w.rhino?'벌레가 나타났어요! 장수풍뎅이가 달려가요 💪':w.kind==='bug'&&w.ladybug?'벌레가 나타났어요! 무당벌레 친구가 날아오고 있어요 🐞':w.kind==='bug'?`벌레가 나타났어요! ${Math.ceil(w.remainingMs/1000)}초 안에 퇴치해 주세요.`:isRain(w.kind)?`${w.kind==='heavyRain'?'폭우':'가랑비'} · ${w.parasol?'큰 파라솔이 비를 막아 줘요.':w.umbrellaOn?(w.kind==='heavyRain'?'우산 안으로도 빗방울이 튀어요.':'우산으로 비를 막고 있어요.'):'우산을 씌워 주세요.'}`:w.kind==='heat'?(w.sprinkler?'무더위 · 스프링클러가 시원하게 해 줘요.':'무더위 · 친구가 땀을 흘리고 있어요.'):w.kind==='wind'?(w.hedgehog?'찬바람 · 고슴도치가 꼭 붙어서 따뜻하게 해 줘요.':w.fence?'찬바람 · 울타리가 바람을 막아 줘요.':'찬바람 · 친구가 추워서 떨고 있어요.'):'맑은 숲 · 친구가 쉬고 있어요.';
+    $('worldAction').hidden=!(w.kind==='bug'&&!w.ladybug&&!w.rhino||isRain(w.kind)&&!w.umbrellaOn&&!w.parasol);
     $('worldAction').disabled=gardenBusy();
     $('worldAction').textContent=w.kind==='bug'?(g.inventory.spray?`살충제 뿌리기 · ${g.inventory.spray}개`:'살충제 사러 가기'):(w.umbrellaOwned?'우산 씌우기':'우산 사러 가기');
     renderHealth();
@@ -3017,7 +3053,7 @@
     const g=profile.garden,h=g.health,w=g.world;
     if(h.sick){h.illMs+=dt;if(h.illMs>=120000){h.illMs-=120000;healthLoss(h);healthPhrase('sick');}}
     if(isRain(w.kind)&&w.umbrellaOn)w.umbrellaUsed=true;if(w.kind==='wind'&&h.heaterOn)w.heaterUsed=true;
-    const exposed=w.kind==='heavyRain'&&!w.parasol||w.kind==='wind'&&!h.heaterOn&&!w.fence;
+    const exposed=w.kind==='heavyRain'&&!w.parasol||w.kind==='wind'&&!h.heaterOn&&!w.fence&&!w.hedgehog;
     if(!h.sick&&exposed&&!(h.guard>0)){h.exposure+=dt;if(h.exposure>=60000){h.exposure=0;if(Math.random()<(w.kind==='wind'?.25:w.umbrellaOn?.05:.2)){h.sick=true;h.illMs=0;h.loss=0;healthPhrase('sick');}}}else h.exposure=0;
     if(w.kind==='heat'&&w.sprinkler)h.coolMs=45000;
     if(w.kind==='heat'){
@@ -3043,12 +3079,12 @@
     const h=profile.garden.health,w=profile.garden.world,stage=$('homeHabitat');
     $('mascot').classList.toggle('friend-sick',h.sick);
     stage.classList.toggle('weather-cooled',w.kind==='heat'&&h.coolMs>0);
-    $('mascot').classList.toggle('weather-cold',h.sick||w.kind==='wind'&&!h.heaterOn&&!w.fence);
+    $('mascot').classList.toggle('weather-cold',h.sick||w.kind==='wind'&&!h.heaterOn&&!w.fence&&!w.hedgehog);
     $('mascot').classList.toggle('weather-hot',w.kind==='heat'&&h.coolMs<=0);
     let heater=stage.querySelector('.placed-heater');if(h.heaterOn&&!heater){heater=document.createElement('span');heater.className='placed-heater';heater.innerHTML=healthArt('heater');stage.append(heater);}if(!h.heaterOn)heater?.remove();
     if(h.sick){$('worldStatus').textContent+=' · 감기 치료가 필요해요';}
     if(w.kind==='heat'&&h.coolMs>0&&!w.sprinkler)$('worldStatus').textContent=`무더위 · ${Math.ceil(h.coolMs/1000)}초 동안 시원해요`;
-    if(h.sick||w.kind==='heat'&&!w.sprinkler||w.kind==='wind'&&!w.fence){
+    if(h.sick||w.kind==='heat'&&!w.sprinkler||w.kind==='wind'&&!w.fence&&!w.hedgehog){
       $('worldAction').hidden=false;$('worldAction').textContent=h.sick?'감기약 먹이기':w.kind==='heat'?(h.heaterOn?'난로 치우기':'부채질하기'):h.heaterOn?'난로 사용 중':'난로 놓기';
       $('worldAction').disabled=gardenBusy()||!h.sick&&w.kind==='wind'&&h.heaterOn;
     }
@@ -3108,7 +3144,8 @@
   }
   function showPerfect(done){
     const cheers=[['全对了，你真棒！','전부 맞혔어, 정말 멋져!'],['你的努力开花啦！','네 노력이 꽃을 피웠어!'],['一个都没错，太厉害了！','하나도 안 틀렸어, 대단해!'],['坚持学习，你越来越棒了！','꾸준히 공부하니 점점 더 멋져져!'],['我们一起继续加油吧！','우리 함께 계속 힘내자!']];
-    const phrase=cheers[Math.floor(Math.random()*cheers.length)];$('perfectArt').innerHTML=$('mascot').querySelector('.creature-art').innerHTML;
+    const bonusMiss=[...(state.mistakes?.values()||[])].some(m=>m.bonus);
+    const phrase=bonusMiss?['基本题全对了！搭配词再复习一次吧！','기본 문제를 모두 맞혔어! 짝꿍어휘는 한 번 더 복습하자.']:cheers[Math.floor(Math.random()*cheers.length)];$('perfectArt').innerHTML=$('mascot').querySelector('.creature-art').innerHTML;
     $('perfectChinese').textContent=phrase[0];$('perfectKorean').textContent=phrase[1];$('perfectReward').textContent=`전체 정답 보너스 +${state.perfectXP} 양분`+(state.perfectCoins?` · +${state.perfectCoins} 코인`:'');
     const dialog=$('perfectDialog');dialog.showModal();forestAudio.effect('level');
     let completed=false;const close=()=>{if(completed)return;completed=true;clearTimeout(timer);dialog.close();done();};
@@ -3318,6 +3355,445 @@
   }
   {const _rs=renderSupplies;renderSupplies=function(){_rs();renderRepair();};}
   {const _rb=renderBasket;renderBasket=function(){_rb();renderRepair();};}
+  // ===== 물통 · 비상 물 =====
+  // 물통: 남는 물(물뿌리개가 가득일 때 또 다 맞힌 판)을 모아 둬요. 칸은 상점에서 하나씩 사요.
+  // 비상 물: 수분이 25% 이하이고, 물뿌리개가 비었고, 틀린 문제가 없을 때 하루 한 번만 살 수 있어요.
+  const TANK_PRICES=[50,300,800],COIN_WATER_PRICE=50,COIN_WATER_MAX_MOISTURE=25;
+  const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;};
+  const WATER_ART={
+    tank:'<ellipse cx="50" cy="86" rx="30" ry="6" fill="#23473b" opacity=".12"/><path d="M26 30h48v50a6 6 0 0 1-6 6H32a6 6 0 0 1-6-6z" fill="#e6f3fb" stroke="#3f7aa0" stroke-width="3"/><path d="M28 52h44v28a4 4 0 0 1-4 4H32a4 4 0 0 1-4-4z" fill="#6fb0d8"/><path d="M28 52q11-5 22 0t22 0" fill="none" stroke="#9fd4ee" stroke-width="3"/><rect x="22" y="22" width="56" height="10" rx="4" fill="#3f7aa0"/><path d="M40 22v-8h20v8" fill="none" stroke="#3f7aa0" stroke-width="4"/>',
+    water:'<path d="M50 12C38 32 26 46 26 62a24 24 0 0 0 48 0c0-16-12-30-24-50z" fill="#6fb0d8" stroke="#3f7aa0" stroke-width="3"/><path d="M38 62a12 12 0 0 0 12 12" fill="none" stroke="#e6f3fb" stroke-width="4" stroke-linecap="round"/><circle cx="74" cy="24" r="12" fill="#e5534b"/><path d="M74 17v9M74 30v1" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>'
+  };
+  function installWaterShop(){
+    const box=document.querySelector('#gardenShop .gear-items');if(!box)return;
+    const items=[['tank','물통 칸 늘리기','남는 물을 모아 두는 물통이에요. 물을 준 뒤 물통에 물이 있으면 물뿌리개가 바로 다시 차요.'],
+      ['water','비상 물 한 통','친구가 많이 말랐을 때(수분 25% 이하) 하루 한 번만 살 수 있어요.']];
+    for(const [k,name,desc] of items.reverse()){
+      const card=document.createElement('article');card.className='shop-item';
+      card.innerHTML=`<svg viewBox="0 0 100 100" aria-hidden="true">${WATER_ART[k]}</svg><h3>${name}</h3><p class="fertilizer-benefit">${desc}</p><p class="stock" id="${k}Stock"></p><button type="button" class="primary" id="buy-${k}"></button><p class="shop-hint" id="${k}Hint"></p>`;
+      box.prepend(card);
+    }
+    $('buy-tank').onclick=buyTank;$('buy-water').onclick=buyCoinWater;
+  }
+  function coinWaterBlock(){
+    const g=profile.garden;
+    if(g.coinWaterDay===todayKey())return '오늘은 이미 비상 물을 샀어요. 내일 다시 살 수 있어요.';
+    if(g.canFull)return '물뿌리개에 물이 있어요. 먼저 물을 주세요.';
+    if(g.retry.length)return `틀린 문제 ${g.retry.length}개를 다시 풀면 물이 공짜로 차요!`;
+    if(moistureNow()>COIN_WATER_MAX_MOISTURE)return `수분이 ${COIN_WATER_MAX_MOISTURE}% 이하일 때만 살 수 있어요. (지금 ${moistureNow()}%)`;
+    if(g.coins<COIN_WATER_PRICE)return `${COIN_WATER_PRICE-g.coins}코인이 더 필요해요.`;
+    return '';
+  }
+  function buyTank(){
+    const g=profile.garden,price=TANK_PRICES[g.tankCap];if(gardenBusy()||price===undefined||g.coins<price)return;
+    g.coins-=price;g.tankCap++;save();renderCare();renderShop();forestAudio.effect('dress');
+    $('shopMessage').textContent=`물통이 ${g.tankCap}칸이 됐어요! 다 맞힌 판의 남는 물이 물통에 모여요. −${price} 코인`;
+  }
+  function buyCoinWater(){
+    const g=profile.garden;if(gardenBusy())return;const why=coinWaterBlock();if(why){$('shopMessage').textContent=why;return;}
+    g.coins-=COIN_WATER_PRICE;g.coinWaterDay=todayKey();g.canFull=true;g.can=1;save();renderCare();renderShop();forestAudio.effect('dress');
+    $('shopMessage').textContent=`비상 물로 물뿌리개를 채웠어요. 로비에서 물을 주세요! −${COIN_WATER_PRICE} 코인`;
+  }
+  function renderWaterShop(){
+    if(!$('buy-tank'))return;const g=profile.garden,next=TANK_PRICES[g.tankCap];
+    $('tankStock').textContent=g.tankCap?`물통 ${g.tankCap}/${TANK_PRICES.length}칸 · 모은 물 ${g.tank}`:'아직 물통이 없어요';
+    $('buy-tank').textContent=next===undefined?'물통이 가장 커요':`${next} 코인으로 ${g.tankCap+1}칸째 사기`;
+    $('buy-tank').disabled=gardenBusy()||next===undefined||g.coins<next;
+    $('tankHint').textContent=next===undefined?'물통을 모두 늘렸어요!':`칸마다 값이 달라요: ${TANK_PRICES.map((p,i)=>`${i+1}칸 ${p}`).join(' · ')}코인`;
+    const why=coinWaterBlock();
+    $('waterStock').textContent=`수분 ${moistureNow()}% · 하루 1번`;
+    $('buy-water').textContent=`${COIN_WATER_PRICE} 코인으로 사기`;$('buy-water').disabled=gardenBusy()||!!why;
+    $('waterHint').textContent=why||'지금 살 수 있어요. 아껴서 써요!';
+  }
+  SHOP_CATS[1].keys.unshift('tank','water');SHOP_NAMES.tank='물통';SHOP_NAMES.water='비상 물';
+  {const _rs=renderSupplies;renderSupplies=function(){_rs();renderWaterShop();};}
+  installWaterShop();
+
+  // ===== 숲 펫 (두더지 · 개구리 · 장수풍뎅이 · 나비 · 아기 판다 · 고슴도치 · 다람쥐) =====
+  // 상점 › 🐾 펫에서 500코인에 데려와요. 산 펫은 모두 정원을 돌아다니고, 저마다 능력이 하나씩 있어요.
+  // 친밀도(하트): 함께 한 판을 마칠 때 +2, 쓰다듬기 +1(하루 5번까지), 능력을 쓸 때 +3. 20마다 하트 1개 · 최대 5개.
+  const PET_PRICE=500;
+  // 펫 능력 확률 (테스트 주소 ?test=1 에서만 바꿀 수 있어요)
+  const PET_CHANCE={rhino:.35,hedgehog:.4};if(/[?&]test=1/.test(location.search))window.__PET_CHANCE=PET_CHANCE;
+  const INK='#4a3b30';
+  const petFace=(x,y,{eye=INK,blush='#f4a3a0',s=1,closed=false}={})=>`${closed?`<path d="M${x-9*s} ${y}q3 -3 6 0M${x+3*s} ${y}q3 -3 6 0" stroke="${eye}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`:`<circle cx="${x-6*s}" cy="${y}" r="${2.6*s}" fill="${eye}"/><circle cx="${x+6*s}" cy="${y}" r="${2.6*s}" fill="${eye}"/><circle cx="${x-5.2*s}" cy="${y-1}" r="${.8*s}" fill="#fff"/><circle cx="${x+6.8*s}" cy="${y-1}" r="${.8*s}" fill="#fff"/>`}<path d="M${x-3*s} ${y+5*s}q3 3 6 0" stroke="${eye}" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="${x-11*s}" cy="${y+4*s}" rx="${3.4*s}" ry="${2*s}" fill="${blush}" opacity=".75"/><ellipse cx="${x+11*s}" cy="${y+4*s}" rx="${3.4*s}" ry="${2*s}" fill="${blush}" opacity=".75"/>`;
+
+  // 표정: normal · serious · happy · cry · tease · angry · surprised (펫마다 data-mood로 바꿔요)
+  function moodFaces({x,ey,my,s=1,ink=INK,mink,blush='#f4a3a0',base='normal'}){
+    const L=x-6*s,R=x+6*s,r=2.6*s,ex=`<circle cx="${L}" cy="${ey}" r="${r}" fill="${ink}"/><circle cx="${R}" cy="${ey}" r="${r}" fill="${ink}"/><circle cx="${L+.8*s}" cy="${ey-1}" r="${.8*s}" fill="#fff"/><circle cx="${R+.8*s}" cy="${ey-1}" r="${.8*s}" fill="#fff"/>`;
+    const cheeks=`<ellipse cx="${x-11*s}" cy="${ey+4*s}" rx="${3.4*s}" ry="${2*s}" fill="${blush}" opacity=".75"/><ellipse cx="${x+11*s}" cy="${ey+4*s}" rx="${3.4*s}" ry="${2*s}" fill="${blush}" opacity=".75"/>`;
+    const st=`stroke="${ink}" stroke-width="${2*s}" fill="none" stroke-linecap="round"`,ms=`stroke="${mink||ink}" stroke-width="${2*s}" fill="none" stroke-linecap="round"`,mi=mink||ink;
+    const f={
+      normal:ex+`<path d="M${x-3*s} ${my}q${3*s} ${3*s} ${6*s} 0" ${ms}/>`+cheeks,
+      serious:`<path d="M${L-3*s} ${ey}h${6*s}M${R-3*s} ${ey}h${6*s}" ${st}/><path d="M${L-3.5*s} ${ey-4*s}l${7*s} ${1*s}M${R+3.5*s} ${ey-4*s}l${-7*s} ${1*s}" ${st}/><path d="M${x-2.5*s} ${my+1*s}h${5*s}" ${ms}/>`+cheeks,
+      happy:`<path d="M${L-3*s} ${ey+1*s}q${3*s} ${-5*s} ${6*s} 0M${R-3*s} ${ey+1*s}q${3*s} ${-5*s} ${6*s} 0" ${st}/><path d="M${x-4.5*s} ${my-1*s}q${4.5*s} ${7*s} ${9*s} 0z" fill="#79473f" stroke="${mi}" stroke-width="${1.4*s}"/>`+cheeks,
+      cry:`<path d="M${L-3*s} ${ey}q${3*s} ${3*s} ${6*s} 0M${R-3*s} ${ey}q${3*s} ${3*s} ${6*s} 0" ${st}/><path class="tear" d="M${L} ${ey+3*s}q${-2*s} ${4*s} 0 ${5*s}q${2*s} ${-1*s} 0 ${-5*s}z" fill="#7cc4ee"/><path class="tear" d="M${R} ${ey+3*s}q${-2*s} ${4*s} 0 ${5*s}q${2*s} ${-1*s} 0 ${-5*s}z" fill="#7cc4ee"/><path d="M${x-4*s} ${my+2*s}q${2*s} ${-3*s} ${4*s} 0q${2*s} ${-3*s} ${4*s} 0" ${ms}/>`,
+      tease:`<path d="M${L-3*s} ${ey}l${5*s} ${-2*s}l${-5*s} ${-2*s}" ${st}/><circle cx="${R}" cy="${ey}" r="${r}" fill="${ink}"/><circle cx="${R+.8*s}" cy="${ey-1}" r="${.8*s}" fill="#fff"/><path d="M${x-4*s} ${my}q${4*s} ${3*s} ${8*s} 0" ${ms}/><path d="M${x-1*s} ${my+1.5*s}q${2*s} ${6*s} ${5*s} 0z" fill="#f08fa0" stroke="${mi}" stroke-width="${1.2*s}"/>`+cheeks,
+      angry:ex+`<path d="M${L-4*s} ${ey-6*s}l${7*s} ${3*s}M${R+4*s} ${ey-6*s}l${-7*s} ${3*s}" stroke="${ink}" stroke-width="${2.4*s}" stroke-linecap="round"/><ellipse cx="${x}" cy="${my+1.5*s}" rx="${3.5*s}" ry="${3*s}" fill="#79473f" stroke="${mi}" stroke-width="${1.4*s}"/>`,
+      sleep:`<path d="M${L-3*s} ${ey}q${3*s} ${3*s} ${6*s} 0M${R-3*s} ${ey}q${3*s} ${3*s} ${6*s} 0" ${st}/><ellipse cx="${x}" cy="${my+1*s}" rx="${1.6*s}" ry="${1.4*s}" fill="${mi}"/>`+cheeks,
+      surprised:`<circle cx="${L}" cy="${ey}" r="${3.4*s}" fill="#fff" stroke="${ink}" stroke-width="${1.4*s}"/><circle cx="${R}" cy="${ey}" r="${3.4*s}" fill="#fff" stroke="${ink}" stroke-width="${1.4*s}"/><circle cx="${L}" cy="${ey}" r="${1.6*s}" fill="${ink}"/><circle cx="${R}" cy="${ey}" r="${1.6*s}" fill="${ink}"/><ellipse cx="${x}" cy="${my+1.5*s}" rx="${2*s}" ry="${2.6*s}" fill="#79473f"/>`+cheeks
+    };
+    return Object.entries(f).map(([k,v])=>`<g class="ex ex-${k}${k===base?' ex-base':''}">${v}</g>`).join('');
+  }
+  // 개구리는 눈이 머리 위에 있어서 따로 그려요.
+  function frogFaces(){
+    const pupils=`<circle cx="35" cy="41" r="4" fill="${INK}"/><circle cx="67" cy="41" r="4" fill="${INK}"/><circle cx="36.5" cy="39.5" r="1.3" fill="#fff"/><circle cx="68.5" cy="39.5" r="1.3" fill="#fff"/>`;
+    const st=`stroke="${INK}" stroke-width="2.4" fill="none" stroke-linecap="round"`;
+    const f={
+      normal:pupils+`<path d="M36 60q14 10 28 0" ${st}/>`,
+      happy:`<path d="M29 42q5-7 10 0M61 42q5-7 10 0" ${st}/><path d="M36 58q14 16 28 0z" fill="#b34a4a" stroke="${INK}" stroke-width="2"/><path d="M42 64q8 5 16 0" fill="#f08fa0"/>`,
+      cry:`<path d="M29 41q5 4 10 0M61 41q5 4 10 0" ${st}/><path class="tear" d="M33 46q-3 6 0 8q3-2 0-8z" fill="#7cc4ee"/><path class="tear" d="M67 46q-3 6 0 8q3-2 0-8z" fill="#7cc4ee"/><path d="M38 64q6-6 12 0q6-6 12 0" ${st}/>`,
+      tease:`<path d="M29 41l8-3l-8-3" ${st}/><circle cx="67" cy="41" r="4" fill="${INK}"/><circle cx="68.5" cy="39.5" r="1.3" fill="#fff"/><path d="M36 60q14 10 28 0" ${st}/><path d="M46 64q4 12 10 0z" fill="#f08fa0" stroke="${INK}" stroke-width="1.6"/>`,
+      angry:pupils+`<path d="M26 30l12 5M74 30l-12 5" stroke="${INK}" stroke-width="2.6" stroke-linecap="round"/><ellipse cx="50" cy="62" rx="7" ry="4" fill="#79473f"/>`,
+      surprised:`<circle cx="35" cy="41" r="2.4" fill="${INK}"/><circle cx="67" cy="41" r="2.4" fill="${INK}"/><ellipse cx="50" cy="62" rx="4" ry="5" fill="#79473f"/>`,
+      serious:pupils+`<path d="M42 62h16" ${st}/>`
+    };
+    return Object.entries(f).map(([k,v])=>`<g class="ex ex-${k}${k==='normal'?' ex-base':''}">${v}</g>`).join('');
+  }
+  const PET_ART={
+    panda:`<ellipse cx="50" cy="91" rx="32" ry="6" fill="#23473b" opacity=".12"/>
+  <ellipse cx="50" cy="72" rx="26" ry="20" fill="#fbfaf4" stroke="${INK}" stroke-width="2.5"/>
+  <path d="M26 66q-8 8-2 18q8 2 12-6zM74 66q8 8 2 18q-8 2-12-6z" fill="#2f2a28" stroke="${INK}" stroke-width="2"/>
+  <ellipse cx="36" cy="88" rx="9" ry="6" fill="#2f2a28"/><ellipse cx="64" cy="88" rx="9" ry="6" fill="#2f2a28"/>
+  <path d="M60 70l14-22" stroke="#7cb04e" stroke-width="4" stroke-linecap="round"/><path d="M66 60l7-4M70 54l6-1" stroke="#5f8f3a" stroke-width="2.5" stroke-linecap="round"/><path d="M73 50q8-6 12-2q-6 6-12 2z" fill="#8fc45e"/>
+  <circle cx="30" cy="24" r="9" fill="#2f2a28"/><circle cx="70" cy="24" r="9" fill="#2f2a28"/>
+  <ellipse cx="50" cy="42" rx="25" ry="21" fill="#fbfaf4" stroke="${INK}" stroke-width="2.5"/>
+  <ellipse cx="40" cy="41" rx="7" ry="8.5" fill="#2f2a28" transform="rotate(-20 40 41)"/><ellipse cx="60" cy="41" rx="7" ry="8.5" fill="#2f2a28" transform="rotate(20 60 41)"/>
+  <ellipse cx="50" cy="49" rx="3.4" ry="2.4" fill="#2f2a28"/>
+  ${moodFaces({x:50,ey:41,my:53,s:.95,ink:'#fff',mink:INK,blush:'#f4a3a0'})}`,
+    hedgehog:`<ellipse cx="50" cy="91" rx="30" ry="6" fill="#23473b" opacity=".12"/>
+  <path d="M14 70L8 58l12 0L14 44l14 4L26 30l12 8L44 22l8 14L62 24l4 14L80 32l-2 14L92 48l-8 12L96 68l-14 4L88 84H14l6-8z" fill="#8a6446" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="M30 50l4-6M44 40l2-7M58 40l3-6M70 48l5-5M24 64l-5-3M78 62l6-2" stroke="#5e412c" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="50" cy="66" rx="22" ry="20" fill="#f2dcbc" stroke="${INK}" stroke-width="2.4"/>
+  <ellipse cx="34" cy="49" rx="5" ry="4" fill="#e9c9a3" stroke="${INK}" stroke-width="1.8"/><ellipse cx="66" cy="49" rx="5" ry="4" fill="#e9c9a3" stroke="${INK}" stroke-width="1.8"/>
+  <ellipse cx="50" cy="70" rx="3.6" ry="2.8" fill="#4a3b30"/><circle cx="49" cy="69" r=".9" fill="#fff"/>
+  <path d="M36 86q0-6 5-6q4 0 4 6M55 86q0-6 5-6q4 0 4 6" fill="#e9c9a3" stroke="${INK}" stroke-width="2"/>
+  ${moodFaces({x:50,ey:62,my:75,s:.85})}`,
+    squirrel:`<ellipse cx="50" cy="91" rx="30" ry="6" fill="#23473b" opacity=".12"/>
+  <path class="tail" d="M60 84C92 84 98 56 86 36C76 20 58 26 64 40C70 52 82 50 78 64C74 74 64 74 60 84z" fill="#d98a3e" stroke="${INK}" stroke-width="2.4"/>
+  <path d="M74 40q8 10 4 22" stroke="#f2c08a" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="44" cy="70" rx="18" ry="18" fill="#cf7d36" stroke="${INK}" stroke-width="2.4"/>
+  <ellipse cx="44" cy="74" rx="10" ry="12" fill="#f6dfbd"/>
+  <path d="M30 20l4 14l-10 0zM58 20l-4 14l10 0z" fill="#cf7d36" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><path d="M30 16l2 5M58 16l-2 5" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
+  <ellipse cx="44" cy="42" rx="19" ry="16" fill="#cf7d36" stroke="${INK}" stroke-width="2.4"/>
+  <ellipse cx="44" cy="48" rx="10" ry="7" fill="#f6dfbd"/>
+  <ellipse cx="44" cy="74" rx="6" ry="5" fill="#9a6a3a" stroke="${INK}" stroke-width="1.8"/><path d="M38 72q6-6 12 0" fill="#6b4626"/>
+  <path d="M34 80q4 3 8 0M46 80q4 3 8 0" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/>
+  ${moodFaces({x:44,ey:41,my:48,s:.85})}`,
+    mole:`<ellipse cx="50" cy="90" rx="34" ry="6" fill="#23473b" opacity=".12"/>
+  <path d="M14 90q4-14 18-14h36q14 0 18 14z" fill="#a8835a"/><path d="M20 90q5-8 14-8M66 82q9 0 14 8" stroke="#8a6a46" stroke-width="2" fill="none"/>
+  <path d="M26 80C22 50 34 30 50 30s28 20 24 50z" fill="#7a5a44" stroke="${INK}" stroke-width="2.5"/>
+  <path d="M36 80c-2-18 4-30 14-30s16 12 14 30z" fill="#a98468"/>
+  <ellipse cx="50" cy="56" rx="7" ry="5" fill="#f08fa0" stroke="${INK}" stroke-width="2"/><circle cx="48" cy="55" r="1.4" fill="#fff" opacity=".8"/>
+  ${moodFaces({x:50,ey:45,my:63,s:.9,base:'serious'})}
+  <path d="M28 70q-8 2-8 10q8 0 12-5zM72 70q8 2 8 10q-8 0-12-5z" fill="#f2c6b4" stroke="${INK}" stroke-width="2"/>
+  <path d="M22 79l2-4M25 80l1-5M76 79l-2-4M73 80l-1-5" stroke="${INK}" stroke-width="1.5"/>
+  <path d="M38 33q-6-8-2-12M62 33q6-8 2-12" stroke="${INK}" stroke-width="0" fill="none"/>`,
+    frog:`<ellipse cx="50" cy="90" rx="34" ry="6" fill="#23473b" opacity=".12"/>
+  <path d="M18 88q-6-4-2-12q10 2 14 10zM82 88q6-4 2-12q-10 2-14 10z" fill="#6fb35a" stroke="${INK}" stroke-width="2.5"/>
+  <ellipse cx="50" cy="66" rx="32" ry="24" fill="#7cc463" stroke="${INK}" stroke-width="2.5"/>
+  <ellipse cx="50" cy="74" rx="20" ry="13" fill="#d9f0b8"/>
+  <circle cx="34" cy="40" r="12" fill="#7cc463" stroke="${INK}" stroke-width="2.5"/><circle cx="66" cy="40" r="12" fill="#7cc463" stroke="${INK}" stroke-width="2.5"/>
+  <circle cx="34" cy="40" r="7" fill="#fff" stroke="${INK}" stroke-width="1.5"/><circle cx="66" cy="40" r="7" fill="#fff" stroke="${INK}" stroke-width="1.5"/>
+  ${frogFaces()}
+  <ellipse cx="28" cy="60" rx="4" ry="2.4" fill="#f4a3a0" opacity=".8"/><ellipse cx="72" cy="60" rx="4" ry="2.4" fill="#f4a3a0" opacity=".8"/>
+  <path d="M34 86q-4 4-10 3M66 86q4 4 10 3" stroke="${INK}" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
+    rhino:`<ellipse cx="50" cy="90" rx="34" ry="6" fill="#23473b" opacity=".12"/>
+  <g stroke="${INK}" stroke-width="2.4" stroke-linecap="round" fill="none"><path d="M30 66l-12 8l-4 10M30 74l-14 4M34 80l-8 10M70 66l12 8l4 10M70 74l14 4M66 80l8 10"/></g>
+  <ellipse cx="50" cy="68" rx="24" ry="20" fill="#8a4a24" stroke="${INK}" stroke-width="2.5"/>
+  <path d="M50 49v39" stroke="${INK}" stroke-width="2"/><path d="M36 58q4-6 10-6" stroke="#c98a5a" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>
+  <path d="M30 50q20-14 40 0v4q-20 8-40 0z" fill="#6b3820" stroke="${INK}" stroke-width="2.5"/>
+  <path d="M44 42q-2-16 6-26q4 4 2 10q6-4 8-10q4 10-6 24z" fill="#5a2e18" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>
+  <ellipse cx="50" cy="46" rx="14" ry="9" fill="#7a4026" stroke="${INK}" stroke-width="2.4"/>
+  ${moodFaces({x:50,ey:44,my:49,s:.75,ink:'#fff3dc',blush:'#e88a7a'})}`,
+    butterfly:`<ellipse cx="50" cy="92" rx="18" ry="4" fill="#23473b" opacity=".10"/>
+  <g class="wing-l"><path d="M48 50C30 22 8 26 12 44c3 12 18 14 36 8z" fill="#f7b7d0" stroke="${INK}" stroke-width="2.4"/><path d="M48 56C30 60 18 74 28 82c8 6 18-4 20-20z" fill="#ffd98a" stroke="${INK}" stroke-width="2.4"/><circle cx="26" cy="40" r="5" fill="#fff" opacity=".7"/><circle cx="34" cy="70" r="3.5" fill="#fff" opacity=".7"/></g>
+  <g class="wing-r"><path d="M52 50C70 22 92 26 88 44c-3 12-18 14-36 8z" fill="#f7b7d0" stroke="${INK}" stroke-width="2.4"/><path d="M52 56C70 60 82 74 72 82c-8 6-18-4-20-20z" fill="#ffd98a" stroke="${INK}" stroke-width="2.4"/><circle cx="74" cy="40" r="5" fill="#fff" opacity=".7"/><circle cx="66" cy="70" r="3.5" fill="#fff" opacity=".7"/></g>
+  <ellipse cx="50" cy="62" rx="6" ry="18" fill="#6a5040" stroke="${INK}" stroke-width="2.2"/>
+  <circle cx="50" cy="40" r="14" fill="#8a6a54" stroke="${INK}" stroke-width="2.4"/>
+  <path d="M45 28q-4-10-9-12M55 28q4-10 9-12" stroke="${INK}" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="36" cy="16" r="2.5" fill="${INK}"/><circle cx="64" cy="16" r="2.5" fill="${INK}"/>
+  ${moodFaces({x:50,ey:38,my:44,s:.78,ink:'#fff3dc'})}`
+  };
+  const PET_INFO={
+    mole:{name:'두더지',zh:'鼹鼠',py:'yǎnshǔ',nick:'뚜기',ability:'평소엔 땅속에 숨어 있다가 쏙 올라와 인사해요. 가끔 코인 보물을 찾아와요(하루 한 번).'},
+    frog:{name:'개구리',zh:'青蛙',py:'qīngwā',nick:'개굴이',ability:'비가 오면 빗속에서 노래하며 친구의 수분을 채워 줘요.'},
+    rhino:{name:'장수풍뎅이',zh:'独角仙',py:'dújiǎoxiān',nick:'장군이',ability:'벌레가 오면 가끔 힘으로 쫓아 줘요. 무당벌레와 달리 닳지 않아요.'},
+    butterfly:{name:'나비',zh:'蝴蝶',py:'húdié',nick:'팔랑이',ability:'친구 주변을 날며 꽃가루를 뿌려 양분 +10을 줘요(하루 한 번).'},
+    panda:{name:'아기 판다',zh:'熊猫',py:'xióngmāo',nick:'판판',ability:'하루 한 번 ‘오늘의 중국어 한마디’ 깜짝 문제를 내요. 맞히면 코인 +10! 머리 위에 ❓가 뜨면 판다를 눌러요.'},
+    hedgehog:{name:'고슴도치',zh:'刺猬',py:'cìwei',nick:'도치',ability:'찬바람이 불면 가끔 친구 옆에 꼭 붙어서 감기를 막아 줘요.'},
+    squirrel:{name:'다람쥐',zh:'松鼠',py:'sōngshǔ',nick:'토리',ability:'하루 한 번 도토리를 모아 와서 물통에 물 1칸을 채우거나 비료를 하나 줘요.'}
+  };
+  const PET_KEYS=Object.keys(PET_INFO);
+  // 성격: 두더지 진지함 · 개구리 장난꾸러기 · 장수풍뎅이 용감함 · 나비 다정하고 우아함. [중국어, 한국어, 표정]
+  const PET_LINES={
+    mole:[['嗯，学习要认真。','음… 공부는 진지하게 해야 한다.','serious'],['我观察了一下，你进步了。','관찰해 보니, 실력이 늘었군.','serious'],['地下有很多秘密。','땅속엔 비밀이 많지.','serious'],['别吵，我在思考。','쉿. 생각 중이다.','serious'],['今天的单词，复习了吗？','오늘 단어, 복습은 했나?','serious'],['哼…其实我也很开心。','흠… 사실 나도 기쁘다.','happy'],['太阳太亮了，我的眼睛！','햇빛이 너무 눈부셔… 내 눈!','cry'],['什么？！地上这么吵！','뭐야?! 땅 위는 이렇게 시끄럽나!','surprised']],
+    frog:[['呱呱！抓不到我吧？','개굴! 나 못 잡지롱~','tease'],['略略略～','메롱~ 메롱~','tease'],['我跳得比你高！','내가 너보다 높이 뛴다!','happy'],['嘿嘿，我刚才偷吃了一只苍蝇。','히히, 방금 파리 한 마리 몰래 먹었지~','tease'],['呜呜，没人跟我玩…','흑흑, 아무도 안 놀아 줘…','cry'],['哇！吓到你了吧？','왁! 놀랐지?','surprised'],['不学习就挠你痒痒！','공부 안 하면 간지럼 태운다!','tease'],['呱呱呱～我是跳高冠军！','개굴개굴~ 나는 높이뛰기 챔피언!','happy']],
+    rhino:[['我是森林的勇士！','나는 숲의 용사다!','happy'],['有我在，什么都不怕！','내가 있으면 아무것도 무섭지 않아!','happy'],['坏虫子，来一个赶一个！','나쁜 벌레, 오기만 해 봐라!','angry'],['练力气！一、二、一、二！','힘 기르기! 하나, 둘! 하나, 둘!','serious'],['勇士也会怕打雷…一点点。','용사도 천둥은 무서워… 쪼끔.','cry'],['题目难？勇敢地挑战吧！','문제가 어렵다고? 용감하게 도전하자!','happy'],['看我的角！帅不帅？','내 뿔 봐! 멋지지?','happy']],
+    panda:[['嗯嗯…竹子好好吃～','음냠… 대나무 맛있다~','happy'],['再让我睡一会儿…','조금만 더 잘래…','sleep'],['滚来滚去～好好玩！','데굴데굴~ 재밌다!','happy'],['肚子饿了…','배고파졌어…','cry'],['慢慢来，不着急～','천천히 하자, 서두르지 말고~','normal'],['你也想吃竹子吗？','너도 대나무 먹을래?','happy'],['哇！我差点睡着了！','앗! 하마터면 잠들 뻔했다!','surprised']],
+    hedgehog:[['你…你好…','아… 안녕…','normal'],['我有点害羞…','나 조금 부끄러워…','normal'],['吓我一跳！','깜짝이야!','surprised'],['我的刺不会扎你的。','내 가시는 너를 찌르지 않아.','happy'],['天冷的时候，我来陪你。','추울 땐 내가 옆에 있어 줄게.','happy'],['呜…有人在看我吗？','흑… 누가 날 보고 있어?','cry']],
+    squirrel:[['我找到橡子啦！','도토리 찾았다!','happy'],['快点快点，今天也要努力！','빨리빨리, 오늘도 열심히!','happy'],['我把橡子藏在哪儿了？','도토리를 어디 숨겼더라?','surprised'],['一、二、三！我数橡子呢。','하나, 둘, 셋! 도토리 세는 중이야.','serious'],['偷偷告诉你，我有好多橡子！','몰래 알려 줄게, 나 도토리 엄청 많다!','tease'],['橡子掉了…呜呜。','도토리를 떨어뜨렸어… 흑흑.','cry']],
+    butterfly:[['今天的风好温柔呀～','오늘 바람이 참 다정하네~','happy'],['你的叶子真漂亮呢。','네 잎, 정말 예쁘다~','happy'],['我在花园里翩翩起舞～','정원에서 살랑살랑 춤추는 중이야~','happy'],['哎呀，害羞了啦。','어머, 부끄러워라~','happy'],['花都谢了…好伤心。','꽃이 져 버렸어… 너무 슬퍼.','cry'],['要好好照顾自己哦。','너 자신도 잘 챙겨야 해~','normal'],['哇，好香的花！','와아, 향기로운 꽃이다!','surprised']]
+  };
+  const PET_LOVE_LINES={
+    mole:[['你是我信任的朋友。','넌 내가 믿는 친구다.','happy'],['宝贝，给你。认真收好。','보물은 너에게 주마. 소중히 간직해.','serious']],
+    frog:[['呱呱，你是我最好的玩伴！','개굴, 너는 내 최고의 놀이 친구야!','happy'],['为你唱一首歌！呱～','널 위해 노래할게! 개굴~','happy']],
+    rhino:[['我会一直保护你！','언제나 널 지켜 줄게!','happy'],['你也越来越勇敢了！','너도 점점 용감해지는구나!','happy']],
+    butterfly:[['和你在一起真幸福～','너랑 있으면 정말 행복해~','happy'],['我们是一辈子的朋友哦。','우리 평생 친구야~','happy']],
+    panda:[['我最喜欢和你一起睡午觉！','너랑 낮잠 자는 게 제일 좋아!','happy'],['竹子分你一半～','대나무 반 나눠 줄게~','happy']],
+    hedgehog:[['跟你在一起，我不害羞了。','너랑 있으면 안 부끄러워.','happy'],['你是我最好的朋友。','넌 내 제일 소중한 친구야.','happy']],
+    squirrel:[['我最好的橡子给你！','제일 좋은 도토리는 너 줄게!','happy'],['我们一起攒橡子吧！','우리 같이 도토리 모으자!','happy']]
+  };
+  const PET_PAT={
+    mole:[['…嗯，谢谢。','…음, 고맙다.','happy'],['别摸我的鼻子！','코는 만지지 마라!','surprised']],
+    frog:[['哈哈好痒！','하하 간지러워!','happy'],['摸我？那我也摸你！','날 만졌겠다? 나도 간지럼 태운다!','tease']],
+    rhino:[['嘿！勇士也喜欢被摸头！','헤헤! 용사도 쓰다듬는 건 좋아!','happy'],['小心，我的角很硬！','조심해, 내 뿔은 단단하다!','serious']],
+    butterfly:[['好温柔的手呀～','손길이 참 부드러워~','happy'],['嘻嘻，好开心～','히히, 기분 좋아~','happy']],
+    panda:[['嘿嘿，痒痒的～','헤헤, 간질간질~','happy'],['再摸摸…我要睡着了…','더 쓰다듬어 줘… 잠이 온다…','sleep']],
+    hedgehog:[['啊！…哦，是你呀。','앗! …아, 너였구나.','surprised'],['嘿嘿…小心刺哦。','헤헤… 가시 조심해.','happy']],
+    squirrel:[['嘻嘻，尾巴好痒！','히히, 꼬리 간지러워!','happy'],['摸完给我一个橡子！','쓰다듬었으면 도토리 하나 줘!','tease']]
+  };
+  // 펫이 말하면 친구(식물)가 대답해요. [펫 말, 친구 대답]
+  const PET_TALKS={
+    mole:[[['你的根扎得很深。不错。','뿌리를 깊게 내렸군. 좋아.','serious'],['谢谢，鼹鼠先生！','고마워요, 두더지 선생님!']],[['学习和挖土一样，要坚持。','공부는 땅 파기랑 같다. 꾸준히 해야지.','serious'],['我会坚持的！','꾸준히 할게!']]],
+    frog:[[['你的叶子像我的帽子！略～','네 잎 꼭 내 모자 같다~ 메롱!','tease'],['哼！才不像呢！','흥! 하나도 안 닮았거든!']],[['我们比赛跳高吧！','우리 높이뛰기 시합하자!','happy'],['我是植物，不会跳啦！','나는 식물이라 못 뛴다고!']]],
+    rhino:[[['有什么困难，交给我！','어려운 일 있으면 나한테 맡겨!','happy'],['你真可靠！','넌 정말 든든해!']],[['今天也要勇敢地学习！','오늘도 용감하게 공부하자!','serious'],['好！冲呀！','좋아! 가 보자!']]],
+    butterfly:[[['我可以在你头上休息一下吗？','네 머리 위에서 잠깐 쉬어도 될까?','happy'],['当然可以！','물론이지!']],[['你今天也好可爱呀～','너 오늘도 참 귀엽다~','happy'],['嘿嘿，谢谢你！','헤헤, 고마워!']]],
+    panda:[[['学习完了，我们一起睡午觉吧～','공부 끝나면 같이 낮잠 자자~','sleep'],['先学习，再睡觉！','공부 먼저, 낮잠은 그다음!']],[['你要不要尝尝竹子？','대나무 한번 먹어 볼래?','happy'],['我是植物，喝水就够啦！','나는 식물이라 물이면 충분해!']]],
+    hedgehog:[[['我…我可以靠着你吗？','나… 너한테 기대도 돼?','normal'],['当然！我们是朋友！','당연하지! 우린 친구잖아!']],[['今天风好大…','오늘 바람 세다…','cry'],['别怕，我们在一起！','걱정 마, 우리 같이 있잖아!']]],
+    squirrel:[[['我在你旁边埋了橡子，别告诉别人！','네 옆에 도토리 묻었어, 비밀이야!','tease'],['哈哈，好，我保密！','하하, 알았어, 비밀!']],[['今天背了几个单词？','오늘 단어 몇 개 외웠어?','serious'],['十个！加油！','열 개! 아자!']]]
+  };
+  const petToday=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;};
+  const petSVG=k=>`<svg viewBox="0 0 100 100" aria-hidden="true">${PET_ART[k]}</svg>`;
+  function petsOf(){const g=profile.garden;if(!g.pets||typeof g.pets!=='object')g.pets={};
+    for(const k of PET_KEYS){const p=g.pets[k];if(p&&typeof p==='object'){p.owned=p.owned===true;p.name=typeof p.name==='string'&&p.name.trim()?p.name.trim().slice(0,8):PET_INFO[k].nick;p.love=Math.max(0,Math.min(100,Number(p.love)||0));p.pats=Number(p.pats)||0;p.patDay=typeof p.patDay==='string'?p.patDay:'';p.day=typeof p.day==='string'?p.day:'';p.since=Number(p.since)||Date.now();}}
+    return g.pets;}
+  const ownedPets=()=>PET_KEYS.filter(k=>petsOf()[k]?.owned);
+  const petHearts=k=>Math.min(5,1+Math.floor((petsOf()[k]?.love||0)/20));
+  const heartText=k=>'♥'.repeat(petHearts(k))+'♡'.repeat(5-petHearts(k));
+  function addLove(k,n){const p=petsOf()[k];if(!p?.owned)return;const before=petHearts(k);p.love=Math.min(100,p.love+n);save();
+    if(petHearts(k)>before)setTimeout(()=>petSay(k,['我们更亲密了！',`${p.name}와(과) 더 친해졌어! 하트 ${petHearts(k)}개 ♥`]),600);}
+  function addPetXP(n){
+    const before=profile.xp;profile.xp=Math.min(xpCap(),profile.xp+n);profile.level=Math.max(profile.level,levelFromXP(profile.xp));save();renderProfile();return profile.xp-before;
+  }
+
+  // ---- 정원 위의 펫 ----
+  const petEls={};let petTimers=[];
+  function petLayer(){const stage=$('homeHabitat');let layer=stage.querySelector('.pet-layer');if(!layer){layer=document.createElement('div');layer.className='pet-layer';stage.append(layer);}return layer;}
+  function petSay(k,[zh,ko,mood],ms=4200){
+    const el=petEls[k];if(!el||el.hidden)return;let b=el.querySelector('.pet-bubble');
+    if(!b){b=document.createElement('div');b.className='pet-bubble';el.append(b);}
+    b.innerHTML='';const z=document.createElement('b');z.lang='zh-CN';z.textContent=zh;const t=document.createElement('span');t.textContent=ko;b.append(z,t);
+    setMood(k,mood||'happy',ms);
+    // 말풍선이 정원 밖으로 잘리지 않게 펫 위치에 따라 옆으로 밀어요.
+    {const x=parseFloat(el.style.left)||40;b.style.translate=`${x<22?-20:x>58?-80:-50}% ${el.classList.contains('pet-butterfly')?'4px':'-4px'}`;}
+    b.classList.remove('show');void b.offsetWidth;b.classList.add('show');clearTimeout(b._t);b._t=setTimeout(()=>b.classList.remove('show'),ms);
+  }
+  function setMood(k,mood,ms=3000){const el=petEls[k];if(!el)return;el.dataset.mood=mood;clearTimeout(el._mood);el._mood=setTimeout(()=>{delete el.dataset.mood;},ms);}
+  function petLine(k){const pool=[...PET_LINES[k],...(petHearts(k)>=3?PET_LOVE_LINES[k]:[])];return pool[Math.floor(Math.random()*pool.length)];}
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  function renderPets(){
+    const layer=petLayer(),own=ownedPets();
+    for(const k of PET_KEYS){
+      if(!own.includes(k)){petEls[k]?.remove();delete petEls[k];continue;}
+      if(petEls[k])continue;
+      const el=document.createElement('button');el.type='button';el.className=`garden-pet pet-${k}`;el.dataset.pet=k;
+      el.innerHTML=`<span class="pet-body">${petSVG(k)}</span>`;el.setAttribute('aria-label',`${petsOf()[k].name} 쓰다듬기`);
+      el.style.left=(8+Math.random()*55)+'%';if(k==='butterfly')el.style.top=(18+Math.random()*30)+'%';
+      el.addEventListener('click',e=>{e.stopPropagation();patPet(k);});
+      layer.append(el);petEls[k]=el;if(k==='mole')el.classList.add('underground');
+    }
+  }
+  function petCanAct(){return !$('gameApp').hidden&&document.body.dataset.screen==='setup'&&!document.querySelector('dialog[open]')&&!document.hidden&&!gardenBusy();}
+  // 돌아다니기
+  // 자유롭게 돌아다니기: 개구리는 폴짝폴짝 점프, 장수풍뎅이는 뚜벅뚜벅, 나비는 살랑살랑 날거나 친구 머리 위에 앉아요.
+  function moveTo(el,x,secs,y){
+    const cur=parseFloat(el.style.left)||30;el.classList.toggle('face-left',x<cur);
+    el.style.transitionDuration=Math.max(.5,secs)+'s';el.style.left=x+'%';if(y!==undefined){if(el.classList.contains('pet-butterfly'))el.style.top=y+'%';else el.style.bottom=y+'%';}
+    el.classList.add('moving');clearTimeout(el._mv);el._mv=setTimeout(()=>el.classList.remove('moving'),Math.max(.5,secs)*1000);
+  }
+  function headSpot(){
+    const hab=$('homeHabitat').getBoundingClientRect(),m=$('mascot').getBoundingClientRect();if(!hab.width||!m.width)return null;
+    const route=routeFor(profile.look.pet,profile.routes),pg=plantGeometry(profile.look.pet,route?.id,profile.level);
+    const hx=(90*(1-pg.scale)+pg.head[0]*pg.scale)/180,hy=(197*(1-pg.scale)+pg.head[1]*pg.scale)/210;
+    return {x:(m.left+m.width*hx-hab.left)/hab.width*100,y:(m.top+m.height*hy-hab.top)/hab.height*100};
+  }
+  function wander(){
+    if(!petCanAct())return;
+    for(const k of ownedPets()){
+      const el=petEls[k];if(!el||el.classList.contains('busy')||k==='mole')continue;
+      const cur=parseFloat(el.style.left)||30;
+      if(k==='butterfly'){
+        if(el.classList.contains('perched')){if(Math.random()<.15){el.classList.remove('perched');moveTo(el,Math.max(8,Math.min(72,cur+(Math.random()*40-20))),1.8,12+Math.random()*40);}continue;}
+        if(Math.random()<.12){const h=headSpot();if(h){const elH=el.offsetHeight/$('homeHabitat').clientHeight*100;moveTo(el,h.x,1.8,Math.max(2,h.y-elH*.82));setTimeout(()=>{if(!el.classList.contains('busy')){el.classList.add('perched');if(Math.random()<.5)petSay('butterfly',['在你头上休息一下～','네 머리 위에서 잠깐 쉬어 갈게~','happy']);}},1850);continue;}}
+        moveTo(el,Math.max(6,Math.min(74,cur+(Math.random()*44-22))),1.6+Math.random(),10+Math.random()*44);continue;
+      }
+      if(Math.random()<.35)continue;
+      const to=Math.max(5,Math.min(70,cur+(Math.random()*56-28))),dist=Math.abs(to-cur),y=3+Math.random()*10;
+      if(k==='frog'){if(Math.random()<.3){el.classList.remove('bigjump');void el.offsetWidth;el.classList.add('bigjump');setTimeout(()=>el.classList.remove('bigjump'),900);if(Math.random()<.4)petSay('frog',pick([['看我跳！','내 점프 봐라~!','tease'],['呱！跳高冠军！','개굴! 높이뛰기 챔피언!','happy']]));continue;}
+        const hops=Math.max(1,Math.round(dist/12));moveTo(el,to,hops*.55,y);continue;}
+      if(k==='panda'&&Math.random()<.3){const roll=Math.random()<.5;el.classList.add('busy',roll?'rolling':'napping');if(roll){moveTo(el,to,1.4,y);}else setMood('panda','sleep',8000);setTimeout(()=>el.classList.remove('busy','rolling','napping'),roll?1500:8000);if(!roll&&Math.random()<.5)petSay('panda',['呼…呼…','쿨… 쿨…','sleep'],3000);continue;}
+      if(k==='hedgehog'&&Math.random()<.18){el.classList.add('busy','curled');setMood('hedgehog','surprised',2200);setTimeout(()=>el.classList.remove('busy','curled'),2200);continue;}
+      if(k==='squirrel'&&Math.random()<.25){el.classList.add('standing');setTimeout(()=>el.classList.remove('standing'),1600);}
+      moveTo(el,to,k==='rhino'?dist/4:k==='panda'?dist/2.5:k==='hedgehog'?dist/9:k==='squirrel'?dist/16:dist/6,y);
+    }
+  }
+  // 두더지: 땅속에서 쏙
+  function molePop(){
+    const el=petEls.mole;if(!el||!petCanAct()||!el.classList.contains('underground'))return;
+    el.style.transitionDuration='0s';el.style.left=(6+Math.random()*58)+'%';
+    el.classList.remove('underground');el.classList.add('popping','busy');
+    const p=petsOf().mole,g=profile.garden;
+    setTimeout(()=>{
+      if(p.day!==petToday()&&Math.random()<.4){p.day=petToday();const coins=3+Math.floor(Math.random()*8);g.coins=Math.min(9999999,g.coins+coins);addLove('mole',3);save();renderCare();
+        el.insertAdjacentHTML('beforeend','<span class="pet-pop">🪙</span>');setTimeout(()=>el.querySelector('.pet-pop')?.remove(),1800);
+        petSay('mole',['我挖到宝贝了。收好。',`보물을 캐냈다. 🪙 +${coins} 코인. 소중히 써라.`,'happy'],5200);forestAudio.effect('correct');}
+      else petSay('mole',Math.random()<.4?pick([['嘿。我上来看看你。','흠. 잘 지내나 보러 왔다.','serious'],['今天也在认真学习吗？','오늘도 성실하게 공부하고 있나?','serious']]):petLine('mole'));
+    },700);
+    setTimeout(()=>{el.classList.remove('popping','busy');el.classList.add('underground');},7000);
+  }
+  // 쓰다듬기
+  function patPet(k){
+    if(gardenBusy())return;const p=petsOf()[k],el=petEls[k];if(!p||!el)return;
+    if(k==='panda'&&el.classList.contains('quiz-ready')){openPandaQuiz();return;}
+    if(p.patDay!==petToday()){p.patDay=petToday();p.pats=0;}
+    el.classList.remove('patted');void el.offsetWidth;el.classList.add('patted');
+    el.insertAdjacentHTML('beforeend','<span class="pet-heart">♥</span>');setTimeout(()=>el.querySelector('.pet-heart')?.remove(),1100);
+    if(p.pats<5){p.pats++;addLove(k,1);}
+    p.patTotal=(p.patTotal||0)+1;save();forestAudio.effect('tap');
+    petSay(k,p.pats>=5&&Math.random()<.5?['今天摸了好多次，好开心！','오늘 많이 쓰다듬어 줘서 행복해!','happy']:pick(PET_PAT[k]));
+  }
+  // 나비: 하루 한 번 꽃가루 +10 양분
+  function butterflyPollen(){
+    const el=petEls.butterfly,p=petsOf().butterfly;if(!el||!petCanAct()||p.day===petToday())return;
+    p.day=petToday();el.classList.add('busy','pollen-flight');el.style.transitionDuration='1.2s';el.style.left='42%';el.style.top='22%';
+    const fx=document.createElement('div');fx.className='pollen-burst';fx.setAttribute('aria-hidden','true');
+    fx.innerHTML=Array.from({length:14},(_,i)=>`<i style="--dx:${Math.round(Math.cos(i*.45)*90)}px;--dy:${Math.round(40+Math.abs(Math.sin(i*.7))*90)}px;animation-delay:${.2+i*.06}s"></i>`).join('');
+    setTimeout(()=>{petLayer().append(fx);const got=addPetXP(10);addLove('butterfly',3);petSay('butterfly',['送你花粉～',got?`꽃가루 솔솔~ 양분 +${got} 선물이야 🌸`:'꽃가루 솔솔~ 🌸','happy'],5200);forestAudio.effect('correct');},1300);
+    setTimeout(()=>{fx.remove();el.classList.remove('busy','pollen-flight');},4200);
+  }
+  // 펫과 친구의 대화
+  function petTalk(){
+    const own=ownedPets().filter(k=>k!=='mole'||!petEls.mole?.classList.contains('underground'));if(!own.length||!petCanAct()||!bubble.hidden||document.querySelector('.pet-bubble.show'))return;
+    const k=own[Math.floor(Math.random()*own.length)],[a,b]=pick(PET_TALKS[k]);
+    petSay(k,a,3600);setTimeout(()=>{if(petCanAct())showFriendPhrase(b);},2600);
+  }
+  let petTick=0;
+  setInterval(()=>{
+    if(!ownedPets().length)return;renderPets();if(!petCanAct())return;petTick++;
+    if(petTick%2===0)wander();
+    if(petEls.mole&&petTick%45===20)molePop();
+    if(petEls.butterfly&&petTick===12)butterflyPollen();
+    if(petEls.panda&&petTick>=18&&petsOf().panda.day!==petToday()&&!petEls.panda.classList.contains('quiz-ready')){petEls.panda.classList.add('quiz-ready');petSay('panda',['熊猫来考考你！','판다가 묻는다! 나를 눌러 봐 ❓','happy'],5000);}
+    if(petEls.squirrel&&petTick>=30)squirrelGift();
+    if(petEls.hedgehog&&profile.garden.world.kind!=='wind')petEls.hedgehog.classList.remove('huddle');
+    if(petTick%55===40&&Math.random()<.7)petTalk();
+    else if(petTick%23===11&&!document.querySelector('.pet-bubble.show')){const own=ownedPets().filter(k=>k!=='mole');if(own.length&&Math.random()<.6){const k=own[Math.floor(Math.random()*own.length)];petSay(k,petLine(k));}}
+    // 개구리: 비가 오면 노래
+    if(petEls.frog){const raining=isRain(profile.garden.world.kind);petEls.frog.classList.toggle('singing',raining);}
+  },1000);
+  // 개구리 · 장수풍뎅이 능력: 날씨가 시작될 때
+  {const _ws=onWeatherStart;onWeatherStart=function(w){
+    const own=ownedPets();
+    w.rhino=false;w.hedgehog=false;
+    if(w.kind==='bug'&&own.includes('rhino')&&Math.random()<PET_CHANCE.rhino){
+      // 장수풍뎅이가 막아요: 벌레가 나타난 뒤 호통을 쳐서 쫓아내요. (무당벌레·등불은 쓰지 않아요)
+      w.parasol=w.fence=w.sprinkler=w.umbrellaUsed=w.heaterUsed=w.fanUsed=w.ladybug=false;w.rhino=true;return true;
+    }
+    const ok=_ws(w);
+    if(ok&&w.kind==='wind'&&own.includes('hedgehog')&&!w.fence&&Math.random()<PET_CHANCE.hedgehog){
+      w.hedgehog=true;addLove('hedgehog',3);save();
+      setTimeout(()=>{const el=petEls.hedgehog,h=headSpot();if(el&&h){el.classList.add('huddle');moveTo(el,Math.min(70,h.x+10),1.2,4);}petSay('hedgehog',['我…我来陪你，就不冷了。','나… 내가 꼭 붙어 있을게. 그럼 안 추울 거야.','happy'],5200);},1800);
+    }
+    if(ok&&isRain(w.kind)&&own.includes('frog')){
+      const g=profile.garden,boost=(w.kind==='heavyRain'?9:6)*HOUR;g.lastWatered=Math.min(Date.now(),g.lastWatered+boost);g.penaltySteps=0;addLove('frog',3);save();
+      setTimeout(()=>{renderCare();petSay('frog',['呱呱～下雨啦，我来唱歌！',`개굴개굴~ 비다 비! 노래하며 수분을 채웠지롱 💧`,'happy'],5200);},2500);
+    }
+    return ok;};}
+  let rhinoPending=false;
+  function rhinoRescue(){
+    const g=profile.garden,w=g.world,el=petEls.rhino;rhinoPending=false;if(w.kind!=='bug'||!w.rhino)return;
+    if(!petCanAct()||!el){setTimeout(()=>{if(!rhinoPending){rhinoPending=true;rhinoRescue();}},1500);return;}
+    el.classList.remove('moving');el.classList.add('busy','charging');moveTo(el,46,.8,6);
+    petSay('rhino',['你们这些坏虫！给我出去！','이놈들!! 여기서 나가라!','angry'],3600);forestAudio.effect('buzz');
+    setTimeout(()=>{
+      const layer=$('homeHabitat').querySelector('.world-layer'),flee=layer?.cloneNode(true);
+      w.kind=null;w.rhino=false;w.remainingMs=0;w.nextMs=worldGap();addLove('rhino',3);save();renderWorld();renderCare();
+      if(flee){flee.className='care-tool bugs-flee';flee.querySelectorAll('.world-fly').forEach((f,i)=>{f.style.setProperty('--fx',(i%2?1:-1)*(160+i*20)+'px');f.style.setProperty('--fy',(-40-i*12)+'px');f.insertAdjacentHTML('beforeend','<span class="fly-sweat">💦</span>');});$('homeHabitat').append(flee);setTimeout(()=>flee.remove(),2200);}
+      forestAudio.effect('correct');
+    },1100);
+    setTimeout(()=>{el.classList.remove('busy','charging');petSay('rhino',pick([['哼！再也别来了！','흥! 다시는 오지 마라!','angry'],['勇士出马，一个不留！','용사가 나서면 하나도 안 남지!','happy']]),4200);},3200);
+  }
+  setInterval(()=>{const w=profile.garden.world;if(w.kind==='bug'&&w.rhino&&!rhinoPending&&petEls.rhino&&petCanAct()){rhinoPending=true;setTimeout(rhinoRescue,2200);}},700);
+  // 아기 판다: 오늘의 중국어 한마디 (하루 한 번)
+  function openPandaQuiz(){
+    const pool=forestLevels().filter(l=>levelReady(l)).flatMap(l=>levelWords(l));if(pool.length<4)return;
+    const learned=pool.filter(w=>memoryOf(w)),w=pick(learned.length?learned:pool.filter(x=>x.level===Number($('levelSelect').value)).length?pool.filter(x=>x.level===Number($('levelSelect').value)):pool);
+    const meaning=x=>cleanQuizText(x.meaning),seen=new Set([meaning(w)]),opts=[w];
+    for(const c of shuffle(pool.filter(x=>x.level===w.level&&x.id!==w.id))){if(!seen.has(meaning(c))){seen.add(meaning(c));opts.push(c);}if(opts.length===3)break;}
+    $('pandaQuizArt').innerHTML=petSVG('panda');$('pandaQuizHanzi').textContent=w.hanzi;$('pandaQuizPinyin').textContent=w.pinyin||'';$('pandaQuizResult').textContent='';
+    const box=$('pandaQuizOptions');box.replaceChildren();
+    for(const o of shuffle(opts)){const b=document.createElement('button');b.type='button';b.className='secondary';b.textContent=meaning(o);
+      b.onclick=()=>{box.querySelectorAll('button').forEach(x=>x.disabled=true);b.classList.add(o===w?'is-correct':'is-wrong');[...box.children].find(x=>x.textContent===meaning(w))?.classList.add('is-correct');
+        const p=petsOf().panda,g=profile.garden;p.day=petToday();petEls.panda?.classList.remove('quiz-ready');
+        if(o===w){g.coins=Math.min(9999999,g.coins+10);addLove('panda',3);$('pandaQuizResult').textContent='정답! 🪙 +10 코인 · 판다가 기뻐해요';forestAudio.effect('correct');setTimeout(()=>petSay('panda',['答对啦！奖励你！','딩동댕! 상으로 코인 10개!','happy']),900);}
+        else{rememberAnswer(w,false);$('pandaQuizResult').textContent=`아쉬워요! ‘${w.hanzi}’의 뜻은 ‘${meaning(w)}’예요. 다음 모험에서 다시 나와요.`;setTimeout(()=>petSay('panda',['没关系，慢慢来～','괜찮아, 천천히 하자~','normal']),900);}
+        save();renderCare();setTimeout(()=>{if($('pandaQuiz').open)$('pandaQuiz').close();},2600);};
+      box.append(b);}
+    $('pandaQuiz').showModal();
+  }
+  $('pandaQuizClose').onclick=()=>$('pandaQuiz').close();
+  // 다람쥐: 하루 한 번 도토리 선물 (물통 1칸 또는 비료)
+  function squirrelGift(){
+    const el=petEls.squirrel,p=petsOf().squirrel,g=profile.garden;if(!el||!petCanAct()||p.day===petToday())return;
+    p.day=petToday();el.classList.add('busy');moveTo(el,40,.6,4);
+    const canTank=g.tankCap>g.tank,gift=canTank&&Math.random()<.5?'tank':'fert';
+    setTimeout(()=>{
+      if(gift==='tank'){g.tank++;petSay('squirrel',['我用橡子壳接了露水！','도토리 껍질에 이슬을 모아 왔어! 물통 +1 💧','happy'],5200);}
+      else{g.inventory.gentle=Math.min(999,(g.inventory.gentle||0)+1);petSay('squirrel',['我在橡子下面找到了肥料！','도토리 밑에서 햇살 비료를 찾았어! 바구니에 넣어 둘게 🌱','happy'],5200);}
+      el.insertAdjacentHTML('beforeend','<span class="pet-pop">🌰</span>');setTimeout(()=>el.querySelector('.pet-pop')?.remove(),1800);
+      addLove('squirrel',3);save();renderCare();forestAudio.effect('correct');el.classList.remove('busy');
+    },900);
+  }
+  // 함께 한 판을 마치면 친밀도 +2
+  {const _fin=finish;finish=function(){const st=state;_fin.apply(this,arguments);if(st&&st.mode==='main'&&st.kind!=='refill'&&st.answered>=5)for(const k of ownedPets())addLove(k,2);};}
+
+  // ---- 상점 › 🐾 펫 ----
+  function installPetShop(){
+    const box=document.querySelector('#gardenShop .gear-items');if(!box)return;
+    for(const k of PET_KEYS){const it=PET_INFO[k],card=document.createElement('article');card.className='shop-item pet-item';
+      card.innerHTML=`${petSVG(k)}<h3>${it.name} <small lang="zh-CN">${it.zh} ${it.py}</small></h3><p class="fertilizer-benefit">${it.ability}</p><p class="stock" id="pet-${k}Stock"></p><button type="button" class="primary" id="buy-pet-${k}"></button><button type="button" class="secondary pet-dex-open">📖 펫 도감 보기</button>`;
+      box.append(card);$('buy-pet-'+k).onclick=()=>buyPet(k);card.querySelector('.pet-dex-open').onclick=openPetDex;}
+  }
+  function buyPet(k){
+    const g=profile.garden,p=petsOf();if(gardenBusy()||p[k]?.owned||g.coins<PET_PRICE)return;
+    g.coins-=PET_PRICE;p[k]={owned:true,name:PET_INFO[k].nick,love:0,pats:0,patDay:'',day:'',since:Date.now()};save();renderCare();renderShop();renderPets();forestAudio.effect('level');
+    $('shopMessage').textContent=`${PET_INFO[k].name} ‘${PET_INFO[k].nick}’가 숲에 왔어요! 펫 도감에서 이름을 지어 줄 수 있어요. −${PET_PRICE} 코인`;
+    setTimeout(()=>petSay(k,['你好！以后请多关照！','안녕! 앞으로 잘 부탁해!'],5000),900);checkDexComplete();
+  }
+  function renderPetShop(){
+    if(!$('buy-pet-mole'))return;const g=profile.garden,p=petsOf();
+    for(const k of PET_KEYS){const own=p[k]?.owned,b=$('buy-pet-'+k);
+      $('pet-'+k+'Stock').textContent=own?`‘${p[k].name}’ ${heartText(k)}`:'아직 만나지 못했어요';
+      b.textContent=own?'보유 중 · 함께 지내요 ♥':`${PET_PRICE} 코인으로 데려오기`;b.disabled=gardenBusy()||own||g.coins<PET_PRICE;}
+  }
+  SHOP_CATS.push({id:'pet',name:'🐾 펫',keys:PET_KEYS.map(k=>'pet-'+k)});PET_KEYS.forEach(k=>SHOP_NAMES['pet-'+k]=PET_INFO[k].name);
+  {const _rs=renderSupplies;renderSupplies=function(){_rs();renderPetShop();};}
+
+  // ---- 펫 도감 ----
+  function checkDexComplete(){const g=profile.garden;if(ownedPets().length===PET_KEYS.length&&!g.dexDone){g.dexDone=true;g.coins=Math.min(9999999,g.coins+100);save();renderCare();
+    setTimeout(()=>friendSay('森林朋友都到齐了！','펫 도감 완성! 칭호 ‘숲 친구 수집가’와 보너스 100코인을 받았어! 🏅'),1500);}}
+  function openPetDex(){
+    const d=$('petDexDialog'),list=$('petDexList'),p=petsOf();list.replaceChildren();
+    for(const k of PET_KEYS){const it=PET_INFO[k],own=p[k]?.owned,card=document.createElement('section');card.className='dex-card'+(own?'':' dex-locked');
+      const days=own?Math.max(1,Math.ceil((Date.now()-p[k].since)/86400000)):0;
+      card.innerHTML=`<div class="dex-art">${petSVG(k)}</div><div class="dex-info"><h3>${own?'':'❔ '}${it.name} <small lang="zh-CN">${it.zh} ${it.py}</small></h3>${own?`<p class="dex-name"><b>‘${p[k].name}’</b> <button type="button" class="dex-rename">✏️ 이름 짓기</button></p><p class="dex-hearts" aria-label="친밀도 하트 ${petHearts(k)}개">${heartText(k)} <small>${petHearts(k)>=5?'단짝!':`다음 하트까지 ${20-p[k].love%20}`}</small></p><p class="tiny">함께한 지 ${days}일 · 쓰다듬은 횟수 ${p[k].patTotal||0}번</p>`:'<p class="tiny">상점 › 🐾 펫에서 500코인에 만날 수 있어요.</p>'}<p class="dex-ability">${it.ability}</p></div>`;
+      if(own)card.querySelector('.dex-rename').onclick=()=>{const name=(prompt(`${it.name}의 새 이름 (8자까지)`,p[k].name)||'').trim().slice(0,8);if(name){p[k].name=name;save();openPetDex();renderPetShop();petSay(k,['我喜欢这个名字！',`‘${name}’! 마음에 들어!`]);}};
+      list.append(card);}
+    const n=ownedPets().length;$('petDexCount').textContent=`${n} / ${PET_KEYS.length} 만남`+(profile.garden.dexDone?' · 🏅 숲 친구 수집가':'');
+    if(!d.open){if($('gardenShop').open)$('gardenShop').close();d.showModal();}
+  }
+  $('petDexClose').onclick=()=>$('petDexDialog').close();
+  installPetShop();
 
 
   setInterval(()=>{renderWaterCountdown();worldTick();},1000);
@@ -3329,12 +3805,14 @@
   };
   // 틀린 단어를 한 번 더 보고(한자·병음·뜻·발음) 다시 풀어요.
   function openRetryStudy(){
-    const ids=profile.garden.retry,words=data.filter(w=>ids.includes(w.id));
-    if(!words.length){loadLevels(forestLevels()).then(()=>{if(data.some(w=>ids.includes(w.id)))openRetryStudy();else{profile.garden.retry=[];save();renderCare();}});return;}
+    const ids=profile.garden.retry,words=retryItems(ids);
+    if(words.length<ids.length&&forestLevels().some(l=>!levelReady(l))){loadLevels(forestLevels()).then(()=>openRetryStudy());return true;}
+    if(words.length<ids.length){profile.garden.retry=ids.filter(id=>words.some(w=>w.id===id));save();renderCare();}
+    if(!words.length)return false;
     const list=$('retryList');list.replaceChildren();
-    for(const w of words){const row=document.createElement('div');row.className='review-item';const c=document.createElement('div');const zh=document.createElement('strong');zh.textContent=w.hanzi;zh.lang='zh-CN';const py=document.createElement('small');py.textContent=w.pinyin;const ko=document.createElement('small');ko.textContent=w.meaning;c.append(zh,py,ko);
+    for(const w of words){const row=document.createElement('div');row.className='review-item';const c=document.createElement('div');const zh=document.createElement('strong');zh.textContent=w.hanzi;zh.lang='zh-CN';const py=document.createElement('small');py.textContent=w.pinyin;const ko=document.createElement('small');ko.textContent=(w.isPhrase?'짝꿍어휘 · ':'')+w.meaning;c.append(zh,py,ko);
       const btn=document.createElement('button');btn.className='secondary';btn.type='button';btn.textContent='🔊';btn.setAttribute('aria-label',`${w.hanzi} 발음 듣기`);btn.onclick=()=>speak(w);row.append(c,btn);list.append(row);}
-    $('retryStudy').showModal();
+    $('retryStudy').showModal();return true;
   }
   $('retryGo').onclick=()=>{$('retryStudy').close();resetFriend();start([...profile.garden.retry]);};
   $('retryClose').onclick=()=>$('retryStudy').close();

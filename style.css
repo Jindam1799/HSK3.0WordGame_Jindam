@@ -1180,3 +1180,115 @@ dialog#introDialog:not([open]){display:none!important}
 .answer-hanzi .answer-py{font-size:13px;color:var(--muted,#6b7b72);font-weight:500}
 .option-pinyin{display:block;margin:0 auto 6px;padding:5px 12px;border-radius:999px;border:1px solid var(--line);background:#f2f6ee;color:var(--green,#2f6b52);font-size:12.5px;font-weight:700;cursor:pointer}
 .option-pinyin[hidden]{display:none}
+.tank-state{display:block;font-size:11px;color:#3f7aa0;font-weight:700;letter-spacing:.5px;margin-top:2px}
+/* ===== 숲 펫 ===== */
+.pet-layer{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:visible}
+.garden-pet{position:absolute;bottom:5%;width:clamp(40px,12%,64px);aspect-ratio:1;padding:0;border:0;background:none;pointer-events:auto;cursor:pointer;transition-property:left,top;transition-timing-function:ease-in-out;transform:translateX(-50%);-webkit-tap-highlight-color:transparent}
+.garden-pet .pet-body{display:block;width:100%;height:100%;transform-origin:50% 100%}
+.garden-pet svg{display:block;width:100%;height:100%;overflow:visible}
+.garden-pet.face-left .pet-body svg{transform:scaleX(-1)}
+.pet-frog.moving .pet-body{animation:pet-hop .45s ease-in-out infinite}
+.pet-rhino.moving .pet-body{animation:pet-crawl .5s ease-in-out infinite}
+.pet-frog:not(.moving) .pet-body,.pet-rhino:not(.moving) .pet-body{animation:pet-breathe 2.8s ease-in-out infinite}
+.pet-butterfly{bottom:auto;width:clamp(34px,10%,52px)}
+.pet-butterfly .pet-body{animation:pet-float 2.2s ease-in-out infinite}
+.pet-butterfly .wing-l,.pet-butterfly .wing-r{transform-box:fill-box;animation:wing-flap .35s ease-in-out infinite alternate}
+.pet-butterfly .wing-l{transform-origin:100% 50%}.pet-butterfly .wing-r{transform-origin:0% 50%}
+.pet-mole{overflow:hidden;bottom:3%}
+.pet-mole.underground{pointer-events:none}
+.pet-mole.underground .pet-body{transform:translateY(105%)}
+.pet-mole .pet-body{transition:transform .5s cubic-bezier(.3,1.5,.5,1)}
+.pet-mole.popping{overflow:visible}
+.garden-pet.patted .pet-body{animation:pet-pat .5s ease both}
+.pet-rhino.charging .pet-body{animation:pet-crawl .18s linear infinite}
+.pet-frog.singing::before{content:'♪ ♫';position:absolute;left:50%;top:-18%;font-size:14px;color:#3f7aa0;font-weight:800;animation:pet-note 1.4s ease-in-out infinite;white-space:nowrap}
+.pet-bubble{position:absolute;left:50%;bottom:100%;translate:-50% -4px;min-width:96px;max-width:170px;padding:5px 8px;border-radius:12px;background:#fffdf3;border:1.5px solid #d9dcc8;box-shadow:0 3px 8px #0002;text-align:center;opacity:0;scale:.6;transform-origin:50% 100%;transition:opacity .2s,scale .2s;pointer-events:none;z-index:6}
+.pet-bubble.show{opacity:1;scale:1}
+.pet-bubble b{display:block;font-size:11px;color:#23473b;line-height:1.3}.pet-bubble span{display:block;font-size:10.5px;color:#5d6d64;line-height:1.3;word-break:keep-all}
+.garden-pet.face-left .pet-bubble{transform:none}
+.pet-heart,.pet-pop{position:absolute;left:50%;top:0;translate:-50% 0;color:#e5534b;font-size:18px;animation:pet-heart 1.1s ease-out both;pointer-events:none}
+.pet-pop{font-size:22px;animation-duration:1.8s}
+.pollen-burst{position:absolute;left:42%;top:26%;width:0;height:0;pointer-events:none}
+.pollen-burst i{position:absolute;width:6px;height:6px;border-radius:50%;background:#ffe08a;box-shadow:0 0 6px 2px #fff3b0;opacity:0;animation:pollen-fall 2.4s ease-out both}
+@keyframes pet-hop{0%,100%{transform:translateY(0) scale(1,1)}40%{transform:translateY(-28%) scale(.95,1.05)}80%{transform:translateY(0) scale(1.08,.92)}}
+@keyframes pet-crawl{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg) translateY(-2%)}}
+@keyframes pet-breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.97)}}
+@keyframes pet-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14%)}}
+@keyframes wing-flap{from{transform:scaleX(1)}to{transform:scaleX(.45)}}
+@keyframes pet-pat{0%{transform:scale(1)}30%{transform:scale(1.12,.88)}60%{transform:scale(.95,1.06)}100%{transform:scale(1)}}
+@keyframes pet-note{0%,100%{transform:translate(-50%,0);opacity:.4}50%{transform:translate(-30%,-8px);opacity:1}}
+@keyframes pet-heart{from{opacity:1;transform:translateY(0) scale(.6)}to{opacity:0;transform:translateY(-34px) scale(1.3)}}
+@keyframes pollen-fall{0%{opacity:0;transform:translate(0,0)}20%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy))}}
+@media(prefers-reduced-motion:reduce){.garden-pet .pet-body,.pet-butterfly .wing-l,.pet-butterfly .wing-r{animation:none!important}}
+.pet-item h3 small{font-size:12px;color:var(--muted,#6b7b72);font-weight:500}
+.pet-item .pet-dex-open{margin-top:6px;width:100%}
+#gardenShop .shop-item.pet-item.shop-selected .pet-dex-open{grid-column:1/-1}
+.shop-cat-tabs button{font-size:12.5px;padding:0 4px}
+.pet-dex .dex-list{display:grid;gap:10px;margin:8px 0}
+.dex-card{display:grid;grid-template-columns:76px 1fr;gap:10px;align-items:center;padding:10px;border-radius:16px;border:1.5px solid var(--line);background:#fff}
+.dex-art svg{width:76px;height:76px}
+.dex-locked .dex-art{filter:brightness(0) opacity(.18)}
+.dex-info h3{margin:0;font-size:16px}.dex-info h3 small{font-size:12px;color:var(--muted,#6b7b72);font-weight:500}
+.dex-info p{margin:3px 0}.dex-name b{color:#23473b}
+.dex-rename{border:0;background:#eef4ea;border-radius:999px;padding:3px 8px;font-size:11.5px;font-weight:700;color:var(--green,#2f6b52);cursor:pointer}
+.dex-hearts{color:#e5534b;font-size:16px;letter-spacing:1px}.dex-hearts small{color:var(--muted,#6b7b72);font-size:11px;letter-spacing:0}
+.dex-ability{font-size:12px;color:#5d6d64;line-height:1.5;word-break:keep-all}
+.garden-pet{width:clamp(44px,13%,68px)}.pet-butterfly{width:clamp(36px,11%,54px)}
+.pet-butterfly .pet-bubble{bottom:auto;top:100%;translate:-50% 4px;transform-origin:50% 0}
+#homeHabitat:not([data-weather="clear"]) .garden-pet:not(.pet-butterfly){bottom:17%}
+.pet-bubble{min-width:130px;max-width:190px}
+/* 펫 표정 */
+.ex{display:none}.ex-base{display:inline}
+.garden-pet[data-mood] .ex-base{display:none}
+.garden-pet[data-mood="normal"] .ex-normal,.garden-pet[data-mood="serious"] .ex-serious,.garden-pet[data-mood="happy"] .ex-happy,.garden-pet[data-mood="cry"] .ex-cry,.garden-pet[data-mood="tease"] .ex-tease,.garden-pet[data-mood="angry"] .ex-angry,.garden-pet[data-mood="surprised"] .ex-surprised{display:inline}
+.ex-cry .tear{animation:pet-tear 1s ease-in infinite;transform-box:fill-box}
+@keyframes pet-tear{0%{transform:translateY(0);opacity:1}100%{transform:translateY(160%);opacity:0}}
+.garden-pet[data-mood="angry"] .pet-body{animation:pet-angry .18s linear 6}
+.garden-pet[data-mood="tease"] .pet-body{animation:pet-tease .5s ease-in-out 3}
+.garden-pet[data-mood="cry"] .pet-body{animation:pet-sob .6s ease-in-out 4}
+@keyframes pet-angry{0%,100%{transform:translateX(0)}25%{transform:translateX(-4%)}75%{transform:translateX(4%)}}
+@keyframes pet-tease{0%,100%{transform:rotate(0)}30%{transform:rotate(-8deg)}70%{transform:rotate(8deg)}}
+@keyframes pet-sob{0%,100%{transform:scale(1,1)}50%{transform:scale(1.04,.94)}}
+/* 개구리 큰 점프 · 나비 앉기 */
+.pet-frog.bigjump .pet-body{animation:pet-bigjump .9s cubic-bezier(.3,.7,.4,1) both!important}
+@keyframes pet-bigjump{0%{transform:translateY(0) scale(1.1,.85)}15%{transform:translateY(0) scale(.9,1.12)}50%{transform:translateY(-120%) scale(.95,1.05) rotate(-8deg)}85%{transform:translateY(0) scale(1.12,.86)}100%{transform:translateY(0) scale(1)}}
+.pet-frog.moving .pet-body{animation:pet-hop .55s ease-in-out infinite}
+@keyframes pet-hop{0%,100%{transform:translateY(0) scale(1.06,.92)}45%{transform:translateY(-45%) scale(.94,1.08)}}
+.pet-butterfly{transition-timing-function:cubic-bezier(.45,.05,.4,1)}
+.pet-butterfly.perched .pet-body{animation:none}
+.pet-butterfly.perched .wing-l,.pet-butterfly.perched .wing-r{animation-duration:1.2s}
+.pet-butterfly.moving .pet-body{animation:pet-flutter .7s ease-in-out infinite}
+@keyframes pet-flutter{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-22%) rotate(6deg)}}
+#homeHabitat:not([data-weather="clear"]) .garden-pet:not(.pet-butterfly){bottom:17%!important}
+/* 장수풍뎅이 호통 → 벌레들이 겁먹고 도망 */
+.bugs-flee{position:absolute;inset:0;pointer-events:none;z-index:9}
+.bugs-flee .world-fly{animation:bug-flee 1.6s cubic-bezier(.5,0,.9,.6) forwards!important}
+.bugs-flee .world-fly svg{animation:bug-shiver .08s linear infinite}
+@keyframes bug-flee{0%{transform:translate(0,0)}15%{transform:translate(calc(var(--fx) * -.06),-6px)}100%{transform:translate(var(--fx),var(--fy));opacity:0}}
+@keyframes bug-shiver{0%,100%{transform:translateX(-1px)}50%{transform:translateX(1px)}}
+.fly-sweat{position:absolute;right:-6px;top:-8px;font-size:11px}
+/* 새 펫: 판다 · 고슴도치 · 다람쥐 */
+.garden-pet[data-mood="sleep"] .ex-sleep{display:inline}
+.garden-pet[data-mood="sleep"] .ex-base{display:none}
+.pet-panda.napping::before{content:'Z z';position:absolute;right:0;top:-6%;font-size:13px;font-weight:800;color:#6b7b72;animation:pet-note 1.6s ease-in-out infinite}
+.pet-panda.rolling .pet-body{animation:pet-roll 1.4s ease-in-out both!important}
+@keyframes pet-roll{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.pet-panda:not(.moving):not(.rolling) .pet-body{animation:pet-breathe 3.4s ease-in-out infinite}
+.pet-panda.quiz-ready::after{content:'❓';position:absolute;left:50%;top:-22%;translate:-50% 0;font-size:18px;animation:pet-float 1.4s ease-in-out infinite}
+.pet-hedgehog.moving .pet-body{animation:pet-scurry .22s linear infinite}
+.pet-hedgehog.curled .pet-body{animation:pet-curl 2.2s ease-in-out both!important}
+@keyframes pet-curl{0%{transform:none}15%,85%{transform:scale(.8,.72) rotate(-12deg)}100%{transform:none}}
+.pet-hedgehog.huddle .pet-body{animation:pet-breathe 1.6s ease-in-out infinite}
+.pet-hedgehog.huddle::after{content:'♨';position:absolute;left:50%;top:-14%;translate:-50% 0;color:#e9824a;font-size:14px;animation:pet-note 1.6s ease-in-out infinite}
+.pet-squirrel.moving .pet-body{animation:pet-scurry .18s linear infinite}
+.pet-squirrel .tail{transform-box:fill-box;transform-origin:10% 100%;animation:tail-flick 1.8s ease-in-out infinite}
+.pet-squirrel.standing .pet-body{animation:pet-stand 1.6s ease-in-out both!important}
+@keyframes pet-scurry{0%,100%{transform:translateY(0)}50%{transform:translateY(-7%)}}
+@keyframes tail-flick{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
+@keyframes pet-stand{0%,100%{transform:none}30%,70%{transform:scale(.95,1.1) translateY(-6%)}}
+.panda-quiz .pq-head{display:flex;align-items:center;gap:12px;margin:6px 0 10px}
+.pq-art svg{width:84px;height:84px}
+.pq-ask{margin:0;font-size:14px;line-height:1.5}.pq-ask strong{display:block;font-size:34px;color:#23473b;line-height:1.2}.pq-ask small{display:block;color:#6b7b72;font-size:13px}
+.pq-options{display:grid;gap:8px}.pq-options button{min-height:46px;font-size:15px}
+.pq-options .is-correct{background:#e3f3df;border-color:#4f9a5f;color:#23473b}.pq-options .is-wrong{background:#fde6e3;border-color:#e5534b}
+.pq-result{min-height:20px;font-size:13px;font-weight:700;color:#2f6b52;margin:8px 0 0}
