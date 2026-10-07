@@ -1981,20 +1981,25 @@
     $('questionInstruction').textContent=bonus?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
     $('questionText').replaceChildren();
     if(state.directionNow==='zh-ko')$('questionText').append(pinyinToggle(e.hanzi,e.pinyin,'promptPinyin'));else $('questionText').textContent=e.meaning;
-    $('quizHint').textContent=state.easy?'병음이 함께 보여요 · 보기 선택 또는 키보드 1–4':state.directionNow==='ko-zh'?'한자를 누르면 병음 · 선택 버튼 또는 키보드 1–4로 답하기':'문제의 한자를 누르면 병음 · 보기 선택 또는 키보드 1–4';
+    $('quizHint').textContent=state.easy?'병음이 함께 보여요 · 보기를 누르거나 키보드 1–4':state.directionNow==='ko-zh'?'보기를 누르면 바로 답해요 · 병음은 ‘보기 병음 보기’로 열어요':'문제의 한자를 누르면 병음 · 보기를 누르거나 키보드 1–4';
     $('questionText').classList.toggle('korean',state.directionNow==='ko-zh');
     $('questionText').lang=state.directionNow==='zh-ko'?'zh-CN':'ko';
     $('answers').replaceChildren();
+    // 보기는 모두 같은 모양의 버튼이에요. 어느 방향 문제든 보기를 누르면 바로 답해요.
+    // 뜻→한자 문제: 쉬운 모드는 병음이 늘 보이고, 어려운 모드는 '보기 병음 보기' 버튼으로 한꺼번에 열어요.
+    const hanziOptions=state.directionNow==='ko-zh';
     state.options.forEach((option,i)=>{
-      if(state.directionNow==='ko-zh'){
-        const card=document.createElement('div');card.className='answer answer-reading';card.dataset.option=option.id;card.append(pinyinToggle(label(option),option.pinyin,'choicePinyin'+i));
-        const choose=document.createElement('button');choose.type='button';choose.className='answer-select';choose.textContent=`${i+1} · 선택`;choose.setAttribute('aria-label',`${i+1}번 ${label(option)} 선택`);choose.onclick=()=>answer(option.id);card.append(choose);$('answers').append(card);return;
-      }
-      const button=document.createElement('button');button.type='button';button.className='answer';button.dataset.option=option.id;
+      const button=document.createElement('button');button.type='button';button.className='answer'+(hanziOptions?' answer-hanzi':'');button.dataset.option=option.id;
       const num=document.createElement('span');num.className='number';num.textContent=i+1;num.setAttribute('aria-hidden','true');
-      const text=document.createElement('span');text.textContent=label(option);text.lang=state.directionNow==='ko-zh'?'zh-CN':'ko';
-      button.append(num,text);button.addEventListener('click',()=>answer(option.id));$('answers').append(button);
+      const text=document.createElement('span');text.className='answer-text';text.textContent=label(option);text.lang=hanziOptions?'zh-CN':'ko';
+      button.append(num,text);
+      if(hanziOptions){const py=document.createElement('span');py.className='answer-py';py.lang='zh-Latn';py.textContent=option.pinyin||'';py.hidden=!state.easy;text.append(py);}
+      button.addEventListener('click',()=>answer(option.id));$('answers').append(button);
     });
+    let pyBtn=$('optionPinyin');
+    if(!pyBtn){pyBtn=document.createElement('button');pyBtn.type='button';pyBtn.id='optionPinyin';pyBtn.className='option-pinyin';$('answers').before(pyBtn);
+      pyBtn.onclick=()=>{const show=pyBtn.getAttribute('aria-pressed')!=='true';pyBtn.setAttribute('aria-pressed',String(show));pyBtn.textContent=show?'병음 숨기기':'👀 보기 병음 보기';$('answers').querySelectorAll('.answer-py').forEach(el=>el.hidden=!show);};}
+    pyBtn.hidden=!(hanziOptions&&!state.easy);pyBtn.setAttribute('aria-pressed','false');pyBtn.textContent='👀 보기 병음 보기';pyBtn.disabled=false;
     $('timerBar').hidden=state.mode==='practice';$('timerText').classList.remove('urgent');
     if(state.mode==='practice'){$('timerText').textContent='시간제한 없음';}
     else {
@@ -2020,7 +2025,7 @@
     const bonus=state.phase==='bonus', correct=id===state.entry.id;
     const chosen=id&&!correct?state.options.find(o=>o.id===id):null;
     state.phase='feedback';clearTimer();
-    $('answers').querySelectorAll('button').forEach(b=>b.disabled=true);
+    $('answers').querySelectorAll('button').forEach(b=>b.disabled=true);if($('optionPinyin'))$('optionPinyin').disabled=true;$('answers').querySelectorAll('.answer-py').forEach(el=>el.hidden=false);
     // Show the result on the quiz itself first: my pick in red, the right answer in green.
     $('answers').querySelectorAll('[data-option]').forEach(el=>{
       el.classList.toggle('is-correct',el.dataset.option===state.entry.id);
