@@ -2107,8 +2107,9 @@
     if(profile.level>previousLevel||streakBonus)forestAudio.effect('level',.32);
     // Let the colours on the quiz register before the answer card covers them.
     const current=state;clearTimeout(revealTimer);
-    revealTimer=setTimeout(()=>{if(state!==current||state.phase!=='feedback'||$('feedback').open)return;$('feedback').showModal();$('continueBtn').focus();},correct?450:950);
-    // Pronunciation is strictly manual: use the listen button, including after correct answers.
+    revealTimer=setTimeout(()=>{if(state!==current||state.phase!=='feedback'||$('feedback').open)return;$('feedback').showModal();$('continueBtn').focus();
+      // 맞혀도 틀려도 정답 카드가 뜨는 순간 그 단어 발음을 자동으로 들려줘요. (🔊 버튼으로 다시 듣기)
+      speak(current.entry);},correct?450:950);
   }
   function advance(skip=false) {
     if(!state||state.phase!=='feedback')return;
