@@ -93,24 +93,31 @@
   const lockedCount=level=>lockedSet(level)?.size||0;
   const levelWords = level => data.filter(w=>w.level===level&&!isLockedWord(w));
   // 단어 구간: 단어장 번호(sourceNumber) 기준 25개씩. 급수마다 고른 구간을 기억해요.
-  const SECTION_SIZE=25,sectionKey=KEY+'-section-v1';
+  // 단어 구간: 단어장 번호(sourceNumber) 기준 25개씩 또는 50개씩. 급수마다 고른 구간을 기억해요. 값 형식 '시작-크기' (예: '26-25').
+  const SECTION_SIZES=[25,50],sectionKey=KEY+'-section-v2';
   let sectionPrefs={};try{const v=JSON.parse(localStorage.getItem(sectionKey)||'{}');if(v&&typeof v==='object')sectionPrefs=v;}catch{}
-  const sectionOf=level=>{const v=sectionPrefs[level];return Number.isInteger(v)&&v>0?v:'all';};
+  const parseSection=v=>{const m=/^(\d+)-(25|50)$/.exec(String(v||''));return m?{start:Number(m[1]),size:Number(m[2])}:'all';};
+  const sectionOf=level=>parseSection(sectionPrefs[level]);
   const levelMax=level=>Math.max(0,...data.filter(w=>w.level===level).map(w=>Number(w.sourceNumber)||0));
-  function sectionWords(level,start=sectionOf(level)){
-    const pool=levelWords(level);if(start==='all')return pool;
-    return pool.filter(w=>{const n=Number(w.sourceNumber);return n>=start&&n<start+SECTION_SIZE;});
+  function sectionWords(level,sec=sectionOf(level)){
+    const pool=levelWords(level);if(sec==='all')return pool;
+    return pool.filter(w=>{const n=Number(w.sourceNumber);return n>=sec.start&&n<sec.start+sec.size;});
   }
-  const sectionLabel=(level,start=sectionOf(level))=>start==='all'?'전체 구간':`${start}~${Math.min(start+SECTION_SIZE-1,levelMax(level))}번`;
+  const sectionLabel=(level,sec=sectionOf(level))=>sec==='all'?'전체 구간':`${sec.start}~${Math.min(sec.start+sec.size-1,levelMax(level))}번`;
   function populateSections(level){
     const sel=$('sectionSelect');if(!sel)return;sel.replaceChildren();
     const all=document.createElement('option');all.value='all';all.textContent='전체 구간';sel.append(all);
     const max=levelReady(level)?levelMax(level):0;
-    for(let start=1;start<=max;start+=SECTION_SIZE){
-      const o=document.createElement('option'),n=sectionWords(level,start).length,end=Math.min(start+SECTION_SIZE-1,max);
-      o.value=String(start);o.textContent=`${start}~${end}번`+(n<end-start+1?` · ${n}단어 (🔒${end-start+1-n})`:'');o.disabled=n<4;sel.append(o);
+    for(const size of SECTION_SIZES){
+      if(!max)break;const group=document.createElement('optgroup');group.label=`${size}개씩`;
+      for(let start=1;start<=max;start+=size){
+        const o=document.createElement('option'),n=sectionWords(level,{start,size}).length,end=Math.min(start+size-1,max);
+        o.value=`${start}-${size}`;o.textContent=`${start}~${end}번`+(n<end-start+1?` · ${n}단어 (🔒${end-start+1-n})`:'');o.disabled=n<4;group.append(o);
+      }
+      sel.append(group);
     }
-    const cur=sectionOf(level);sel.value=cur==='all'||!max||cur>max?'all':String(cur);
+    const cur=sectionOf(level),v=cur==='all'?'all':`${cur.start}-${cur.size}`;
+    sel.value=[...sel.options].some(o=>o.value===v&&!o.disabled)?v:'all';
   }
   function loadLevel(level){
     level=Number(level);
@@ -1971,7 +1978,7 @@
     }else if(kind==='refill'){
       queue=shuffle(retryItems(reviewIds));
     }else{
-      const size=roundChoice==='20'?20:10;
+      const size=['20','25','50'].includes(roundChoice)?Number(roundChoice):10;
       queue=shuffle(dueWords(forestLevels()).slice(0,size));reviews=queue.length;
     }
     queue=queue.filter(w=>levelWords(w.level).length>=4);
@@ -3955,7 +3962,7 @@
     $('copyLink').onclick=async()=>{const url=location.href;let ok=false;try{await navigator.clipboard.writeText(url);ok=true;}catch{const t=document.createElement('textarea');t.value=url;document.body.append(t);t.select();try{ok=document.execCommand('copy');}catch{}t.remove();}$('copyLink').textContent=ok?'복사했어요! 크롬 주소창에 붙여 넣어 주세요':'주소창 링크를 길게 눌러 복사해 주세요';};
   }
   $('levelSelect').onchange=updateCount;
-  $('sectionSelect').onchange=()=>{const level=Number($('levelSelect').value),v=$('sectionSelect').value;if(v==='all')delete sectionPrefs[level];else sectionPrefs[level]=Number(v);try{localStorage.setItem(sectionKey,JSON.stringify(sectionPrefs));}catch{}updateCount();};
+  $('sectionSelect').onchange=()=>{const level=Number($('levelSelect').value),v=$('sectionSelect').value;if(v==='all')delete sectionPrefs[level];else sectionPrefs[level]=v;try{localStorage.setItem(sectionKey,JSON.stringify(sectionPrefs));}catch{}updateCount();};
   populateGrades();
   updateCount();renderProfile();refreshGarden();save();populateVoices();syncDifficulty();
   loadLevels(forestLevels()).then(()=>renderCare());
