@@ -86,6 +86,26 @@
   const isLockedWord=w=>Boolean(lockedSet(w.level)?.has(w.hanzi));
   const lockedCount=level=>lockedSet(level)?.size||0;
   const levelWords = level => data.filter(w=>w.level===level&&!isLockedWord(w));
+  // 단어 구간: 단어장 번호(sourceNumber) 기준 25개씩. 급수마다 고른 구간을 기억해요.
+  const SECTION_SIZE=25,sectionKey=KEY+'-section-v1';
+  let sectionPrefs={};try{const v=JSON.parse(localStorage.getItem(sectionKey)||'{}');if(v&&typeof v==='object')sectionPrefs=v;}catch{}
+  const sectionOf=level=>{const v=sectionPrefs[level];return Number.isInteger(v)&&v>0?v:'all';};
+  const levelMax=level=>Math.max(0,...data.filter(w=>w.level===level).map(w=>Number(w.sourceNumber)||0));
+  function sectionWords(level,start=sectionOf(level)){
+    const pool=levelWords(level);if(start==='all')return pool;
+    return pool.filter(w=>{const n=Number(w.sourceNumber);return n>=start&&n<start+SECTION_SIZE;});
+  }
+  const sectionLabel=(level,start=sectionOf(level))=>start==='all'?'전체 구간':`${start}~${Math.min(start+SECTION_SIZE-1,levelMax(level))}번`;
+  function populateSections(level){
+    const sel=$('sectionSelect');if(!sel)return;sel.replaceChildren();
+    const all=document.createElement('option');all.value='all';all.textContent='전체 구간';sel.append(all);
+    const max=levelReady(level)?levelMax(level):0;
+    for(let start=1;start<=max;start+=SECTION_SIZE){
+      const o=document.createElement('option'),n=sectionWords(level,start).length,end=Math.min(start+SECTION_SIZE-1,max);
+      o.value=String(start);o.textContent=`${start}~${end}번`+(n<end-start+1?` · ${n}단어 (🔒${end-start+1-n})`:'');o.disabled=n<4;sel.append(o);
+    }
+    const cur=sectionOf(level);sel.value=cur==='all'||!max||cur>max?'all':String(cur);
+  }
   function loadLevel(level){
     level=Number(level);
     if(!DATA_LEVELS.includes(level)){levelState[level]='failed';return Promise.resolve(false);}
@@ -1936,8 +1956,8 @@
     const roundChoice=$('roundSize').value;
     let queue=[],reviews=0;
     if(kind==='normal'){
-      const pool=levelWords(level);if(pool.length<4)return;
-      const size=roundChoice==='all'?pool.length:Number(roundChoice);
+      const pool=sectionWords(level);if(pool.length<4)return;
+      const size=roundChoice==='all'?pool.length:Math.min(pool.length,Number(roundChoice));
       ({queue,reviews}=buildQueue(pool,size));
     }else if(kind==='refill'){
       queue=shuffle(retryItems(reviewIds));
@@ -2057,6 +2077,8 @@
     else{state.answered++;if(correct)state.correct++;if(!state.word.isPhrase){recordStudy(state.word);rememberAnswer(state.word,correct);}}
     // 짝꿍어휘(보너스·복습)는 phrase로 기록해 다음 복습에 짝꿍어휘 그대로 다시 나와요.
     if(!correct) state.mistakes.set(state.entry.id,{...state.entry,parent:state.word.isPhrase?state.word.parent:state.word.id,bonus,phrase:bonus||!!state.word.isPhrase});
+    // 틀린 즉시 복습 목록에 저장해요. 중간에 창을 닫거나 새로고침해도 틀린 문제는 다시 풀어야 해요.
+    if(!correct&&state.kind!=='refill'&&state.mode==='main'){const g=profile.garden,rid=bonus||state.word.isPhrase?state.entry.id:state.word.id;if(!g.retry.includes(rid)){g.retry=[...g.retry,rid].slice(-80);save();}}
     const previousLevel=profile.level;
     const reward=gardenReward(correct,bonus);
     // Streak: every RULES.streakEvery basic answers in a row earns a small bonus. Mistakes cost nothing.
@@ -2541,10 +2563,11 @@
       $('wordCount').textContent='단어를 불러오는 중…';$('startBtn').disabled=true;
       loadLevel(level).then(()=>{if(Number($('levelSelect').value)===level)updateCount();});return;
     }
-    const pool=levelWords(level),count=pool.length;
+    populateSections(level);
+    const pool=sectionWords(level),count=pool.length,inSection=sectionOf(level)!=='all';
     if(levelState[level]==='failed'){$('wordCount').textContent='단어 파일을 불러오지 못했어요';$('startBtn').disabled=true;$('ruleBox').textContent=`data/hsk${level}.js 파일을 불러오지 못했어요. 인터넷 연결과 파일 위치를 확인해 주세요.`;return;}
     const due=pool.filter(w=>isDue(memoryOf(w))).length,fresh=pool.filter(w=>!memoryOf(w)).length;
-    $('wordCount').textContent=count?`${count}개의 단어`+(due?` · 복습 ${due}`:'')+(fresh<count?` · 새 단어 ${fresh}`:'')+(lockedCount(level)?` · 🔒 ${lockedCount(level)}개 수강생 전용`:''):'어휘 준비 중';$('startBtn').disabled=count<4;
+    $('wordCount').textContent=count?(inSection?`${sectionLabel(level)} · `:'')+`${count}개의 단어`+(due?` · 복습 ${due}`:'')+(fresh<count?` · 새 단어 ${fresh}`:'')+(!inSection&&lockedCount(level)?` · 🔒 ${lockedCount(level)}개 수강생 전용`:''):'어휘 준비 중';$('startBtn').disabled=count<4;
     if(lockedCount(level)&&lockNoticeShown!==level){lockNoticeShown=level;friendSay(`${level}级有些单词被锁住了！`,`HSK ${level}급 단어 30%는 🔒 수강생 전용이야! 진담중국어 수강생판에서는 모든 단어를 만날 수 있어.`);}
     const note=$('startBtn').nextElementSibling;
     if(document.querySelector('input[name="mode"]:checked').value==='main')note.textContent=due?`복습할 단어가 먼저 섞여 나와요 (최대 절반) · 나머지는 새 단어예요.`:'기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.';
@@ -3837,9 +3860,9 @@
     if(!$('quickStart'))return;
     const practice=document.querySelector('input[name="mode"]:checked')?.value==='practice';
     const level=$('levelSelect').value,size=$('roundSize').value;
-    const due=levelReady(Number(level))?levelWords(Number(level)).filter(w=>isDue(memoryOf(w))).length:0;
+    const due=levelReady(Number(level))?sectionWords(Number(level)).filter(w=>isDue(memoryOf(w))).length:0;
     $('quickStartLabel').textContent='오늘의 모험 떠나기';
-    $('quickStartInfo').textContent=(difficulty()==='easy'?'🌱 쉬운 모드':'🔥 어려운 모드')+` · HSK ${level}급 · ${size==='all'?'전체':size+'문제'}`;
+    $('quickStartInfo').textContent=(difficulty()==='easy'?'🌱 쉬운 모드':'🔥 어려운 모드')+` · HSK ${level}급`+(sectionOf(Number(level))!=='all'?` ${sectionLabel(Number(level))}`:'')+` · ${size==='all'?'전체':size+'문제'}`;
     $('quickStart').disabled=$('startBtn').disabled&&levelState[Number(level)]!=='loading';
   }
   $('quickStart').onclick=()=>{
@@ -3895,6 +3918,7 @@
     $('copyLink').onclick=async()=>{const url=location.href;let ok=false;try{await navigator.clipboard.writeText(url);ok=true;}catch{const t=document.createElement('textarea');t.value=url;document.body.append(t);t.select();try{ok=document.execCommand('copy');}catch{}t.remove();}$('copyLink').textContent=ok?'복사했어요! 크롬 주소창에 붙여 넣어 주세요':'주소창 링크를 길게 눌러 복사해 주세요';};
   }
   $('levelSelect').onchange=updateCount;
+  $('sectionSelect').onchange=()=>{const level=Number($('levelSelect').value),v=$('sectionSelect').value;if(v==='all')delete sectionPrefs[level];else sectionPrefs[level]=Number(v);try{localStorage.setItem(sectionKey,JSON.stringify(sectionPrefs));}catch{}updateCount();};
   populateGrades();
   updateCount();renderProfile();refreshGarden();save();populateVoices();syncDifficulty();
   loadLevels(forestLevels()).then(()=>renderCare());

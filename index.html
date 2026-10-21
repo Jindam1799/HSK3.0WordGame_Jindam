@@ -57,8 +57,8 @@
     setTimeout(function(){if(!document.hidden)window.__chromeMissing=true;},2500);
   })();
   </script>
-  <link rel="stylesheet" href="style.css?v=update-20261017-1">
-  <script src="scripts.js?v=update-20261017-1" defer></script>
+  <link rel="stylesheet" href="style.css?v=update-20261021-1">
+  <script src="scripts.js?v=update-20261021-1" defer></script>
 </head>
 <body>
 <section id="welcomeScreen" class="welcome-screen" aria-labelledby="welcomeTitle">
@@ -105,7 +105,7 @@
           <div class="row"><p class="eyebrow">TODAY’S ADVENTURE</p><span class="soft-tag" id="wordCount"></span></div>
           <h2>어떤 모험을 떠날까요?</h2><p class="subtle">먼저 익히고, 자신 있다면 도전해 보세요.</p>
           <fieldset class="mode-selector"><legend class="sr-only">게임 모드</legend><input type="radio" name="mode" value="main" checked hidden><label class="mode"><input type="radio" name="difficulty" value="easy"><span class="mode-icon">🌱</span><strong>쉬운 모드</strong><small>두 방향이 섞여 나와요. 병음이 늘 보이고, 12초 안에 답해요.</small><span class="mode-pill">12초 · 정답 +3 양분 · 코인 1</span></label><label class="mode"><input type="radio" name="difficulty" value="hard" checked><span class="mode-icon">🔥</span><strong>어려운 모드</strong><small>두 방향이 섞여 나와요. 병음은 눌러야 보이고, 7초 안에 답해요.</small><span class="mode-pill">7초 · 정답 +5 양분 · 코인 2</span></label></fieldset>
-          <div class="settings-grid"><label>학습 급수<select id="levelSelect"><option value="1">HSK 1급</option><option value="2">HSK 2급</option><option value="3">HSK 3급</option></select></label><label>한 번에 풀 문제<select id="roundSize"><option value="10">10문제 · 가볍게</option><option value="20">20문제 · 집중해서 (전체 정답 보너스 UP)</option><option value="all">전체 단어</option></select></label><select id="timeSetting" hidden aria-hidden="true"><option value="level">모드에 맞게</option></select></div>
+          <div class="settings-grid"><label>학습 급수<select id="levelSelect"><option value="1">HSK 1급</option><option value="2">HSK 2급</option><option value="3">HSK 3급</option></select></label><label>한 번에 풀 문제<select id="roundSize"><option value="10">10문제 · 가볍게</option><option value="20">20문제 · 집중해서 (전체 정답 보너스 UP)</option><option value="all">전체 단어</option></select></label><label class="section-pick">단어 구간 <small class="section-note">단어장 번호 기준 · 25개씩</small><select id="sectionSelect"><option value="all">전체 구간</option></select></label><select id="timeSetting" hidden aria-hidden="true"><option value="level">모드에 맞게</option></select></div>
           <div class="rule-box" id="ruleBox">기본 정답 <b>+5 양분</b> · 틀려도 양분은 그대로<br><b>5개 연속 정답</b>마다 <b>+3 양분</b> · 짝꿍어휘 보너스 <b>+3 양분</b></div>
           <select id="direction" hidden aria-hidden="true"><option value="mixed">두 방향 섞어서</option><option value="zh-ko">한자 → 한국어 뜻</option></select><button class="primary start" id="startBtn">모험 시작하기 <span>→</span></button>
           <p class="tiny center">기본 문제를 맞히면 짝꿍어휘 보너스에 도전할 수 있어요.</p>

@@ -1292,3 +1292,5 @@ dialog#introDialog:not([open]){display:none!important}
 .pq-options{display:grid;gap:8px}.pq-options button{min-height:46px;font-size:15px}
 .pq-options .is-correct{background:#e3f3df;border-color:#4f9a5f;color:#23473b}.pq-options .is-wrong{background:#fde6e3;border-color:#e5534b}
 .pq-result{min-height:20px;font-size:13px;font-weight:700;color:#2f6b52;margin:8px 0 0}
+
+.settings-grid>.section-pick{grid-column:1/-1}.section-note{font-weight:400;color:var(--muted);font-size:10px}
