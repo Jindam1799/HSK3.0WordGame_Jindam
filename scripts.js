@@ -2649,7 +2649,7 @@
       '코인으로 상점에서 비료와 돌봄 도구를 사고, 바구니에서 사용해요. 햇살·든든·반짝 비료는 양분을, 알뜰·황금 비료는 코인을 더 모아 줘요.',
       '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 양분이 조금 줄어요.',
       '돌봄 도구에는 내구도 막대가 있어요. 날씨를 한 번 막을 때마다 한 칸씩 줄고, 다 닳으면 친구가 알려 줘요. 날씨가 끝나면 우산·난로는 알아서 정리돼요. 고급 도구는 날씨가 오면 알아서 작동해요. 도구는 한 번만 사고, 다 닳으면 상점에서 싸게 수리해요(무당벌레 친구는 다시 사요). 도라지는 감기를 낫게 하고 한동안 막아 주고, 산삼은 다음 한 판의 정답 양분을 2배로 해 줘요.',
-      '🐾 상점에서 펫(두더지·개구리·장수풍뎅이·나비·아기 판다·고슴도치·다람쥐)을 500코인에 데려와요. 펫마다 능력이 있고, 쓰다듬고 함께 공부하면 친밀도 하트가 쌓여요. 펫 도감에서 이름을 지어 주고, 모든 펫을 만나면 색깔·무늬도 꾸밀 수 있어요.',
+      '🐾 상점에서 펫(두더지·개구리·장수풍뎅이·나비·아기 판다·고슴도치·다람쥐)을 500코인에 데려와요. 펫마다 능력이 있고, 쓰다듬고 함께 공부하면 친밀도 하트가 쌓여요. 펫 도감에서 이름을 지어 주고, 모든 펫을 만나면 색깔도 바꿀 수 있어요.',
       '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.'],
     ['믿고 공부할 수 있는 HSK 단어예요 🌱',
       '게임 속 HSK 단어와 급수는 중국 교육부 산하 중외언어교류협력센터(中外语言交流合作中心)의 《HSK考试大纲(HSK 시험대강)》 어휘 목록을 기준으로 했어요.',
@@ -3603,24 +3603,15 @@
     squirrel:[[['我在你旁边埋了橡子，别告诉别人！','네 옆에 도토리 묻었어, 비밀이야!','tease'],['哈哈，好，我保密！','하하, 알았어, 비밀!']],[['今天背了几个单词？','오늘 단어 몇 개 외웠어?','serious'],['十个！加油！','열 개! 아자!']]]
   };
   const petToday=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;};
-  // 펫 꾸미기(도감 완성 보상): 색깔은 svg 전체에 필터, 무늬는 펫 모양 안에만 겹쳐 그려요.
+  // 펫 꾸미기(도감 완성 보상): 색깔만 바꿀 수 있어요. svg 전체에 필터를 씌워요.
   const PET_COLORS=[['original','원래 색',''],['berry','딸기','sepia(.55) saturate(2.4) hue-rotate(295deg)'],['sky','하늘','sepia(.55) saturate(2.2) hue-rotate(160deg)'],['mint','민트','sepia(.55) saturate(2) hue-rotate(95deg)'],['lavender','라벤더','sepia(.5) saturate(1.9) hue-rotate(225deg)'],['gold','황금','sepia(.85) saturate(2.6) hue-rotate(-12deg) brightness(1.05)'],['snow','눈꽃','grayscale(1) brightness(1.22) contrast(.92)']];
-  const PET_PATTERNS=[['none','없음',''],
-    ['dots','물방울','<circle cx="5" cy="5" r="2.6" fill="#ffffff"/><circle cx="15" cy="15" r="2.6" fill="#ffffff"/>'],
-    ['stripes','줄무늬','<path d="M-5 5L5 -5M0 20L20 0M15 25L25 15" stroke="#3a3a3a" stroke-width="3.2"/>'],
-    ['stars','별','<path d="M10 3l2 4.4 4.8.5-3.6 3.2 1 4.7L10 13.4 5.8 15.8l1-4.7L3.2 7.9 8 7.4Z" fill="#ffe27a" stroke="#c9a23a" stroke-width=".6"/>'],
-    ['hearts','하트','<path d="M10 15.5C4 11 3.5 7.8 5.6 6.2c1.8-1.3 3.6-.3 4.4 1.2.8-1.5 2.6-2.5 4.4-1.2 2.1 1.6 1.6 4.8-4.4 9.3Z" fill="#ff8fb1"/>']];
-  let petSvgSeq=0;
   function petSVG(k,look=null){
-    const color=PET_COLORS.find(c=>c[0]===look?.color)||PET_COLORS[0],pattern=PET_PATTERNS.find(x=>x[0]===look?.pattern)||PET_PATTERNS[0];
-    let extra='';
-    if(pattern[2]){const id=`pd${++petSvgSeq}`,shape=PET_ART[k].replace(/<ellipse[^>]*opacity="\.\d+"[^>]*\/>/,'');
-      extra=`<defs><filter id="${id}w"><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/></filter><mask id="${id}m" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><g filter="url(#${id}w)">${shape}</g></mask><pattern id="${id}p" width="20" height="20" patternUnits="userSpaceOnUse">${pattern[2]}</pattern></defs><rect width="100" height="100" fill="url(#${id}p)" mask="url(#${id}m)" opacity=".42" pointer-events="none"/>`;}
-    return `<svg viewBox="0 0 100 100" aria-hidden="true"${color[2]?` style="filter:${color[2]}"`:''}>${PET_ART[k]}${extra}</svg>`;
+    const color=PET_COLORS.find(c=>c[0]===look?.color)||PET_COLORS[0];
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"${color[2]?` style="filter:${color[2]}"`:''}>${PET_ART[k]}</svg>`;
   }
-  const petLook=k=>{const p=profile.garden.pets?.[k];return profile.garden.dexDone&&p?.owned?{color:p.color,pattern:p.pattern}:null;};
+  const petLook=k=>{const p=profile.garden.pets?.[k];return profile.garden.dexDone&&p?.owned?{color:p.color}:null;};
   function petsOf(){const g=profile.garden;if(!g.pets||typeof g.pets!=='object')g.pets={};
-    for(const k of PET_KEYS){const p=g.pets[k];if(p&&typeof p==='object'){p.owned=p.owned===true;p.name=typeof p.name==='string'&&p.name.trim()?p.name.trim().slice(0,8):PET_INFO[k].nick;p.love=Math.max(0,Math.min(100,Number(p.love)||0));p.pats=Number(p.pats)||0;p.patDay=typeof p.patDay==='string'?p.patDay:'';p.day=typeof p.day==='string'?p.day:'';p.since=Number(p.since)||Date.now();p.color=PET_COLORS.some(c=>c[0]===p.color)?p.color:'original';p.pattern=PET_PATTERNS.some(c=>c[0]===p.pattern)?p.pattern:'none';}}
+    for(const k of PET_KEYS){const p=g.pets[k];if(p&&typeof p==='object'){p.owned=p.owned===true;p.name=typeof p.name==='string'&&p.name.trim()?p.name.trim().slice(0,8):PET_INFO[k].nick;p.love=Math.max(0,Math.min(100,Number(p.love)||0));p.pats=Number(p.pats)||0;p.patDay=typeof p.patDay==='string'?p.patDay:'';p.day=typeof p.day==='string'?p.day:'';p.since=Number(p.since)||Date.now();p.color=PET_COLORS.some(c=>c[0]===p.color)?p.color:'original';}}
     return g.pets;}
   const ownedPets=()=>PET_KEYS.filter(k=>petsOf()[k]?.owned);
   const petHearts=k=>Math.min(5,1+Math.floor((petsOf()[k]?.love||0)/20));
@@ -3836,17 +3827,17 @@
 
   // ---- 펫 도감 ----
   function checkDexComplete(){const g=profile.garden;if(ownedPets().length===PET_KEYS.length&&!g.dexDone){g.dexDone=true;PET_KEYS.forEach(refreshPetArt);g.coins=Math.min(9999999,g.coins+100);save();renderCare();
-    setTimeout(()=>friendSay('森林朋友都到齐了！','펫 도감 완성! 칭호 ‘숲 친구 수집가’, 보너스 100코인, 그리고 🎨 펫 색깔·무늬 꾸미기가 열렸어! 펫 도감에서 꾸며 봐 🏅'),1500);}}
-  // 도감을 완성하면 펫마다 색깔·무늬를 고를 수 있어요. 완성 전에는 잠금 안내만 보여요.
+    setTimeout(()=>friendSay('森林朋友都到齐了！','펫 도감 완성! 칭호 ‘숲 친구 수집가’, 보너스 100코인, 그리고 🎨 펫 색깔 바꾸기가 열렸어! 펫 도감에서 바꿔 봐 🏅'),1500);}}
+  // 도감을 완성하면 펫마다 색깔을 고를 수 있어요. 완성 전에는 잠금 안내만 보여요.
   function petStyler(k){
     const box=document.createElement('div');box.className='dex-style';
-    if(!profile.garden.dexDone){box.innerHTML='<p class="dex-style-lock">🔒 모든 펫을 만나면 🎨 색깔·무늬 꾸미기가 열려요</p>';return box;}
+    if(!profile.garden.dexDone){box.innerHTML='<p class="dex-style-lock">🔒 모든 펫을 만나면 🎨 색깔 바꾸기가 열려요</p>';return box;}
     const p=petsOf()[k];
     const row=(label,list,field)=>{const r=document.createElement('div');r.className='dex-style-row';const t=document.createElement('span');t.textContent=label;r.append(t);
       for(const [id,name] of list){const b=document.createElement('button');b.type='button';b.className='dex-chip';b.textContent=name;b.setAttribute('aria-pressed',String(p[field]===id));
         b.onclick=()=>{p[field]=id;save();refreshPetArt(k);openPetDex();forestAudio.effect('dress');};r.append(b);}
       return r;};
-    box.append(row('🎨 색깔',PET_COLORS,'color'),row('✨ 무늬',PET_PATTERNS,'pattern'));return box;
+    box.append(row('🎨 색깔',PET_COLORS,'color'));return box;
   }
   function refreshPetArt(k){const body=petEls[k]?.querySelector('.pet-body');if(body)body.innerHTML=petSVG(k,petLook(k));}
   function openPetDex(){
