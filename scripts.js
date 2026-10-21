@@ -27,6 +27,12 @@
     thrift:{name:'알뜰 비료',price:20,boost:0,xpRate:.5,coins:3,uses:10},
     gold:{name:'황금 비료',price:30,boost:0,xpRate:0,coins:5,uses:10}
   });
+  const fertSlot=kind=>FERTILIZERS[kind].coins?'coinActive':'active';
+  const fertSlotName=kind=>FERTILIZERS[kind].coins?'코인 비료':'양분 비료';
+  const activeFerts=g=>[g.active,g.coinActive].filter(Boolean);
+  // 두 칸의 효과를 합쳐요: 양분 +boost는 양분 비료, 양분 비율·추가 코인은 코인 비료에서 와요.
+  const fertEffect=g=>{const xp=g.active&&FERTILIZERS[g.active.kind],co=g.coinActive&&FERTILIZERS[g.coinActive.kind];return {boost:xp?.boost||0,rate:co?.xpRate??1,coins:co?.coins||0};};
+  const fertText=a=>{const f=FERTILIZERS[a.kind];return `${f.name} ${f.coins?(f.xpRate?'양분 절반 · 코인 +'+f.coins:'양분 대신 코인 +'+f.coins):'기본 정답 +'+f.boost+' 양분'} · ${a.remaining}회 남음`;};
   // 돌봄 도구 내구성: 날씨(비·찬바람·무더위·벌레) 한 번에 1회씩 닳아요.
   const GEAR_USES=Object.freeze({umbrella:2,fan:3,heater:3,ladybug:3,lantern:8,parasol:7,fence:6,sprinkler:6});
   const WORLD_RULES=Object.freeze({sprayPrice:10,umbrellaPrice:30,bugMs:90000,rainMs:120000,minGapMs:120000,maxGapMs:240000});
@@ -1188,8 +1194,11 @@
       pets:raw?.pets&&typeof raw.pets==='object'&&!Array.isArray(raw.pets)?raw.pets:{},dexDone:raw?.dexDone===true,tank:integer(raw?.tank,3),tankCap:integer(raw?.tankCap,3),moist:raw?.moist===true,coinWaterDay:typeof raw?.coinWaterDay==='string'?raw.coinWaterDay:'',
       canFull:raw?.canFull===true,can:Number.isFinite(raw?.can)?Math.min(1,Math.max(0,raw.can)):0,retry:Array.isArray(raw?.retry)?raw.retry.filter(x=>typeof x==='string').slice(0,80):[],
       neglectLoss:integer(raw?.neglectLoss,integer(raw?.penaltySteps,GARDEN_RULES.maxPenaltySteps)*GARDEN_RULES.penaltyXP),
-      active:active&&Object.hasOwn(FERTILIZERS,active.kind)&&Number.isInteger(active.remaining)&&active.remaining>0
-        ?{kind:active.kind,remaining:Math.min(active.remaining,FERTILIZERS[active.kind].uses)}:null};
+      // 비료는 종류별로 1칸씩 동시에 써요: active = 양분 비료 칸, coinActive = 코인 비료 칸.
+      // (예전 기록에서 코인 비료가 active에 있으면 코인 칸으로 옮겨요.)
+      ...(()=>{const ok=a=>a&&Object.hasOwn(FERTILIZERS,a.kind)&&Number.isInteger(a.remaining)&&a.remaining>0?{kind:a.kind,remaining:Math.min(a.remaining,FERTILIZERS[a.kind].uses)}:null;
+        const a=ok(active),c=ok(raw?.coinActive);
+        return {active:a&&!FERTILIZERS[a.kind].coins?a:null,coinActive:c&&FERTILIZERS[c.kind].coins?c:a&&FERTILIZERS[a.kind].coins?a:null};})()};
   }
   // Settle each dry-day step once, including steps protected by a level floor.
   // Missing garden data starts today: older saves never receive retroactive loss.
@@ -1264,9 +1273,8 @@
     $('waterPlant').querySelector('span').innerHTML=full?'물주기!<small>물뿌리개가 가득 찼어요</small>':retry?`틀린 문제 다시 풀기<small>${retry}개를 꼭 다시 풀어요</small>`:'물 모으는 중<small>한 판을 모두 맞히면 가득</small>';
     $('waterPlant').setAttribute('aria-label',full?'물뿌리개가 가득 찼어요. 친구에게 물 주기':retry?`틀린 단어 ${retry}개를 다시 풀어 물뿌리개 채우기`:'물뿌리개가 비어 있어요. 한 판을 모두 맞히면 가득 차요');
     renderStartCard();
-    const active=g.active,remaining=active?.remaining||0;
-    // 비료 안내는 캐릭터가 말로 알려 줘요. 비료를 쓰는 중일 때만 남은 횟수를 짧게 보여 줘요.
-    $('fertilizerState').textContent=active?`${FERTILIZERS[active.kind].name} 사용 중 · ${FERTILIZERS[active.kind].coins?(FERTILIZERS[active.kind].xpRate?'양분 절반 · 코인 +'+FERTILIZERS[active.kind].coins:'양분 대신 코인 +'+FERTILIZERS[active.kind].coins):'기본 정답 +'+FERTILIZERS[active.kind].boost+' 양분'} · ${remaining}회 남음`:'';
+    // 비료 안내는 캐릭터가 말로 알려 줘요. 비료를 쓰는 중일 때만 남은 횟수를 짧게 보여 줘요. (두 칸이면 두 줄)
+    $('fertilizerState').textContent=activeFerts(g).map(a=>fertText(a)).join('\n');$('fertilizerState').style.whiteSpace='pre-line';
     $('waterHelp').textContent=hours>=48
       ?`이번 물 부족 차감 ${g.neglectLoss} / 20 양분 · 물을 주면 다시 촉촉해져요.`
       :`물 부족 차감까지 약 ${Math.max(1,Math.ceil(48-hours))}시간 · 물주기는 무료예요.`;
@@ -1302,14 +1310,15 @@
     renderSupplies();
     $('shopForest').textContent=FORESTS[activeForest].name+'의 작은 상점';
     $('shopCoins').textContent=g.coins.toLocaleString()+' 코인';
-    $('shopActive').textContent=g.active?`${FERTILIZERS[g.active.kind].name} 사용 중 · ${g.active.remaining}회 남음`:'구입한 아이템은 로비의 바구니에서 사용할 수 있어요.';
+    $('shopActive').textContent=activeFerts(g).length?activeFerts(g).map(a=>`${FERTILIZERS[a.kind].name} ${a.remaining}회 남음`).join(' · ')+' · 양분 비료 1개 + 코인 비료 1개까지 함께 쓸 수 있어요':'구입한 아이템은 로비의 바구니에서 사용할 수 있어요. 양분 비료 1개와 코인 비료 1개는 함께 쓸 수 있어요.';
     for(const [kind,item] of Object.entries(FERTILIZERS)){
       const buy=document.querySelector(`[data-buy="${kind}"]`),use=document.querySelector(`[data-feed="${kind}"]`);
       $(kind+'Stock').textContent=`보관함 ${g.inventory[kind]}개`;
       buy.disabled=gardenBusy()||g.coins<item.price||g.inventory[kind]>=999;
-      use.disabled=gardenBusy()||g.inventory[kind]<1;
-      use.textContent=g.active?'비료 사용 중':'식물에게 주기';
-      $(kind+'Hint').textContent=g.active?'지금 비료를 다 쓰면 다음 비료를 줄 수 있어요.':g.inventory[kind]>0?'오답·보너스에서는 횟수가 줄지 않아요.':g.coins<item.price?`${item.price-g.coins}코인을 더 모으면 살 수 있어요.`:'구입한 비료는 보관함에 저장돼요.';
+      const slotBusy=g[fertSlot(kind)];
+      use.disabled=gardenBusy()||g.inventory[kind]<1||Boolean(slotBusy);
+      use.textContent=slotBusy?`${fertSlotName(kind)} 사용 중`:'식물에게 주기';
+      $(kind+'Hint').textContent=slotBusy?`지금 ${fertSlotName(kind)}(${FERTILIZERS[slotBusy.kind].name})를 다 쓰면 줄 수 있어요. ${FERTILIZERS[kind].coins?'양분':'코인'} 비료는 함께 쓸 수 있어요.`:g.inventory[kind]>0?'오답·보너스에서는 횟수가 줄지 않아요.':g.coins<item.price?`${item.price-g.coins}코인을 더 모으면 살 수 있어요.`:'구입한 비료는 보관함에 저장돼요.';
     }
   }
   function renderSupplies(){
@@ -1337,8 +1346,8 @@
     if(gardenBusy()||!Object.hasOwn(FERTILIZERS,kind))return false;
     const g=profile.garden,item=FERTILIZERS[kind];
     if(g.inventory[kind]<1)return false;
-    if(g.active)return playfulReaction('puzzled');
-    g.inventory[kind]--;g.active={kind,remaining:item.uses};
+    if(g[fertSlot(kind)])return playfulReaction('puzzled');
+    g.inventory[kind]--;g[fertSlot(kind)]={kind,remaining:item.uses};
     save();renderCare();renderShop();forestAudio.effect('dress');
     const effect=item.coins?(item.xpRate?`양분 절반 · 코인 +${item.coins}`:`양분 대신 코인 +${item.coins}`):`+${item.boost} 양분`;
     $('shopMessage').textContent=`${item.name}를 주었어요! 다음 기본 정답 ${item.uses}회에 ${effect}`;
@@ -1354,9 +1363,9 @@
     const g=profile.garden,rc=state.easy?EASY_RULES:GARDEN_RULES,earned=bonus?rc.bonusCoins:rc.baseCoins;
     const coins=Math.min(earned,9999999-g.coins);g.coins+=coins;
     let boost=0,rate=1,extra=0;
-    if(!bonus&&g.active){
-      const f=FERTILIZERS[g.active.kind];boost=f.boost;rate=f.xpRate??1;extra=Math.min(f.coins||0,9999999-g.coins);g.coins+=extra;
-      if(--g.active.remaining===0)g.active=null;
+    if(!bonus&&activeFerts(g).length){
+      const f=fertEffect(g);boost=f.boost;rate=f.rate;extra=Math.min(f.coins,9999999-g.coins);g.coins+=extra;
+      for(const slot of ['active','coinActive'])if(g[slot]&&--g[slot].remaining===0)g[slot]=null;
     }
     return {coins:coins+extra,boost,rate,extra};
   }
@@ -2015,9 +2024,9 @@
     $('questionNumber').textContent=`${state.index+1} / ${state.queue.length} 단어`;
     $('roundProgress').max=state.queue.length;$('roundProgress').value=state.index;
     $('sessionXp').textContent=state.mode==='practice'?'양분·코인 없음':`${state.netXP>=0?'+':''}${state.netXP} 양분 · ${state.earnedCoins} 코인`;
-    const fertilizerBoost=state.mode==='main'&&profile.garden.active?FERTILIZERS[profile.garden.active.kind].boost:0;
+    const fertNow=fertEffect(profile.garden),fertilizerBoost=state.mode==='main'?fertNow.boost:0;
     const reviewing=!bonus&&memoryOf(word)&&(state.kind==='due'||isDue(memoryOf(word)));
-    $('questionKind').textContent=word.isPhrase?'↺ 짝꿍어휘 복습':bonus?`✦ 짝꿍어휘 보너스 · +${state.easy?EASY_RULES.bonusXP:RULES.bonusXP} 양분`:(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?(()=>{const f=profile.garden.active&&FERTILIZERS[profile.garden.active.kind],b=Math.floor((state.easy?EASY_RULES.baseXP:RULES.baseXP)*(state.ginseng?2:1)*(f?.xpRate??1))+(state.moist?1:0);return `+${b} 양분${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}${f?.coins?` · 코인 +${f.coins}`:''}`;})():'천천히 풀어요');
+    $('questionKind').textContent=word.isPhrase?'↺ 짝꿍어휘 복습':bonus?`✦ 짝꿍어휘 보너스 · +${state.easy?EASY_RULES.bonusXP:RULES.bonusXP} 양분`:(reviewing?'↺ 복습 단어 · ':memoryOf(word)?'기본 단어 · ':'✦ 새 단어 · ')+(state.mode==='main'?(()=>{const b=Math.floor((state.easy?EASY_RULES.baseXP:RULES.baseXP)*(state.ginseng?2:1)*fertNow.rate)+(state.moist?1:0);return `+${b} 양분${fertilizerBoost?` + 비료 ${fertilizerBoost}`:''}${fertNow.coins?` · 코인 +${fertNow.coins}`:''}`;})():'천천히 풀어요');
     $('questionInstruction').textContent=phraseQ?(state.directionNow==='zh-ko'?'이 짝꿍 표현의 뜻을 골라 주세요.':'이 뜻에 맞는 짝꿍 표현을 골라 주세요.'):state.directionNow==='zh-ko'?'이 단어의 뜻은 무엇일까요?':'이 뜻에 맞는 한자를 골라 주세요.';
     $('questionText').replaceChildren();
     if(state.directionNow==='zh-ko')$('questionText').append(pinyinToggle(e.hanzi,e.pinyin,'promptPinyin'));else $('questionText').textContent=e.meaning;
@@ -2633,7 +2642,7 @@
       '코인으로 상점에서 비료와 돌봄 도구를 사고, 바구니에서 사용해요. 햇살·든든·반짝 비료는 양분을, 알뜰·황금 비료는 코인을 더 모아 줘요.',
       '비·찬바람·더위·벌레가 오면 친구가 도움을 요청해요. 우산·난로·부채·감기약·살충제로 돌봐 주세요. 그냥 두면 양분이 조금 줄어요.',
       '돌봄 도구에는 내구도 막대가 있어요. 날씨를 한 번 막을 때마다 한 칸씩 줄고, 다 닳으면 친구가 알려 줘요. 날씨가 끝나면 우산·난로는 알아서 정리돼요. 고급 도구는 날씨가 오면 알아서 작동해요. 도구는 한 번만 사고, 다 닳으면 상점에서 싸게 수리해요(무당벌레 친구는 다시 사요). 도라지는 감기를 낫게 하고 한동안 막아 주고, 산삼은 다음 한 판의 정답 양분을 2배로 해 줘요.',
-      '🐾 상점에서 펫(두더지·개구리·장수풍뎅이·나비·아기 판다·고슴도치·다람쥐)을 500코인에 데려와요. 펫마다 능력이 있고, 쓰다듬고 함께 공부하면 친밀도 하트가 쌓여요. 펫 도감에서 이름을 지어 줘요.',
+      '🐾 상점에서 펫(두더지·개구리·장수풍뎅이·나비·아기 판다·고슴도치·다람쥐)을 500코인에 데려와요. 펫마다 능력이 있고, 쓰다듬고 함께 공부하면 친밀도 하트가 쌓여요. 펫 도감에서 이름을 지어 주고, 모든 펫을 만나면 색깔·무늬도 꾸밀 수 있어요.',
       '기록은 이 브라우저에 저장돼요. 기기를 바꿀 때는 설정 › 기록 옮기기를 써요.'],
     ['믿고 공부할 수 있는 HSK 단어예요 🌱',
       '게임 속 HSK 단어와 급수는 중국 교육부 산하 중외언어교류협력센터(中外语言交流合作中心)의 《HSK考试大纲(HSK 시험대강)》 어휘 목록을 기준으로 했어요.',
@@ -3587,9 +3596,24 @@
     squirrel:[[['我在你旁边埋了橡子，别告诉别人！','네 옆에 도토리 묻었어, 비밀이야!','tease'],['哈哈，好，我保密！','하하, 알았어, 비밀!']],[['今天背了几个单词？','오늘 단어 몇 개 외웠어?','serious'],['十个！加油！','열 개! 아자!']]]
   };
   const petToday=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;};
-  const petSVG=k=>`<svg viewBox="0 0 100 100" aria-hidden="true">${PET_ART[k]}</svg>`;
+  // 펫 꾸미기(도감 완성 보상): 색깔은 svg 전체에 필터, 무늬는 펫 모양 안에만 겹쳐 그려요.
+  const PET_COLORS=[['original','원래 색',''],['berry','딸기','sepia(.55) saturate(2.4) hue-rotate(295deg)'],['sky','하늘','sepia(.55) saturate(2.2) hue-rotate(160deg)'],['mint','민트','sepia(.55) saturate(2) hue-rotate(95deg)'],['lavender','라벤더','sepia(.5) saturate(1.9) hue-rotate(225deg)'],['gold','황금','sepia(.85) saturate(2.6) hue-rotate(-12deg) brightness(1.05)'],['snow','눈꽃','grayscale(1) brightness(1.22) contrast(.92)']];
+  const PET_PATTERNS=[['none','없음',''],
+    ['dots','물방울','<circle cx="5" cy="5" r="2.6" fill="#ffffff"/><circle cx="15" cy="15" r="2.6" fill="#ffffff"/>'],
+    ['stripes','줄무늬','<path d="M-5 5L5 -5M0 20L20 0M15 25L25 15" stroke="#3a3a3a" stroke-width="3.2"/>'],
+    ['stars','별','<path d="M10 3l2 4.4 4.8.5-3.6 3.2 1 4.7L10 13.4 5.8 15.8l1-4.7L3.2 7.9 8 7.4Z" fill="#ffe27a" stroke="#c9a23a" stroke-width=".6"/>'],
+    ['hearts','하트','<path d="M10 15.5C4 11 3.5 7.8 5.6 6.2c1.8-1.3 3.6-.3 4.4 1.2.8-1.5 2.6-2.5 4.4-1.2 2.1 1.6 1.6 4.8-4.4 9.3Z" fill="#ff8fb1"/>']];
+  let petSvgSeq=0;
+  function petSVG(k,look=null){
+    const color=PET_COLORS.find(c=>c[0]===look?.color)||PET_COLORS[0],pattern=PET_PATTERNS.find(x=>x[0]===look?.pattern)||PET_PATTERNS[0];
+    let extra='';
+    if(pattern[2]){const id=`pd${++petSvgSeq}`,shape=PET_ART[k].replace(/<ellipse[^>]*opacity="\.\d+"[^>]*\/>/,'');
+      extra=`<defs><filter id="${id}w"><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/></filter><mask id="${id}m" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><g filter="url(#${id}w)">${shape}</g></mask><pattern id="${id}p" width="20" height="20" patternUnits="userSpaceOnUse">${pattern[2]}</pattern></defs><rect width="100" height="100" fill="url(#${id}p)" mask="url(#${id}m)" opacity=".42" pointer-events="none"/>`;}
+    return `<svg viewBox="0 0 100 100" aria-hidden="true"${color[2]?` style="filter:${color[2]}"`:''}>${PET_ART[k]}${extra}</svg>`;
+  }
+  const petLook=k=>{const p=profile.garden.pets?.[k];return profile.garden.dexDone&&p?.owned?{color:p.color,pattern:p.pattern}:null;};
   function petsOf(){const g=profile.garden;if(!g.pets||typeof g.pets!=='object')g.pets={};
-    for(const k of PET_KEYS){const p=g.pets[k];if(p&&typeof p==='object'){p.owned=p.owned===true;p.name=typeof p.name==='string'&&p.name.trim()?p.name.trim().slice(0,8):PET_INFO[k].nick;p.love=Math.max(0,Math.min(100,Number(p.love)||0));p.pats=Number(p.pats)||0;p.patDay=typeof p.patDay==='string'?p.patDay:'';p.day=typeof p.day==='string'?p.day:'';p.since=Number(p.since)||Date.now();}}
+    for(const k of PET_KEYS){const p=g.pets[k];if(p&&typeof p==='object'){p.owned=p.owned===true;p.name=typeof p.name==='string'&&p.name.trim()?p.name.trim().slice(0,8):PET_INFO[k].nick;p.love=Math.max(0,Math.min(100,Number(p.love)||0));p.pats=Number(p.pats)||0;p.patDay=typeof p.patDay==='string'?p.patDay:'';p.day=typeof p.day==='string'?p.day:'';p.since=Number(p.since)||Date.now();p.color=PET_COLORS.some(c=>c[0]===p.color)?p.color:'original';p.pattern=PET_PATTERNS.some(c=>c[0]===p.pattern)?p.pattern:'none';}}
     return g.pets;}
   const ownedPets=()=>PET_KEYS.filter(k=>petsOf()[k]?.owned);
   const petHearts=k=>Math.min(5,1+Math.floor((petsOf()[k]?.love||0)/20));
@@ -3621,7 +3645,7 @@
       if(!own.includes(k)){petEls[k]?.remove();delete petEls[k];continue;}
       if(petEls[k])continue;
       const el=document.createElement('button');el.type='button';el.className=`garden-pet pet-${k}`;el.dataset.pet=k;
-      el.innerHTML=`<span class="pet-body">${petSVG(k)}</span>`;el.setAttribute('aria-label',`${petsOf()[k].name} 쓰다듬기`);
+      el.innerHTML=`<span class="pet-body">${petSVG(k,petLook(k))}</span>`;el.setAttribute('aria-label',`${petsOf()[k].name} 쓰다듬기`);
       el.style.left=(8+Math.random()*55)+'%';if(k==='butterfly')el.style.top=(18+Math.random()*30)+'%';
       el.addEventListener('click',e=>{e.stopPropagation();patPet(k);});
       layer.append(el);petEls[k]=el;if(k==='mole')el.classList.add('underground');
@@ -3804,17 +3828,30 @@
   {const _rs=renderSupplies;renderSupplies=function(){_rs();renderPetShop();};}
 
   // ---- 펫 도감 ----
-  function checkDexComplete(){const g=profile.garden;if(ownedPets().length===PET_KEYS.length&&!g.dexDone){g.dexDone=true;g.coins=Math.min(9999999,g.coins+100);save();renderCare();
-    setTimeout(()=>friendSay('森林朋友都到齐了！','펫 도감 완성! 칭호 ‘숲 친구 수집가’와 보너스 100코인을 받았어! 🏅'),1500);}}
+  function checkDexComplete(){const g=profile.garden;if(ownedPets().length===PET_KEYS.length&&!g.dexDone){g.dexDone=true;PET_KEYS.forEach(refreshPetArt);g.coins=Math.min(9999999,g.coins+100);save();renderCare();
+    setTimeout(()=>friendSay('森林朋友都到齐了！','펫 도감 완성! 칭호 ‘숲 친구 수집가’, 보너스 100코인, 그리고 🎨 펫 색깔·무늬 꾸미기가 열렸어! 펫 도감에서 꾸며 봐 🏅'),1500);}}
+  // 도감을 완성하면 펫마다 색깔·무늬를 고를 수 있어요. 완성 전에는 잠금 안내만 보여요.
+  function petStyler(k){
+    const box=document.createElement('div');box.className='dex-style';
+    if(!profile.garden.dexDone){box.innerHTML='<p class="dex-style-lock">🔒 모든 펫을 만나면 🎨 색깔·무늬 꾸미기가 열려요</p>';return box;}
+    const p=petsOf()[k];
+    const row=(label,list,field)=>{const r=document.createElement('div');r.className='dex-style-row';const t=document.createElement('span');t.textContent=label;r.append(t);
+      for(const [id,name] of list){const b=document.createElement('button');b.type='button';b.className='dex-chip';b.textContent=name;b.setAttribute('aria-pressed',String(p[field]===id));
+        b.onclick=()=>{p[field]=id;save();refreshPetArt(k);openPetDex();forestAudio.effect('dress');};r.append(b);}
+      return r;};
+    box.append(row('🎨 색깔',PET_COLORS,'color'),row('✨ 무늬',PET_PATTERNS,'pattern'));return box;
+  }
+  function refreshPetArt(k){const body=petEls[k]?.querySelector('.pet-body');if(body)body.innerHTML=petSVG(k,petLook(k));}
   function openPetDex(){
-    const d=$('petDexDialog'),list=$('petDexList'),p=petsOf();list.replaceChildren();
+    const d=$('petDexDialog'),list=$('petDexList'),p=petsOf(),keepScroll=d.open?d.scrollTop:0;list.replaceChildren();
     for(const k of PET_KEYS){const it=PET_INFO[k],own=p[k]?.owned,card=document.createElement('section');card.className='dex-card'+(own?'':' dex-locked');
       const days=own?Math.max(1,Math.ceil((Date.now()-p[k].since)/86400000)):0;
-      card.innerHTML=`<div class="dex-art">${petSVG(k)}</div><div class="dex-info"><h3>${own?'':'❔ '}${it.name} <small lang="zh-CN">${it.zh} ${it.py}</small></h3>${own?`<p class="dex-name"><b>‘${p[k].name}’</b> <button type="button" class="dex-rename">✏️ 이름 짓기</button></p><p class="dex-hearts" aria-label="친밀도 하트 ${petHearts(k)}개">${heartText(k)} <small>${petHearts(k)>=5?'단짝!':`다음 하트까지 ${20-p[k].love%20}`}</small></p><p class="tiny">함께한 지 ${days}일 · 쓰다듬은 횟수 ${p[k].patTotal||0}번</p>`:'<p class="tiny">상점 › 🐾 펫에서 500코인에 만날 수 있어요.</p>'}<p class="dex-ability">${it.ability}</p></div>`;
+      card.innerHTML=`<div class="dex-art">${petSVG(k,petLook(k))}</div><div class="dex-info"><h3>${own?'':'❔ '}${it.name} <small lang="zh-CN">${it.zh} ${it.py}</small></h3>${own?`<p class="dex-name"><b>‘${p[k].name}’</b> <button type="button" class="dex-rename">✏️ 이름 짓기</button></p><p class="dex-hearts" aria-label="친밀도 하트 ${petHearts(k)}개">${heartText(k)} <small>${petHearts(k)>=5?'단짝!':`다음 하트까지 ${20-p[k].love%20}`}</small></p><p class="tiny">함께한 지 ${days}일 · 쓰다듬은 횟수 ${p[k].patTotal||0}번</p>`:'<p class="tiny">상점 › 🐾 펫에서 500코인에 만날 수 있어요.</p>'}<p class="dex-ability">${it.ability}</p></div>`;
+      if(own)card.querySelector('.dex-info').append(petStyler(k));
       if(own)card.querySelector('.dex-rename').onclick=()=>{const name=(prompt(`${it.name}의 새 이름 (8자까지)`,p[k].name)||'').trim().slice(0,8);if(name){p[k].name=name;save();openPetDex();renderPetShop();petSay(k,['我喜欢这个名字！',`‘${name}’! 마음에 들어!`]);}};
       list.append(card);}
     const n=ownedPets().length;$('petDexCount').textContent=`${n} / ${PET_KEYS.length} 만남`+(profile.garden.dexDone?' · 🏅 숲 친구 수집가':'');
-    if(!d.open){if($('gardenShop').open)$('gardenShop').close();d.showModal();}
+    if(!d.open){if($('gardenShop').open)$('gardenShop').close();d.showModal();}else d.scrollTop=keepScroll;
   }
   $('petDexClose').onclick=()=>$('petDexDialog').close();
   installPetShop();
